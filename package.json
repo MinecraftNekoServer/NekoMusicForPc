@@ -1,0 +1,82 @@
+{
+  "name": "NekoMusic",
+  "version": "2026.202.3",
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "description": "Neko云音乐。完全免费的音乐平台！",
+  "author": "Fantasy Network「梦幻网络」<support@cnmsb.xin>",
+  "homepage": "https://music.cnmsb.xin",
+  "scripts": {
+    "dev": "npm run electron:dev",
+    "build": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder",
+    "build:dir": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder --dir",
+    "build:win": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder --win",
+    "build:mac": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --mac",
+    "build:linux": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --linux",
+    "build:all": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder -wl",
+    "preview": "vite preview",
+    "electron:dev": "vite && electron ."
+  },
+  "dependencies": {
+    "vue": "^3.5.27",
+    "vue-router": "^5.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.3",
+    "electron": "^40.1.0",
+    "electron-builder": "^26.4.0",
+    "electron-media-service": "^0.2.2",
+    "vite": "^7.3.1",
+    "vite-plugin-electron": "^0.29.0",
+    "vite-plugin-electron-renderer": "^0.14.6",
+    "vite-plugin-vue-devtools": "^8.0.5"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "build": {
+    "appId": "com.neko.music",
+    "productName": "Neko云音乐",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "electron/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "public/icon.png"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "public/icon.png",
+      "category": "public.app-category.music",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "icon": "public/icon.png",
+      "category": "Audio",
+      "description": "Neko云音乐 - 一款简洁优雅的音乐播放器"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

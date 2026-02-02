@@ -1,0 +1,583 @@
+/* 现代风格全局样式 - NekoMusic */
+:root {
+  /* 渐变配色方案 */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --gradient-warm: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --gradient-cool: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  
+  /* 主题颜色 */
+  --primary: #667eea;
+  --primary-light: #8b92f2;
+  --primary-dark: #4a5ac2;
+  --secondary: #764ba2;
+  --accent: #f093fb;
+  
+  /* 背景颜色 */
+  --bg-sidebar: linear-gradient(180deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 35, 0.98) 100%);
+  --bg-main: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  
+  /* 文字颜色 */
+  --text-primary: #2d3748;
+  --text-secondary: #718096;
+  --text-muted: #a0aec0;
+  --text-white: #ffffff;
+  --text-white-muted: rgba(255, 255, 255, 0.7);
+  
+  /* 边框和阴影 */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.2);
+  
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* 过渡动画 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+  
+  /* 响应式断点 */
+  --screen-xs: 320px;
+  --screen-sm: 640px;
+  --screen-md: 768px;
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  --screen-2xl: 1536px;
+  --screen-3xl: 1920px;
+  --screen-4k: 2560px;
+  
+  /* 动态布局尺寸 */
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 64px;
+  --player-bar-height: 72px;
+  --title-bar-height: 48px;
+  --content-padding: 24px;
+  
+  /* 字体大小 */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 32px;
+  --font-size-4xl: 40px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 
+               'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  background: var(--bg-main);
+  color: var(--text-primary);
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
+  background: var(--bg-main);
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 毛玻璃效果 */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(30, 30, 50, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 渐变文字 */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 动画关键帧 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 动画类 */
+.animate-fade-in {
+  animation: fadeIn var(--transition-slow) ease;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-slow) ease;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--transition-slow) ease;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 卡片样式 */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* 按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+}
+
+.btn-secondary:hover {
+  background: #f8f9fa;
+  border-color: var(--primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--primary);
+}
+
+/* 加载动画 */
+.loading-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* 徽章样式 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.badge-secondary {
+  background: var(--gradient-secondary);
+  color: white;
+}
+
+.badge-accent {
+  background: var(--gradient-accent);
+  color: white;
+}
+
+/* 工具类 */
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.rounded-full {
+  border-radius: var(--radius-full);
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ========================================
+   全分辨率适配样式
+   ======================================== */
+
+/* 基础响应式容器 */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--content-padding);
+}
+
+/* 小屏幕适配 (< 640px) */
+@media screen and (max-width: 639px) {
+  :root {
+    --sidebar-width: 0px;
+    --player-bar-height: 64px;
+    --title-bar-height: 44px;
+    --content-padding: 16px;
+    --font-size-base: 13px;
+    --font-size-md: 15px;
+    --font-size-lg: 17px;
+  }
+  
+  body {
+    font-size: 13px;
+  }
+  
+  #app {
+    overflow-x: hidden;
+  }
+}
+
+/* 中等屏幕适配 (640px - 1023px) */
+@media screen and (min-width: 640px) and (max-width: 1023px) {
+  :root {
+    --sidebar-width: 200px;
+    --player-bar-height: 68px;
+    --title-bar-height: 46px;
+    --content-padding: 20px;
+  }
+}
+
+/* 大屏幕适配 (1024px - 1279px) */
+@media screen and (min-width: 1024px) and (max-width: 1279px) {
+  :root {
+    --sidebar-width: 220px;
+    --player-bar-height: 70px;
+    --content-padding: 24px;
+  }
+}
+
+/* 超大屏幕适配 (1280px - 1535px) - 标准设计尺寸 */
+@media screen and (min-width: 1280px) and (max-width: 1535px) {
+  :root {
+    --sidebar-width: 240px;
+    --player-bar-height: 72px;
+    --content-padding: 24px;
+  }
+}
+
+/* 2K屏幕适配 (1536px - 1919px) */
+@media screen and (min-width: 1536px) and (max-width: 1919px) {
+  :root {
+    --sidebar-width: 260px;
+    --player-bar-height: 80px;
+    --content-padding: 32px;
+    --font-size-base: 15px;
+    --font-size-md: 17px;
+    --font-size-lg: 19px;
+  }
+}
+
+/* 3K屏幕适配 (1920px - 2559px) - 1080p/1440p标准 */
+@media screen and (min-width: 1920px) and (max-width: 2559px) {
+  :root {
+    --sidebar-width: 280px;
+    --player-bar-height: 88px;
+    --content-padding: 40px;
+    --font-size-base: 16px;
+    --font-size-md: 18px;
+    --font-size-lg: 20px;
+    --font-size-xl: 22px;
+  }
+}
+
+/* 4K屏幕适配 (>= 2560px) */
+@media screen and (min-width: 2560px) {
+  :root {
+    --sidebar-width: 320px;
+    --player-bar-height: 100px;
+    --content-padding: 48px;
+    --font-size-base: 18px;
+    --font-size-md: 20px;
+    --font-size-lg: 22px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 28px;
+    --font-size-3xl: 36px;
+    --font-size-4xl: 44px;
+    
+    /* 增大圆角以适应大屏幕 */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+  }
+}
+
+/* 5K屏幕适配 (>= 5120px) */
+@media screen and (min-width: 5120px) {
+  :root {
+    --sidebar-width: 400px;
+    --player-bar-height: 120px;
+    --content-padding: 64px;
+    --font-size-base: 22px;
+    --font-size-md: 24px;
+    --font-size-lg: 28px;
+    --font-size-xl: 32px;
+    --font-size-2xl: 36px;
+    --font-size-3xl: 48px;
+    --font-size-4xl: 56px;
+    
+    --radius-sm: 16px;
+    --radius-md: 20px;
+    --radius-lg: 28px;
+    --radius-xl: 36px;
+  }
+}
+
+/* 高度适配 - 短屏幕 */
+@media screen and (max-height: 720px) {
+  :root {
+    --player-bar-height: 56px;
+    --title-bar-height: 40px;
+  }
+}
+
+/* 高度适配 - 超高屏幕 */
+@media screen and (min-height: 1440px) {
+  :root {
+    --player-bar-height: 96px;
+    --title-bar-height: 56px;
+  }
+}
+
+/* 极端比例适配 - 超宽屏 */
+@media screen and (min-width: 3840px) and (max-height: 1600px) {
+  :root {
+    --content-padding: 80px 64px;
+  }
+}
+
+/* 触摸设备适配 */
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --transition-fast: 0.3s ease;
+    --transition-normal: 0.4s ease;
+  }
+  
+  button, .btn, .action-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --border-light: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #e2e8f0;
+    --text-secondary: #a0aec0;
+    --text-muted: #718096;
+    --bg-main: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    --bg-card: rgba(45, 55, 72, 0.9);
+    --bg-glass: rgba(45, 55, 72, 0.7);
+    --border-light: rgba(255, 255, 255, 0.1);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* 打印样式 */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .layout-sidebar,
+  .player-bar,
+  .window-controls,
+  .toast-container {
+    display: none !important;
+  }
+}
