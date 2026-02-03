@@ -20,6 +20,10 @@
           <h1 class="playlist-name">{{ playlist.name }}</h1>
           <div class="playlist-description">{{ playlist.description || '暂无描述' }}</div>
           <div class="playlist-meta">
+            <div class="creator-info" v-if="playlist.creator">
+              <img :src="getAvatarUrl(playlist.creator.id)" alt="创建者头像" class="creator-avatar" @error="handleAvatarError" />
+              <span class="creator-name">{{ playlist.creator.username }}</span>
+            </div>
             <span class="playlist-count">{{ playlist.musicCount || musicList.length }} 首音乐</span>
           </div>
           <div class="playlist-actions">
@@ -302,6 +306,14 @@ const handleCoverError = (event) => {
 
 const getCoverUrl = (id) => {
   return `https://music.cnmsb.xin/api/music/cover/${id}`
+}
+
+const getAvatarUrl = (userId) => {
+  return `https://music.cnmsb.xin/api/user/avatar/${userId}`
+}
+
+const handleAvatarError = (event) => {
+  event.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="%23667eea"/><path d="M12 14c-6.1 0-8 4-8 4v2h16v-2s-1.9-4-8-4z" fill="%23764ba2"/></svg>'
 }
 
 const handleMusicCoverError = (event) => {
@@ -667,6 +679,29 @@ const handleCancel = () => {
   font-size: 13px;
   color: var(--text-muted);
   margin-bottom: 20px;
+  align-items: center;
+}
+
+.creator-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 16px;
+}
+
+.creator-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.creator-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .playlist-actions {
