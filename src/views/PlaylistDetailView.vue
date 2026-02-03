@@ -187,7 +187,7 @@ const currentUser = computed(() => {
   if (!token) return null
   
   try {
-    const userStr = localStorage.getItem('currentUser')
+    const userStr = localStorage.getItem('user')
     return userStr ? JSON.parse(userStr) : null
   } catch (e) {
     console.error('解析用户信息失败:', e)
