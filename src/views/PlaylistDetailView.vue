@@ -33,7 +33,12 @@
               </svg>
               播放全部
             </button>
-            <button class="action-btn collect" @click="toggleCollect" :class="{ collected: isCollected }">
+            <button 
+              v-if="!isOwner" 
+              class="action-btn collect" 
+              @click="toggleCollect" 
+              :class="{ collected: isCollected }"
+            >
               <svg viewBox="0 0 24 24" width="20" height="20">
                 <path :fill="isCollected ? '#ff4545' : 'currentColor'" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
               </svg>
@@ -221,6 +226,9 @@ const loadPlaylistDetail = async () => {
     if (detailData.success && detailData.playlist) {
       playlist.value = detailData.playlist
 
+      // 检查是否已收藏此歌单
+      await checkIfCollected(playlistId)
+
       // 获取歌单音乐列表
       const musicResponse = await apiRequest(`${apiConfig.PLAYLIST_MUSIC(playlistId)}?t=${timestamp}`)
       const musicData = await musicResponse.json()
@@ -243,6 +251,32 @@ const loadPlaylistDetail = async () => {
     musicList.value = []
   } finally {
     loading.value = false
+  }
+}
+
+// 检查歌单是否已收藏
+const checkIfCollected = async (playlistId) => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    isCollected.value = false
+    return
+  }
+
+  try {
+    const response = await apiRequest(`${apiConfig.FAVORITE_PLAYLISTS}?t=${Date.now()}`, {
+      method: 'GET',
+      headers: { 'Authorization': token }
+    })
+
+    const data = await response.json()
+    if (data.success && data.playlists) {
+      isCollected.value = data.playlists.some(p => p.id === parseInt(playlistId))
+    } else {
+      isCollected.value = false
+    }
+  } catch (error) {
+    console.error('检查收藏状态失败:', error)
+    isCollected.value = false
   }
 }
 
@@ -410,7 +444,7 @@ const toggleFavorite = async (music) => {
   }
 }
 
-const toggleCollect = () => {
+const toggleCollect = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', { 
@@ -419,15 +453,54 @@ const toggleCollect = () => {
     return
   }
   
-  isCollected.value = !isCollected.value
-  const message = isCollected.value ? '已收藏歌单' : '已取消收藏歌单'
-  /* TODO：未来需要接入API
-  *  暂时无可接入API只作为土司提示
-   */
-
-  window.dispatchEvent(new CustomEvent('show-toast', { 
-    detail: { message, type: 'success' } 
-  }))
+  try {
+    if (isCollected.value) {
+      // 取消收藏
+      const response = await fetch(`${apiConfig.BASE_URL}${apiConfig.FAVORITE_PLAYLISTS_DELETE(playlist.value.id)}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': token }
+      })
+      
+      const data = await response.json()
+      if (data.success) {
+        isCollected.value = false
+        window.dispatchEvent(new CustomEvent('show-toast', { 
+          detail: { message: '已取消收藏歌单', type: 'success' } 
+        }))
+      } else {
+        window.dispatchEvent(new CustomEvent('show-toast', { 
+          detail: { message: data.message || '取消收藏失败', type: 'error' } 
+        }))
+      }
+    } else {
+      // 添加收藏
+      const response = await fetch(`${apiConfig.BASE_URL}${apiConfig.FAVORITE_PLAYLISTS}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ playlistId: playlist.value.id })
+      })
+      
+      const data = await response.json()
+      if (data.success) {
+        isCollected.value = true
+        window.dispatchEvent(new CustomEvent('show-toast', { 
+          detail: { message: '已收藏歌单', type: 'success' } 
+        }))
+      } else {
+        window.dispatchEvent(new CustomEvent('show-toast', { 
+          detail: { message: data.message || '收藏失败', type: 'error' } 
+        }))
+      }
+    }
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    window.dispatchEvent(new CustomEvent('show-toast', { 
+      detail: { message: '网络错误，请重试', type: 'error' } 
+    }))
+  }
 }
 
 // 监听路由参数变化，重新加载歌单详情

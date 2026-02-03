@@ -28,6 +28,10 @@ export default {
   PLAYLIST_MUSIC_REMOVE: '/api/user/playlist/music/remove',
   PLAYLISTS_SEARCH: '/api/playlists/search',
   
+  // 收藏歌单相关
+  FAVORITE_PLAYLISTS: '/api/user/favorite-playlists',
+  FAVORITE_PLAYLISTS_DELETE: (playlistId) => `/api/user/favorite-playlists/${playlistId}`,
+  
   // 搜索相关
   ARTISTS_SEARCH: '/api/artists/search',
   
