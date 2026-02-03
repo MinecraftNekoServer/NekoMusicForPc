@@ -467,6 +467,8 @@ const toggleCollect = async () => {
         window.dispatchEvent(new CustomEvent('show-toast', { 
           detail: { message: '已取消收藏歌单', type: 'success' } 
         }))
+        // 触发收藏歌单更新事件
+        window.dispatchEvent(new CustomEvent('favorite-playlist-updated'))
       } else {
         window.dispatchEvent(new CustomEvent('show-toast', { 
           detail: { message: data.message || '取消收藏失败', type: 'error' } 
@@ -489,6 +491,8 @@ const toggleCollect = async () => {
         window.dispatchEvent(new CustomEvent('show-toast', { 
           detail: { message: '已收藏歌单', type: 'success' } 
         }))
+        // 触发收藏歌单更新事件
+        window.dispatchEvent(new CustomEvent('favorite-playlist-updated'))
       } else {
         window.dispatchEvent(new CustomEvent('show-toast', { 
           detail: { message: data.message || '收藏失败', type: 'error' } 

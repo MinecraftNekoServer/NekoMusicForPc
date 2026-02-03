@@ -101,7 +101,7 @@ function createWindow() {
   }
 
   // 打开开发者工具（开发和生产模式都打开）
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
   win.on('close', (event) => {
     if (!app.isQuitting) {

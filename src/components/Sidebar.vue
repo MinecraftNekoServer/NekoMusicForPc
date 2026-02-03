@@ -13,6 +13,37 @@
         </svg>
         <span>{{ item.label }}</span>
       </div>
+      
+      <!-- 歌单列表 -->
+      <div v-if="isLoggedIn && (myPlaylists.length > 0 || favoritePlaylists.length > 0)" class="playlists-section">
+        <div class="nav-divider"></div>
+        
+        <!-- 我的歌单 -->
+        <div v-if="myPlaylists.length > 0" class="playlists-group">
+          <div class="playlists-group-title">我的歌单</div>
+          <div 
+            v-for="playlist in myPlaylists.slice(0, 5)" 
+            :key="`my-${playlist.id}`"
+            :class="['nav-item playlist-item', { active: isPlaylistActive(playlist.id) }]"
+            @click="navigateToPlaylist(playlist.id)"
+          >
+            <span class="playlist-name">{{ playlist.name }}</span>
+          </div>
+        </div>
+        
+        <!-- 收藏的歌单 -->
+        <div v-if="favoritePlaylists.length > 0" class="playlists-group">
+          <div class="playlists-group-title">收藏的歌单</div>
+          <div 
+            v-for="playlist in favoritePlaylists.slice(0, 5)" 
+            :key="`fav-${playlist.id}`"
+            :class="['nav-item playlist-item', { active: isPlaylistActive(playlist.id) }]"
+            @click="navigateToPlaylist(playlist.id)"
+          >
+            <span class="playlist-name">{{ playlist.name }}</span>
+          </div>
+        </div>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <div class="user-info" @click="handleUserClick" :class="{ 'is-login': isLoggedIn }">
@@ -77,9 +108,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import apiConfig from '../config/apiConfig'
+
+console.log('Sidebar 组件已加载')
 
 // 统一的 API 请求函数
 async function apiRequest(url, options = {}) {
@@ -88,6 +121,7 @@ async function apiRequest(url, options = {}) {
 }
 
 const router = useRouter()
+const route = useRoute()
 const currentRoute = ref('home')
 const username = ref('')
 const showLoginModal = ref(false)
@@ -99,6 +133,10 @@ const formData = ref({
   password: '',
   email: ''
 })
+
+// 歌单列表
+const myPlaylists = ref([])
+const favoritePlaylists = ref([])
 
 const navItems = [
   { key: 'home', label: '首页', icon: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z' },
@@ -174,6 +212,8 @@ const handleSubmit = async () => {
         isLoggedIn.value = true
         showLoginModal.value = false
         formData.value = { username: '', password: '', email: '' }
+        // 加载歌单列表
+        loadPlaylists()
       } else {
         throw new Error(result.message || '登录失败')
       }
@@ -207,14 +247,77 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   const userStr = localStorage.getItem('user')
+  console.log('Sidebar onMounted: userStr =', userStr)
   if (userStr) {
     try {
       const user = JSON.parse(userStr)
       username.value = user.username
       isLoggedIn.value = true
+      console.log('Sidebar onMounted: 用户已登录，准备加载歌单列表')
+      // 加载歌单列表
+      loadPlaylists()
     } catch (e) {
       console.error('解析用户信息失败:', e)
     }
+  } else {
+    console.log('Sidebar onMounted: 用户未登录')
+  }
+})
+
+// 加载歌单列表
+const loadPlaylists = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  try {
+    // 获取我的歌单
+    const myResponse = await apiRequest(`${apiConfig.PLAYLISTS}?t=${Date.now()}`, {
+      method: 'GET',
+      headers: { 'Authorization': token }
+    })
+    const myData = await myResponse.json()
+    console.log('我的歌单数据:', myData)
+    if (myData.success && myData.playlists) {
+      myPlaylists.value = myData.playlists
+      console.log('我的歌单数量:', myPlaylists.value.length)
+    }
+
+    // 获取收藏的歌单
+    const favResponse = await apiRequest(`${apiConfig.FAVORITE_PLAYLISTS}?t=${Date.now()}`, {
+      method: 'GET',
+      headers: { 'Authorization': token }
+    })
+    const favData = await favResponse.json()
+    console.log('收藏歌单数据:', favData)
+    if (favData.success && favData.playlists) {
+      favoritePlaylists.value = favData.playlists
+      console.log('收藏歌单数量:', favoritePlaylists.value.length)
+    }
+  } catch (error) {
+    console.error('加载歌单列表失败:', error)
+  }
+}
+
+// 判断当前路由是否是歌单详情页
+const isPlaylistActive = (playlistId) => {
+  return route.name === 'PlaylistDetail' && route.params.id == playlistId
+}
+
+// 导航到歌单详情
+const navigateToPlaylist = (playlistId) => {
+  router.push(`/playlist/${playlistId}`)
+}
+
+// 监听歌单更新事件
+window.addEventListener('playlist-updated', loadPlaylists)
+
+// 监听登录状态变化
+watch(isLoggedIn, (newValue) => {
+  if (newValue) {
+    loadPlaylists()
+  } else {
+    myPlaylists.value = []
+    favoritePlaylists.value = []
   }
 })
 </script>
@@ -265,6 +368,42 @@ onMounted(() => {
 
 .nav-item span {
   font-size: 14px;
+}
+
+/* 歌单区域 */
+.playlists-section {
+  margin-top: 8px;
+}
+
+.nav-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 8px 20px;
+}
+
+.playlists-group {
+  margin-bottom: 12px;
+}
+
+.playlists-group-title {
+  padding: 8px 20px 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.playlist-item {
+  padding-left: 36px;
+  padding-right: 20px;
+}
+
+.playlist-item .playlist-name {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-footer {

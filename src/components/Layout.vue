@@ -55,6 +55,25 @@
           </div>
         </div>
       </div>
+
+      <!-- 收藏的歌单 -->
+      <div v-if="favoritePlaylists.length > 0" class="sidebar-playlists">
+        <div class="nav-divider"></div>
+        <div class="playlists-header">
+          <span class="playlists-title">收藏的歌单</span>
+        </div>
+        <div class="playlists-list">
+          <div 
+            v-for="playlist in favoritePlaylists" 
+            :key="`fav-${playlist.id}`"
+            :class="['playlist-item', { active: currentRoute === 'playlist' && currentPlaylistId === playlist.id }]"
+            @click="openPlaylist(playlist.id)"
+          >
+            <img :src="getPlaylistCover(playlist)" alt="封面" class="playlist-cover" />
+            <span class="playlist-name">{{ playlist.name }}</span>
+          </div>
+        </div>
+      </div>
       </nav>
       
       <div class="sidebar-footer">
@@ -395,6 +414,7 @@ const navItems = [
 ]
 
 const myPlaylists = ref([])
+const favoritePlaylists = ref([])
 const currentPlaylistId = ref(null)
 
 const loadMyPlaylists = async () => {
@@ -476,6 +496,48 @@ const loadMyPlaylists = async () => {
 
   }
 
+}
+
+const loadFavoritePlaylists = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    favoritePlaylists.value = []
+    return
+  }
+
+  try {
+    const timestamp = Date.now()
+    const response = await apiRequest(`${apiConfig.FAVORITE_PLAYLISTS}?t=${timestamp}`, {
+      method: 'GET',
+      headers: { 'Authorization': token }
+    })
+    const data = await response.json()
+    if (data.success && data.playlists) {
+      const playlistsWithCovers = []
+      for (const playlist of data.playlists) {
+        try {
+          const musicResponse = await apiRequest(`${apiConfig.PLAYLIST_MUSIC(playlist.id)}?t=${timestamp}`, {
+            method: 'GET',
+            headers: { 'Authorization': token }
+          })
+          const musicData = await musicResponse.json()
+          if (musicData.success && musicData.musicList && musicData.musicList.length > 0) {
+            playlistsWithCovers.push({
+              ...playlist,
+              firstMusicId: musicData.musicList[0].id
+            })
+          } else {
+            playlistsWithCovers.push(playlist)
+          }
+        } catch (error) {
+          playlistsWithCovers.push(playlist)
+        }
+      }
+      favoritePlaylists.value = playlistsWithCovers
+    }
+  } catch (error) {
+    console.error('加载收藏歌单失败:', error)
+  }
 }
 
 const getPlaylistCover = (playlist) => {
@@ -683,6 +745,7 @@ const handleDeletePlaylist = () => {
         if (data.success) {
           showToast('歌单删除成功', 'success')
           loadMyPlaylists()
+          loadFavoritePlaylists()
           // 如果删除的是当前正在查看的歌单，跳转到首页
           if (currentPlaylistId.value === contextMenu.value.playlist.id) {
             router.push('/home')
@@ -714,7 +777,14 @@ const handlePlaylistUpdated = (event) => {
   // 如果是音乐被添加或移除，重新加载歌单列表以更新音乐数量和封面
   if (action === 'music-removed' || action === 'music-added') {
     loadMyPlaylists()
+    loadFavoritePlaylists()
   }
+}
+
+// 处理收藏歌单更新事件
+const handleFavoritePlaylistUpdated = () => {
+  console.log('收藏歌单列表已更新')
+  loadFavoritePlaylists()
 }
 
 const isLoggedIn = computed(() => {
@@ -933,11 +1003,13 @@ onMounted(() => {
   }
   
   loadMyPlaylists()
+      loadFavoritePlaylists()
   
   window.addEventListener('user-logout', handleUserLogout)
   window.addEventListener('user-login', handleUserLogin)
   window.addEventListener('show-toast', handleShowToast)
   window.addEventListener('playlist-updated', handlePlaylistUpdated)
+  window.addEventListener('favorite-playlist-updated', handleFavoritePlaylistUpdated)
   
   // 点击其他地方关闭右键菜单
   document.addEventListener('click', () => {
@@ -965,6 +1037,7 @@ const handleUserLogin = (event) => {
   currentUser.value = user
   username.value = user.username
   loadMyPlaylists()
+  loadFavoritePlaylists()
 }
 
 watch(() => route.path, (newPath) => {

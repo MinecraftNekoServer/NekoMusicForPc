@@ -181,6 +181,8 @@ const unfavoritePlaylist = async (playlist) => {
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { message: '已取消收藏', type: 'success' } 
       }))
+      // 触发收藏歌单更新事件，更新侧边栏
+      window.dispatchEvent(new CustomEvent('favorite-playlist-updated'))
     }
   } catch (error) {
     console.error('取消收藏失败:', error)
