@@ -61,6 +61,7 @@ import apiConfig from '@/config/apiConfig.js'
 
 const rankingList = ref([])
 const loading = ref(false)
+const currentMusic = ref(null)
 
 // 获取排行榜
 const fetchRanking = async () => {
@@ -90,12 +91,32 @@ const fetchRanking = async () => {
 
 // 播放音乐
 const playMusic = (music) => {
-  window.location.hash = `#play=${encodeURIComponent(JSON.stringify(music))}`
+  currentMusic.value = music
+  localStorage.setItem('currentMusic', JSON.stringify(music))
+  
+  // 添加到播放列表
+  window.dispatchEvent(new CustomEvent('add-to-playlist', { detail: music }))
+  
+  // 触发播放
+  window.dispatchEvent(new CustomEvent('music-play', { detail: music }))
 }
 
 // 播放全部
 const playAll = () => {
-  window.location.hash = `#playlist=${encodeURIComponent(JSON.stringify(rankingList.value))}&index=0`
+  if (!rankingList.value || rankingList.value.length === 0) {
+    return
+  }
+  
+  // 设置当前音乐为第一首
+  const firstMusic = rankingList.value[0]
+  currentMusic.value = firstMusic
+  localStorage.setItem('currentMusic', JSON.stringify(firstMusic))
+  
+  // 添加全部到播放列表
+  window.dispatchEvent(new CustomEvent('add-all-to-playlist', { detail: rankingList.value }))
+  
+  // 触发播放第一首
+  window.dispatchEvent(new CustomEvent('music-play', { detail: firstMusic }))
 }
 
 // 下载音乐
