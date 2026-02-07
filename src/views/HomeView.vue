@@ -28,7 +28,7 @@
                 @error="handleImageError"
               />
             </div>
-            <div class="playlist-count hot-music-count">{{ hotMusicList.length || 0 }}首</div>
+            <div class="playlist-count hot-music-count">{{ hotMusicCount || 0 }}首</div>
           </div>
           <div class="playlist-info">
             <h3 class="playlist-name">热门音乐</h3>
@@ -79,6 +79,7 @@ const greeting = computed(() => {
 const playlistList = ref([])
 const playlistsLoading = ref(false)
 const hotMusicList = ref([])
+const hotMusicCount = ref(0)
 
 // 获取推荐歌单
 const fetchPlaylists = async () => {
@@ -125,18 +126,23 @@ const fetchHotMusic = async () => {
     const data = await response.json()
 
     if (data.success && data.data && data.data.length > 0) {
+      // 保存完整的音乐数量
+      hotMusicCount.value = data.data.length
+      // 只取前4首用于拼接封面
       hotMusicList.value = data.data.slice(0, 4).map(item => ({
         ...item,
         coverUrl: `${apiConfig.BASE_URL}/api/music/cover/${item.id}`
       }))
-      console.log('热门音乐加载成功:', hotMusicList.value.length, '首')
+      console.log('热门音乐加载成功:', hotMusicCount.value, '首')
     } else {
       console.log('没有热门音乐数据')
       hotMusicList.value = []
+      hotMusicCount.value = 0
     }
   } catch (error) {
     console.error('获取热门音乐失败:', error)
     hotMusicList.value = []
+    hotMusicCount.value = 0
   }
 }
 
