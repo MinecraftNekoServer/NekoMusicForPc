@@ -492,7 +492,7 @@ const loadLyrics = async () => {
     }
     
     // 如果内存中没有，从 API 获取
-    const url = `${apiConfig.BASE_URL}${apiConfig.MUSIC_LYRICS(currentMusic.value.id)}`
+    const url = `${apiConfig.BASE_URL}${apiConfig.MUSIC_LYRICS(currentMusic.value.id)}?t=${Date.now()}`
     console.log('loadLyrics: 从 API 获取歌词，请求URL:', url)
     
     const response = await fetch(url)

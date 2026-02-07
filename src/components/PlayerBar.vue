@@ -1226,7 +1226,7 @@ const loadMusic = async (music) => {
   // 加载歌词并缓存到内存
   try {
     console.log('loadMusic: 开始加载歌词')
-    const lyricsUrl = `${apiConfig.BASE_URL}${apiConfig.MUSIC_LYRICS(music.id)}`
+    const lyricsUrl = `${apiConfig.BASE_URL}${apiConfig.MUSIC_LYRICS(music.id)}?t=${Date.now()}`
     const response = await fetch(lyricsUrl)
     const result = await response.json()
     
