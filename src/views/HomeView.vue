@@ -122,7 +122,8 @@ const fetchPlaylists = async () => {
 // 获取热门音乐（用于拼接封面）
 const fetchHotMusic = async () => {
   try {
-    const response = await fetch(`${apiConfig.BASE_URL}/api/music/ranking`)
+    const timestamp = Date.now()
+    const response = await fetch(`${apiConfig.BASE_URL}/api/music/ranking?t=${timestamp}`)
     const data = await response.json()
 
     if (data.success && data.data && data.data.length > 0) {
