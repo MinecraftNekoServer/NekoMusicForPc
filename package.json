@@ -26,7 +26,6 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "electron": "^40.1.0",
     "electron-builder": "^26.4.0",
-    "electron-media-service": "^0.2.2",
     "vite": "^7.3.1",
     "vite-plugin-electron": "^0.29.0",
     "vite-plugin-electron-renderer": "^0.14.6",
@@ -39,15 +38,26 @@
     "appId": "com.neko.music",
     "productName": "Neko云音乐",
     "directories": {
-      "output": "dist"
+      "output": "release"
     },
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "electron/**/*",
-      "public/**/*",
-      "package.json"
-    ],
+      "package.json",
+      "!node_modules",
+      "!public",
+      "!electron",
+      "!dist/win-unpacked",
+      "!**/*.{exe,msi,zip,7z}",
+      "!**/*.map",
+      "!**/*.ts",
+      "!**/*.vue",
+      "!vite.config.js",
+      "!jsconfig.json"
+    ],    "asar": true,
+    "compression": "maximum",
+    "npmRebuild": false,
+    "electronVersion": "40.1.0",
     "win": {
       "target": [
         "nsis",
