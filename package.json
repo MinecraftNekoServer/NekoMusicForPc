@@ -11,7 +11,7 @@
     "dev": "npm run electron:dev",
     "build": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder",
     "build:dir": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder --dir",
-    "build:win": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder --win",
+    "build:win": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --win",
     "build:mac": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --mac",
     "build:linux": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --linux",
     "build:all": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder -wl",
