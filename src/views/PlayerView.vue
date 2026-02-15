@@ -59,14 +59,15 @@
         <div class="lyrics-section">
           <div class="lyrics-container" ref="lyricsContainer">
             <div v-if="lyrics && lyrics.length > 0" class="lyrics-content">
-              <p 
+              <div 
                 v-for="(line, index) in lyrics" 
                 :key="index"
                 :class="['lyric-line', { active: currentLyricIndex === index }]"
                 @click="seekToLyric(line.time)"
               >
-                {{ line.text }}
-              </p>
+                <div class="lyric-text">{{ line.text }}</div>
+                <div class="lyric-translation" v-if="line.translation">{{ line.translation }}</div>
+              </div>
             </div>
             <div v-else class="no-lyrics">
               <svg viewBox="0 0 24 24" width="48" height="48">
@@ -460,21 +461,55 @@ const parseLyrics = (lyricsText) => {
   const lines = lyricsText.split('\n')
   const parsed = []
   
-  for (const line of lines) {
-    const match = line.match(/\[(\d+):(\d+)\.(\d+)\](.*)/)
-    if (match) {
-      const minutes = parseInt(match[1])
-      const seconds = parseInt(match[2])
-      const milliseconds = parseInt(match[3])
-      const time = minutes * 60 + seconds + milliseconds / 1000
-      const text = match[4].trim()
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim()
+    
+    // 跳过空行
+    if (!line) {
+      continue
+    }
+    
+    // 匹配时间戳歌词行 [mm:ss.xx] 或 [mm:ss.xxx] (支持1-3位数字)
+    const timeRegex = /\[(\d{1,2}):(\d{1,2})\.(\d{2,3})\]/
+    const timeMatch = line.match(timeRegex)
+    
+    if (timeMatch) {
+      // 这是歌词行，提取时间和文本
+      const minutes = parseInt(timeMatch[1])
+      const seconds = parseInt(timeMatch[2])
+      const milliseconds = parseInt(timeMatch[3])
       
-      if (text) {
-        parsed.push({ time, text })
+      // 根据毫秒部分的位数正确计算秒数
+      let millisecondsDivisor
+      if (milliseconds.toString().length === 2) {
+        millisecondsDivisor = 100 // 两位毫秒，如 .25
+      } else {
+        millisecondsDivisor = 1000 // 三位毫秒，如 .250
       }
+      const timeInSeconds = minutes * 60 + seconds + (milliseconds / millisecondsDivisor)
+      const text = line.replace(timeRegex, '').trim()
+      
+      // 查找下一行是否有翻译
+      let translation = ''
+      if (i + 1 < lines.length) {
+        const nextLine = lines[i + 1].trim()
+        // 检查是否是JSON格式的翻译行
+        const jsonMatch = nextLine.match(/^\{["\'](.+)["\']\}$/)
+        if (jsonMatch) {
+          translation = jsonMatch[1]
+        }
+      }
+      
+      parsed.push({
+        time: timeInSeconds,
+        text: text,
+        translation: translation
+      })
     }
   }
   
+  // 按时间排序
+  parsed.sort((a, b) => a.time - b.time)
   return parsed
 }
 
@@ -1126,9 +1161,25 @@ watch(() => router.currentRoute.value, () => {
   line-height: 1.6;
 }
 
+.lyric-text {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.lyric-translation {
+  display: block;
+  font-size: 0.75em;
+  opacity: 0.7;
+  color: rgba(255, 255, 255, 0.6);
+}
+
 .lyric-line:hover {
   color: rgba(255, 255, 255, 0.6);
   background: rgba(255, 255, 255, 0.05);
+}
+
+.lyric-line:hover .lyric-translation {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .lyric-line.active {
@@ -1136,6 +1187,15 @@ watch(() => router.currentRoute.value, () => {
   font-weight: 600;
   color: white;
   text-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+}
+
+.lyric-line.active .lyric-text {
+  color: white;
+}
+
+.lyric-line.active .lyric-translation {
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 1;
 }
 
 .no-lyrics {
