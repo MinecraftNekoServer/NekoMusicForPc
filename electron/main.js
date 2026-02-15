@@ -169,16 +169,20 @@ function createTray() {
   const iconPath = getIconPath('icon.png')
   const trayIcon = nativeImage.createFromPath(iconPath)
   
-  // Linux下不调整图标尺寸，让系统自动处理
-  // Windows和macOS下调整到16x16
-  if (process.platform !== 'linux') {
-    trayIcon.resize({ width: 16, height: 16 })
-  }
-
+  // 不调整图标尺寸，让系统自动处理所有平台
   console.log('托盘图标路径:', iconPath)
   console.log('托盘图标是否为空:', trayIcon.isEmpty())
   
+  // 移除旧的托盘（如果存在）
+  if (tray) {
+    tray.destroy()
+    tray = null
+  }
+  
   tray = new Tray(trayIcon)
+  
+  // 设置工具提示（这对Linux很重要）
+  tray.setToolTip('Neko云音乐')
 
   // 加载图标
   const loadIcons = () => {
@@ -336,29 +340,37 @@ function createTray() {
     updateContextMenu()
   })
 
-  // 点击托盘图标
+// 托盘图标点击事件（左键）
   tray.on('click', () => {
-    if (process.platform === 'linux') {
-      // Linux下，左键点击也显示菜单
-      tray.popUpContextMenu()
-    } else {
-      // Windows和macOS下，左键点击切换窗口状态
-      if (win) {
-        if (win.isVisible()) {
-          if (win.isFocused()) {
-            win.hide()
-          } else {
-            win.focus()
-          }
+    console.log('托盘图标被点击')
+    if (win) {
+      if (win.isVisible()) {
+        if (win.isFocused()) {
+          win.hide()
         } else {
-          win.show()
           win.focus()
         }
+      } else {
+        win.show()
+        win.focus()
       }
     }
   })
   
-  // 定期同步状态（可选）
+  // 托盘图标双击事件
+  tray.on('double-click', () => {
+    console.log('托盘图标被双击')
+    if (win) {
+      if (win.isVisible()) {
+        win.focus()
+      } else {
+        win.show()
+        win.focus()
+      }
+    }
+  })
+  
+  // 定期同步状态
   setInterval(updateContextMenu, 5000)
 }
 
