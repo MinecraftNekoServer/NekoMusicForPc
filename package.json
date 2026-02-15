@@ -15,6 +15,7 @@
     "build:mac": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --mac",
     "build:linux": "vite build && cp electron/preload.cjs dist-electron/preload.cjs && electron-builder --linux",
     "build:all": "vite build && copy electron\\preload.cjs dist-electron\\preload.cjs && electron-builder -wl",
+    "postinstall": "echo '=== Linux系统依赖提示 ===' && echo '如果在Linux下托盘图标或右键菜单不工作，请运行：' && echo 'sudo apt-get install libayatana-appindicator3-1 libappindicator3-1' && echo '========================'",
     "preview": "vite preview",
     "electron:dev": "vite && electron ."
   },
@@ -78,11 +79,18 @@
     },
     "linux": {
       "target": [
-        "deb"
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "public/icon.png",
       "category": "Audio",
-      "description": "Neko云音乐 - 一款简洁优雅的音乐播放器"
+      "description": "Neko云音乐 - 一款简洁优雅的音乐播放器",
+      "maintainer": "Fantasy Network <support@cnmsb.xin>",
+      "synopsis": "Neko云音乐 - 简洁优雅的音乐播放器"
     },
     "nsis": {
       "oneClick": false,
