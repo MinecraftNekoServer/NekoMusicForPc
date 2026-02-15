@@ -6,6 +6,14 @@ import { fileURLToPath } from 'url'
 // 在 ES 模块中获取 __dirname 的等效值
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+// Linux托盘支持检查
+if (process.platform === 'linux') {
+  console.log('Linux平台检测到，检查托盘支持...')
+  console.log('提示：如果托盘图标不显示或右键无反应，请安装系统库：')
+  console.log('  sudo apt-get install libayatana-appindicator3-1')
+  console.log('  或者设置环境变量：export XDG_CURRENT_DESKTOP=Unity')
+}
+
 
 
 let win
@@ -126,13 +134,50 @@ let playerState = {
 }
 
 function createTray() {
-  const isDev = process.env.NODE_ENV === 'development'
-  const iconPath = isDev
-    ? path.join(__dirname, '../public/icon.png')
-    : path.join(app.getAppPath(), 'public/icon.png')
+  console.log('createTray: 开始创建托盘')
+  
+  // 优化图标路径处理，支持asar包
+  const getIconPath = (filename) => {
+    // 优先从resources目录查找（打包后）
+    const resourcesPath = process.resourcesPath
+      ? path.join(process.resourcesPath, filename)
+      : null
+    
+    // 其次从app路径查找（开发环境）
+    const appPath = path.join(app.getAppPath(), 'public', filename)
+    
+    // 再次从相对路径查找
+    const relativePath = path.join(__dirname, '../public', filename)
+    
+    // 检查哪个路径存在
+    if (resourcesPath && fs.existsSync(resourcesPath)) {
+      console.log(`使用resources路径: ${resourcesPath}`)
+      return resourcesPath
+    } else if (fs.existsSync(appPath)) {
+      console.log(`使用app路径: ${appPath}`)
+      return appPath
+    } else if (fs.existsSync(relativePath)) {
+      console.log(`使用相对路径: ${relativePath}`)
+      return relativePath
+    }
+    
+    // 默认使用app路径
+    console.log(`使用默认app路径: ${appPath}`)
+    return appPath
+  }
+  
+  const iconPath = getIconPath('icon.png')
   const trayIcon = nativeImage.createFromPath(iconPath)
-  trayIcon.resize({ width: 16, height: 16 })
+  
+  // Linux下不调整图标尺寸，让系统自动处理
+  // Windows和macOS下调整到16x16
+  if (process.platform !== 'linux') {
+    trayIcon.resize({ width: 16, height: 16 })
+  }
 
+  console.log('托盘图标路径:', iconPath)
+  console.log('托盘图标是否为空:', trayIcon.isEmpty())
+  
   tray = new Tray(trayIcon)
 
   // 加载图标
@@ -153,11 +198,10 @@ function createTray() {
       'tray-exit'
     ]
 
-    const iconDir = isDev ? path.join(__dirname, '../public') : path.join(app.getAppPath(), 'public')
-
     iconList.forEach(name => {
       try {
-        const icon = nativeImage.createFromPath(path.join(iconDir, `${name}.png`))
+        const iconPath = getIconPath(`${name}.png`)
+        const icon = nativeImage.createFromPath(iconPath)
         icon.resize({ width: 18, height: 18 })
         icons[name] = icon
       } catch (e) {
@@ -226,6 +270,22 @@ function createTray() {
       },
       { type: 'separator' },
       
+      // 显示/隐藏窗口
+      {
+        label: win && win.isVisible() ? '隐藏窗口' : '显示窗口',
+        click: () => {
+          if (win) {
+            if (win.isVisible()) {
+              win.hide()
+            } else {
+              win.show()
+              win.focus()
+            }
+          }
+        }
+      },
+      { type: 'separator' },
+      
       // 退出
       {
         label: '退出',
@@ -238,13 +298,17 @@ function createTray() {
     ]
     
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
+    
+    // 关键修复：在所有平台上都设置上下文菜单
+    // Linux下特别需要确保菜单正确绑定
     tray.setContextMenu(contextMenu)
+    
+    // 设置工具提示，确保托盘图标可见
+    tray.setToolTip('Neko云音乐')
     
     // 更新提示信息
     if (music) {
       tray.setToolTip(`正在播放: ${music.title} - ${music.artist}`)
-    } else {
-      tray.setToolTip('Neko云音乐')
     }
   }
   
@@ -271,11 +335,11 @@ function createTray() {
     playerState.isPlaying = isPlaying
     updateContextMenu()
   })
-  
+
   // 点击托盘图标
   tray.on('click', () => {
-    // 在Linux下，左键点击也显示菜单
     if (process.platform === 'linux') {
+      // Linux下，左键点击也显示菜单
       tray.popUpContextMenu()
     } else {
       // Windows和macOS下，左键点击切换窗口状态
@@ -292,11 +356,6 @@ function createTray() {
         }
       }
     }
-  })
-  
-  // 右键点击托盘图标（跨平台支持）
-  tray.on('right-click', () => {
-    tray.popUpContextMenu()
   })
   
   // 定期同步状态（可选）
