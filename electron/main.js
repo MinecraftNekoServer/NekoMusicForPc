@@ -274,18 +274,29 @@ function createTray() {
   
   // 点击托盘图标
   tray.on('click', () => {
-    if (win) {
-      if (win.isVisible()) {
-        if (win.isFocused()) {
-          win.hide()
+    // 在Linux下，左键点击也显示菜单
+    if (process.platform === 'linux') {
+      tray.popUpContextMenu()
+    } else {
+      // Windows和macOS下，左键点击切换窗口状态
+      if (win) {
+        if (win.isVisible()) {
+          if (win.isFocused()) {
+            win.hide()
+          } else {
+            win.focus()
+          }
         } else {
+          win.show()
           win.focus()
         }
-      } else {
-        win.show()
-        win.focus()
       }
     }
+  })
+  
+  // 右键点击托盘图标（跨平台支持）
+  tray.on('right-click', () => {
+    tray.popUpContextMenu()
   })
   
   // 定期同步状态（可选）
