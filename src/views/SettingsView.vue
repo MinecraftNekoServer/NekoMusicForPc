@@ -84,7 +84,7 @@
               <input 
                 v-model="formData.username"
                 type="text" 
-                placeholder="邮箱"
+                placeholder="用户名（昵称）"
                 class="auth-input"
               />
               <input 
