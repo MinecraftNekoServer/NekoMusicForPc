@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // HTTP 请求（用于处理跨域）
   httpRequest: (url, options) => ipcRenderer.invoke('http-request', url, options),
   
+  // 获取系统路径
+  getPath: (name) => ipcRenderer.invoke('get-path', name),
+  
   // 其他可以暴露的 API
   platform: process.platform,
   arch: process.arch
