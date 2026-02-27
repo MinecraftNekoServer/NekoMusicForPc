@@ -310,15 +310,9 @@ function createTray() {
     
     console.log('托盘菜单已构建，包含', menuTemplate.length, '个菜单项')
     
-    // Linux特殊处理：先设置一个简单的菜单
-    if (process.platform === 'linux') {
-      // Linux下尝试不设置contextMenu，改用手动弹出的方式
-      console.log('Linux平台：不设置自动菜单，使用手动弹出方式')
-    } else {
-      // Windows和macOS使用正常的contextMenu
-      tray.setContextMenu(contextMenu)
-      console.log('托盘菜单已设置到托盘对象')
-    }
+    // 所有平台统一使用 setContextMenu
+    tray.setContextMenu(contextMenu)
+    console.log('托盘菜单已设置到托盘对象')
     
     // 设置工具提示，确保托盘图标可见
     tray.setToolTip('Neko云音乐')
@@ -327,12 +321,6 @@ function createTray() {
     // 更新提示信息
     if (music) {
       tray.setToolTip(`正在播放: ${music.title} - ${music.artist}`)
-    }
-    
-    // Linux下保存菜单引用用于手动弹出
-    if (process.platform === 'linux') {
-      tray.linuxContextMenu = contextMenu
-      console.log('Linux平台：菜单已保存用于手动弹出')
     }
   }
   
@@ -390,34 +378,7 @@ function createTray() {
     }
   })
   
-  // 托盘图标右键事件（Linux特别处理）
-  tray.on('right-click', (event) => {
-    console.log('托盘图标右键被点击，平台:', process.platform)
-    if (process.platform === 'linux') {
-      // Linux下手动弹出菜单
-      if (tray.linuxContextMenu) {
-        console.log('Linux平台：手动弹出菜单')
-        tray.linuxContextMenu.popup({ window: win })
-      } else {
-        console.error('Linux平台：找不到菜单引用')
-      }
-    } else {
-      // 其他平台使用默认行为
-      tray.popUpContextMenu()
-    }
-  })
   
-  // 监听鼠标按下事件（备用方案）
-  tray.on('mouse-down', (event) => {
-    console.log('托盘图标鼠标按下事件:', event, 'buttons:', event.buttons)
-    if (process.platform === 'linux' && event.buttons === 2) {
-      // 右键按下时立即显示菜单
-      console.log('Linux平台：右键按下，准备弹出菜单')
-      if (tray.linuxContextMenu) {
-        tray.linuxContextMenu.popup({ window: win })
-      }
-    }
-  })
   
   // 定期同步状态
   setInterval(updateContextMenu, 5000)
