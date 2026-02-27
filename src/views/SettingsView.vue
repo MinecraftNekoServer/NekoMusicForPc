@@ -4,6 +4,24 @@
       <h2>设置</h2>
       
       <div class="settings-section">
+        <h3>播放设置</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">音乐缓存</span>
+            <span class="setting-desc">自动缓存听过的音乐到本地下载目录</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="musicCacheEnabled" @change="handleCacheToggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="cache-path-info">
+          <span class="cache-path-label">缓存路径：</span>
+          <span class="cache-path-value">{{ cachePath }}</span>
+        </div>
+      </div>
+      
+      <div class="settings-section">
         <h3>账号信息</h3>
         <div v-if="currentUser" class="account-info">
           <div class="account-avatar">
@@ -198,6 +216,40 @@
 import { ref, computed, onMounted } from 'vue'
 import apiConfig from '../config/apiConfig'
 import { APP_VERSION } from '../version'
+
+// 音乐缓存设置
+const musicCacheEnabled = ref(localStorage.getItem('musicCacheEnabled') !== 'false')
+
+// 获取系统下载目录路径
+const cachePath = ref('~/Downloads/NekoMusic/Music_temp')
+
+// 在组件挂载时获取实际路径
+onMounted(async () => {
+  console.log('SettingsView mounted, electronAPI:', window.electronAPI)
+  console.log('getPath exists:', window.electronAPI?.getPath)
+  
+  if (window.electronAPI && window.electronAPI.getPath) {
+    try {
+      console.log('开始获取下载目录...')
+      const downloadsPath = await window.electronAPI.getPath('downloads')
+      console.log('下载目录:', downloadsPath)
+      cachePath.value = `${downloadsPath}/NekoMusic/Music_temp`
+      console.log('缓存路径:', cachePath.value)
+    } catch (error) {
+      console.error('获取下载目录失败:', error)
+    }
+  } else {
+    console.log('electronAPI 或 getPath 不存在')
+  }
+})
+
+const handleCacheToggle = () => {
+  localStorage.setItem('musicCacheEnabled', musicCacheEnabled.value.toString())
+  window.dispatchEvent(new CustomEvent('cache-setting-changed', {
+    detail: { enabled: musicCacheEnabled.value }
+  }))
+  showToast(musicCacheEnabled.value ? '音乐缓存已开启' : '音乐缓存已关闭', 'success')
+}
 
 // 检测系统类型
 const getOSType = () => {
@@ -618,6 +670,102 @@ const handleSubmit = async () => {
 .settings-section p {
   color: #666;
   margin: 8px 0;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.setting-info {
+  flex: 1;
+}
+
+.setting-label {
+  display: block;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.setting-desc {
+  display: block;
+  color: #999;
+  font-size: 12px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  margin-left: 16px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+.cache-path-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.cache-path-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.cache-path-value {
+  color: #333;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  display: block;
+  margin-top: 4px;
 }
 
 .update-section {

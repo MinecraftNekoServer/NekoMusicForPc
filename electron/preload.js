@@ -17,7 +17,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   notifyPlayState: (isPlaying) => ipcRenderer.send('play-state-changed', isPlaying),
   updateMediaInfo: (info) => ipcRenderer.send('update-media-info', info),
   
-
+  // 获取系统路径
+  getPath: (name) => ipcRenderer.invoke('get-path', name),
   
   // 其他可以暴露的 API
   platform: process.platform,

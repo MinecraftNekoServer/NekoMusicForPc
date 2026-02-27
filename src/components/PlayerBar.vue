@@ -284,6 +284,13 @@ const currentMusic = ref(null)
 const isPlaying = ref(false)
 const isMuted = ref(false)
 const playMode = ref('list') // list, single, shuffle
+const musicCacheEnabled = ref(localStorage.getItem('musicCacheEnabled') !== 'false') // 音乐缓存开关，默认开启
+
+// 监听缓存设置变化
+window.addEventListener('cache-setting-changed', (event) => {
+  musicCacheEnabled.value = event.detail.enabled
+  console.log('缓存设置已更新:', musicCacheEnabled.value)
+})
 const currentTime = ref(0)
 const duration = ref(0)
 const volume = ref(parseInt(localStorage.getItem('volume')) || 100)
@@ -1205,6 +1212,63 @@ const addToRecent = (music) => {
   }
 }
 
+// 缓存音乐到本地（在音频加载完成后调用）
+const cacheMusicAfterLoad = async (musicId) => {
+  if (!musicCacheEnabled.value || !window.electronAPI) {
+    return
+  }
+
+  // 检查是否已经缓存
+  const cacheKey = `music_cache_${musicId}`
+  if (localStorage.getItem(cacheKey)) {
+    console.log('✓ 音乐已缓存，跳过')
+    return
+  }
+
+  try {
+    console.log('开始缓存音乐:', musicId)
+    
+    // 生成缓存文件名
+    const fileName = `${musicId}.mp3`
+    
+    // 请求保存文件路径（系统下载目录下的 NekoMusic/Music_temp）
+    const filePath = await window.electronAPI.saveFile({
+      fileName: fileName,
+      fileType: 'audio/mpeg',
+      suggestedPath: 'NekoMusic/Music_temp'
+    })
+    
+    if (!filePath) {
+      console.log('获取文件路径失败，跳过缓存')
+      return
+    }
+    
+    // 下载音乐文件
+    const audioUrl = `https://music.cnmsb.xin/api/music/file/${musicId}`
+    const response = await fetch(audioUrl)
+    
+    if (!response.ok) {
+      console.log('下载音乐失败，跳过缓存')
+      return
+    }
+    
+    const arrayBuffer = await response.arrayBuffer()
+    
+    // 写入文件
+    const result = await window.electronAPI.writeFile(filePath, arrayBuffer)
+    
+    if (result.success) {
+      // 保存缓存路径
+      localStorage.setItem(cacheKey, result.path)
+      console.log('✓ 音乐已缓存到:', result.path)
+    } else {
+      console.log('写入文件失败，跳过缓存')
+    }
+  } catch (error) {
+    console.error('缓存音乐失败:', error)
+  }
+}
+
 const loadMusic = async (music) => {
   if (!music) return
 
@@ -1247,9 +1311,29 @@ const loadMusic = async (music) => {
   }
   
   if (audioElement.value) {
-    audioElement.value.src = `https://music.cnmsb.xin/api/music/file/${music.id}`
-    console.log('✓ 音频已加载到元素，等待 loadedmetadata 事件')
-    audioElement.value.load()
+    // 检查缓存键
+    const cacheKey = `music_cache_${music.id}`
+    const cachedFilePath = localStorage.getItem(cacheKey)
+    
+    if (musicCacheEnabled.value && cachedFilePath && window.electronAPI) {
+      // 从缓存加载
+      audioElement.value.src = cachedFilePath
+      console.log('✓ 从缓存加载音频:', cachedPath)
+      audioElement.value.load()
+    } else {
+      // 从网络加载
+      audioElement.value.src = `https://music.cnmsb.xin/api/music/file/${music.id}`
+      console.log('✓ 音频已加载到元素，等待 loadedmetadata 事件')
+      audioElement.value.load()
+      
+      // 如果启用了缓存，在加载完成后缓存到本地
+      if (musicCacheEnabled.value && window.electronAPI && window.electronAPI.saveFile && window.electronAPI.writeFile) {
+        // 延迟缓存，等待音频开始加载
+        setTimeout(() => {
+          cacheMusicAfterLoad(music.id)
+        }, 1000)
+      }
+    }
   }
   
   // 通知主进程 (已移除)

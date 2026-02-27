@@ -404,13 +404,27 @@ ipcMain.on('window-close', () => {
 })
 
 // 文件保存 IPC 处理
+ipcMain.handle('get-path', async (event, name) => {
+  return app.getPath(name)
+})
+
 ipcMain.handle('save-file', async (event, options) => {
   const { fileName, fileType, suggestedPath } = options
   
-  // 获取应用运行目录
-  let basePath = app.getPath('userData')
-  if (suggestedPath) {
-    basePath = path.join(basePath, suggestedPath)
+  let basePath
+  
+  // 如果 suggestedPath 包含 NekoMusic，使用下载目录作为基础路径
+  if (suggestedPath && suggestedPath.includes('NekoMusic')) {
+    basePath = app.getPath('downloads')
+    if (suggestedPath) {
+      basePath = path.join(basePath, suggestedPath)
+    }
+  } else {
+    // 否则使用应用数据目录
+    basePath = app.getPath('userData')
+    if (suggestedPath) {
+      basePath = path.join(basePath, suggestedPath)
+    }
   }
   
   // 确保目录存在
