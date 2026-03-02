@@ -26,7 +26,7 @@
   "devDependencies": {
     "terser": "^5.31.0",
     "@vitejs/plugin-vue": "^6.0.3",
-    "electron": "^40.1.0",
+    "electron": "37.1.0",
     "electron-builder": "^26.4.0",
     "vite": "^7.3.1",
     "vite-plugin-electron": "^0.29.0",
@@ -76,7 +76,7 @@
     "asarUnpack": [],
     "compression": "maximum",
     "npmRebuild": false,
-    "electronVersion": "40.1.0",
+    "electronVersion": "37.1.0",
     "fileAssociations": [],
     "win": {
       "target": [

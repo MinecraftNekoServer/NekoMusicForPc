@@ -293,6 +293,10 @@ window.addEventListener('cache-setting-changed', (event) => {
 })
 const currentTime = ref(0)
 const duration = ref(0)
+
+// 节流控制，减少高频更新
+let lastUpdateTime = 0
+let lastEventDispatchTime = 0
 const volume = ref(parseInt(localStorage.getItem('volume')) || 100)
 const audioElement = ref(null)
 const desktopLyricsEnabled = ref(false)
@@ -678,6 +682,8 @@ const handleProgressMouseDown = (event) => {
   isDragging.value = true
   seekTo(event)
   event.preventDefault()
+  // 只在拖动开始时添加 mousemove 监听器
+  window.addEventListener('mousemove', handleGlobalMouseMove, { passive: true })
 }
 
 const handleProgressMouseMove = (event) => {
@@ -703,16 +709,21 @@ const handleGlobalMouseMove = (event) => {
       }
     }
   }
+  // 如果不在拖动状态，直接返回，避免不必要的 DOM 查询
 }
 
 const handleProgressMouseUp = () => {
   isDragging.value = false
+  // 拖动结束后移除 mousemove 监听器
+  window.removeEventListener('mousemove', handleGlobalMouseMove)
 }
 
 const handleVolumeMouseDown = (event) => {
   isVolumeDragging.value = true
   handleVolumeClick(event)
   event.preventDefault()
+  // 只在拖动开始时添加 mousemove 监听器
+  window.addEventListener('mousemove', handleGlobalVolumeMouseMove, { passive: true })
 }
 
 const handleVolumeMouseMove = (event) => {
@@ -742,10 +753,13 @@ const handleGlobalVolumeMouseMove = (event) => {
       localStorage.setItem('volume', volume.value.toString())
     }
   }
+  // 如果不在拖动状态，直接返回，避免不必要的 DOM 查询
 }
 
 const handleVolumeMouseUp = () => {
   isVolumeDragging.value = false
+  // 拖动结束后移除 mousemove 监听器
+  window.removeEventListener('mousemove', handleGlobalVolumeMouseMove)
 }
 
 const handleProgressHover = () => {
@@ -1340,26 +1354,38 @@ const loadMusic = async (music) => {
 }
 const handleTimeUpdate = () => {
   if (audioElement.value && audioLoaded.value) {
-    currentTime.value = audioElement.value.currentTime
+    const now = Date.now()
+    const newTime = audioElement.value.currentTime
     
-    // 通知播放页面更新
-    window.dispatchEvent(new CustomEvent('player-state-change', {
-      detail: {
-        isPlaying: isPlaying.value,
-        currentTime: currentTime.value,
-        duration: duration.value,
-        playMode: playMode.value,
-        volume: volume.value
+    // 只在时间变化超过 0.1 秒或距离上次更新超过 100ms 时才更新
+    if (Math.abs(newTime - currentTime.value) > 0.1 || now - lastUpdateTime > 100) {
+      currentTime.value = newTime
+      lastUpdateTime = now
+      
+      // 限制事件分发频率（每 200ms 最多一次）
+      if (now - lastEventDispatchTime > 200) {
+        lastEventDispatchTime = now
+        
+        // 通知播放页面更新
+        window.dispatchEvent(new CustomEvent('player-state-change', {
+          detail: {
+            isPlaying: isPlaying.value,
+            currentTime: currentTime.value,
+            duration: duration.value,
+            playMode: playMode.value,
+            volume: volume.value
+          }
+        }))
+        
+        // 广播音频时间更新（用于歌词同步）
+        window.dispatchEvent(new CustomEvent('audio-time-update', {
+          detail: {
+            currentTime: currentTime.value,
+            duration: duration.value
+          }
+        }))
       }
-    }))
-    
-    // 广播音频时间更新（用于歌词同步）
-    window.dispatchEvent(new CustomEvent('audio-time-update', {
-      detail: {
-        currentTime: currentTime.value,
-        duration: duration.value
-      }
-    }))
+    }
   }
 }
 
@@ -1543,14 +1569,10 @@ onMounted(() => {
   })
   window.addEventListener('navigate-to-settings', handleNavigateToSettings)
   
-  // 全局鼠标事件，处理拖动进度条和音量
+  // 全局鼠标抬起事件，处理拖动进度条和音量结束
   window.addEventListener('mouseup', (event) => {
     handleProgressMouseUp()
     handleVolumeMouseUp()
-  })
-  window.addEventListener('mousemove', (event) => {
-    handleGlobalMouseMove(event)
-    handleGlobalVolumeMouseMove(event)
   })
   
   // 恢复之前播放的音乐

@@ -20,6 +20,23 @@ let win
 let tray
 app.isQuitting = false  // 声明退出标志
 
+// 优化渲染性能 - 使用软件渲染并降低资源占用
+app.commandLine.appendSwitch('disable-gpu')
+app.commandLine.appendSwitch('disable-software-rasterizer')
+app.commandLine.appendSwitch('disable-gpu-compositing')
+app.commandLine.appendSwitch('disable-dev-shm-usage')
+app.commandLine.appendSwitch('no-sandbox')
+app.commandLine.appendSwitch('disable-background-networking')
+app.commandLine.appendSwitch('disable-background-timer-throttling')
+app.commandLine.appendSwitch('disable-renderer-backgrounding')
+app.commandLine.appendSwitch('disable-breakpad')
+app.commandLine.appendSwitch('disable-component-extensions-with-background-pages')
+app.commandLine.appendSwitch('disable-domain-reliability')
+app.commandLine.appendSwitch('disable-sync')
+app.commandLine.appendSwitch('disable-features', 'VizDisplayCompositor')
+app.commandLine.appendSwitch('num-raster-threads', '1')
+app.commandLine.appendSwitch('enable-low-end-device-mode')
+
 // 防止多实例运行
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -380,8 +397,8 @@ function createTray() {
   
   
   
-  // 定期同步状态
-  setInterval(updateContextMenu, 5000)
+  // 移除定时器，改为通过 IPC 事件更新托盘菜单
+  // setInterval(updateContextMenu, 5000)
 }
 
 // 窗口控制 IPC 处理
