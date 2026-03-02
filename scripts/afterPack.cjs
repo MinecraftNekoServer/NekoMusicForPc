@@ -114,7 +114,8 @@ exports.default = async function(context) {
   }
 
   // 8. 移除 V8 快照和快照 blob（节省 700 KB + 332 KB）
-  console.log('\n[8/8] 移除 V8 快照文件...');
+  // 注意：V8 快照文件是必需的，不能移除
+  console.log('\n[8/8] V8 快照文件（必需，保留）...');
   const v8Files = [
     'v8_context_snapshot.bin',
     'snapshot_blob.bin'
@@ -123,9 +124,7 @@ exports.default = async function(context) {
     const filePath = path.join(appOutDir, file);
     if (fs.existsSync(filePath)) {
       const stats = fs.statSync(filePath);
-      totalSaved += stats.size;
-      fs.unlinkSync(filePath);
-      console.log(`  ✗ 移除: ${file} (${(stats.size / 1024).toFixed(2)} KB)`);
+      console.log(`  ✓ 保留: ${file} (${(stats.size / 1024).toFixed(2)} KB)`);
     }
   });
 
