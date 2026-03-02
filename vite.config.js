@@ -12,8 +12,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
-      // 生产环境移除 vueDevTools，减少打包体积
-      ...(isProd ? [] : [import('vite-plugin-vue-devtools').then(m => m.default)]),
+      // 生产环境完全禁用 vueDevTools
       electron([
         {
           // 主进程入口
@@ -30,7 +29,6 @@ export default defineConfig(({ mode }) => {
             }
           }
         },
-        // 注意：preload 脚本不通过 vite 构建，而是在构建后直接复制
       ]),
       renderer()
     ],

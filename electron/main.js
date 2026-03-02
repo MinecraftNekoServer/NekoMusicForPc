@@ -20,12 +20,15 @@ let win
 let tray
 app.isQuitting = false  // 声明退出标志
 
-// 优化渲染性能 - 使用软件渲染并降低资源占用
-app.commandLine.appendSwitch('disable-gpu')
-app.commandLine.appendSwitch('disable-software-rasterizer')
-app.commandLine.appendSwitch('disable-gpu-compositing')
+// 启用 GPU 加速，减少 CPU 负担
+app.commandLine.appendSwitch('enable-gpu-rasterization')
+app.commandLine.appendSwitch('enable-zero-copy')
+app.commandLine.appendSwitch('ignore-gpu-blocklist')
+app.commandLine.appendSwitch('enable-native-gpu-memory-buffers')
+app.commandLine.appendSwitch('enable-gpu-memory-buffer-compositor-resources')
+
+// 禁用不需要的功能，减少资源占用
 app.commandLine.appendSwitch('disable-dev-shm-usage')
-app.commandLine.appendSwitch('no-sandbox')
 app.commandLine.appendSwitch('disable-background-networking')
 app.commandLine.appendSwitch('disable-background-timer-throttling')
 app.commandLine.appendSwitch('disable-renderer-backgrounding')
@@ -33,9 +36,11 @@ app.commandLine.appendSwitch('disable-breakpad')
 app.commandLine.appendSwitch('disable-component-extensions-with-background-pages')
 app.commandLine.appendSwitch('disable-domain-reliability')
 app.commandLine.appendSwitch('disable-sync')
-app.commandLine.appendSwitch('disable-features', 'VizDisplayCompositor')
-app.commandLine.appendSwitch('num-raster-threads', '1')
-app.commandLine.appendSwitch('enable-low-end-device-mode')
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows')
+app.commandLine.appendSwitch('disable-ipc-flooding-protection')
+app.commandLine.appendSwitch('disable-features', 'Translate')
+app.commandLine.appendSwitch('disable-features', 'SpeechSynthesis')
+app.commandLine.appendSwitch('disable-features', 'Autofill')
 
 // 防止多实例运行
 const gotTheLock = app.requestSingleInstanceLock()
