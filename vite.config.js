@@ -76,10 +76,15 @@ export default defineConfig(({ mode }) => {
         compress: {
           drop_console: true,  // 移除 console.log
           drop_debugger: true,  // 移除 debugger
-          pure_funcs: ['console.log', 'console.info', 'console.debug'],  // 移除指定的函数
+          pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn', 'console.trace'],  // 移除指定的函数
+          dead_code: true,  // 移除死代码
+          unused: true,  // 移除未使用的变量
         },
         format: {
           comments: false,  // 移除注释
+        },
+        mangle: {
+          safari10: true,  // 兼容 Safari 10
         },
       },
       
@@ -88,14 +93,16 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             'vue-vendor': ['vue', 'vue-router'],  // 将 Vue 相关代码打包到一个 chunk
-          'electron-vendor': ['electron']  // Electron 相关代码
-          // 其他代码会自动分包
           },
           // 更紧凑的 chunk 文件名
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
-          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
+          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+          // 优化 chunk 拆分策略
+          inlineDynamicImports: false,
         },
+        // 外部依赖排除
+        external: [],
       },
       
       // Chunk 大小警告限制（KB）
@@ -106,6 +113,15 @@ export default defineConfig(({ mode }) => {
       
       // 构建目标
       target: 'esnext',
+      
+      // 资源内联限制
+      assetsInlineLimit: 4096,
+      
+      // 源码映射
+      sourcemap: false,
+      
+      // 报告压缩
+      reportCompressedSize: true,
     },
     clearScreen: false,
   }
