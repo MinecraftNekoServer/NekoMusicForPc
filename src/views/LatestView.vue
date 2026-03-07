@@ -98,21 +98,23 @@ const playMusic = (music) => {
   window.dispatchEvent(new CustomEvent('add-to-playlist', { detail: music }))
   
   // 触发播放
-  window.dispatchEvent(new CustomEvent('play-music', { detail: music }))
+  window.dispatchEvent(new CustomEvent('music-play', { detail: music }))
 }
 
 // 播放全部
 const playAll = () => {
   if (latestList.value.length === 0) return
   
-  currentMusic.value = latestList.value[0]
-  localStorage.setItem('currentMusic', JSON.stringify(latestList.value[0]))
+  // 设置当前音乐为第一首
+  const firstMusic = latestList.value[0]
+  currentMusic.value = firstMusic
+  localStorage.setItem('currentMusic', JSON.stringify(firstMusic))
   
-  // 设置播放列表
-  localStorage.setItem('playlist', JSON.stringify(latestList.value))
+  // 添加全部到播放列表
+  window.dispatchEvent(new CustomEvent('add-all-to-playlist', { detail: latestList.value }))
   
-  // 触发播放全部
-  window.dispatchEvent(new CustomEvent('play-all', { detail: latestList.value }))
+  // 触发播放第一首
+  window.dispatchEvent(new CustomEvent('music-play', { detail: firstMusic }))
 }
 
 // 下载音乐
