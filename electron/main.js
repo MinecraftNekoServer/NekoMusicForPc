@@ -504,6 +504,91 @@ ipcMain.handle('http-request', async (event, url, options = {}) => {
   }
 })
 
+// 下载音乐和歌词到指定目录
+ipcMain.handle('download-music-with-lyrics', async (event, musicData) => {
+  console.log('下载音乐和歌词 - 接收到的数据:', musicData)
+  
+  try {
+    const { id, title, artist, fileFormat, baseUrl } = musicData
+    
+    if (!id || !title || !artist || !baseUrl) {
+      console.error('缺少必要参数:', { id, title, artist, baseUrl })
+      return { success: false, error: '缺少必要参数' }
+    }
+    
+    // 确保下载目录存在
+    const downloadsPath = app.getPath('downloads')
+    const nekoMusicPath = path.join(downloadsPath, 'NekoMusic')
+    console.log('下载目录:', nekoMusicPath)
+    
+    if (!fs.existsSync(nekoMusicPath)) {
+      fs.mkdirSync(nekoMusicPath, { recursive: true })
+      console.log('创建下载目录成功')
+    }
+    
+    // 生成文件名（清理特殊字符）
+    const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '_')
+    const sanitizedArtist = artist.replace(/[<>:"/\\|?*]/g, '_')
+    const fileName = `${sanitizedArtist} - ${sanitizedTitle}`
+    console.log('文件名:', fileName)
+    
+    // 下载音乐文件
+    const musicUrl = `${baseUrl}/api/music/file/${id}`
+    console.log('音乐URL:', musicUrl)
+    
+    const musicResponse = await fetch(musicUrl)
+    console.log('音乐响应状态:', musicResponse.status)
+    
+    if (!musicResponse.ok) {
+      throw new Error(`下载音乐文件失败: ${musicResponse.status}`)
+    }
+    
+    const musicBuffer = await musicResponse.arrayBuffer()
+    const musicExt = fileFormat || 'mp3'
+    const musicFilePath = path.join(nekoMusicPath, `${fileName}.${musicExt}`)
+    fs.writeFileSync(musicFilePath, Buffer.from(musicBuffer))
+    console.log('音乐文件保存成功:', musicFilePath)
+    
+    // 下载歌词文件
+    let lyricsFilePath = null
+    try {
+      const lyricsUrl = `${baseUrl}/api/music/lyrics/${id}`
+      console.log('歌词URL:', lyricsUrl)
+      
+      const lyricsResponse = await fetch(lyricsUrl)
+      console.log('歌词响应状态:', lyricsResponse.status)
+      
+      if (lyricsResponse.ok) {
+        const lyricsData = await lyricsResponse.json()
+        console.log('歌词数据:', lyricsData)
+        
+        if (lyricsData.success && lyricsData.data) {
+          lyricsFilePath = path.join(nekoMusicPath, `${fileName}.lrc`)
+          fs.writeFileSync(lyricsFilePath, lyricsData.data, 'utf-8')
+          console.log('歌词文件保存成功:', lyricsFilePath)
+        } else {
+          console.log('没有歌词数据')
+        }
+      } else {
+        console.log('歌词不可用')
+      }
+    } catch (error) {
+      console.warn('下载歌词失败:', error)
+    }
+    
+    console.log('下载完成:', { musicPath: musicFilePath, lyricsPath: lyricsFilePath })
+    
+    return {
+      success: true,
+      musicPath: musicFilePath,
+      lyricsPath: lyricsFilePath
+    }
+  } catch (error) {
+    console.error('下载音乐和歌词失败:', error)
+    return { success: false, error: error.message }
+  }
+})
+
 app.on('ready', () => {
   // 如果已经退出，不创建窗口
   if (app.isQuitting) {

@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // HTTP 请求（用于处理跨域）
   httpRequest: (url, options) => ipcRenderer.invoke('http-request', url, options),
   
+  // 下载音乐和歌词
+  downloadMusicWithLyrics: (musicData) => ipcRenderer.invoke('download-music-with-lyrics', musicData),
+  
   // 获取系统路径
   getPath: (name) => ipcRenderer.invoke('get-path', name),
   

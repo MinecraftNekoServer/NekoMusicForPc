@@ -121,31 +121,49 @@ const playAll = () => {
 
 // 下载音乐
 const downloadMusic = async (music) => {
+  console.log('开始下载音乐:', music)
+  console.log('检查Electron API:', window.electronAPI)
+  
   try {
-    const downloadUrl = `${apiConfig.BASE_URL}/api/music/file/${music.id}`
+    // 检查是否在Electron环境中
+    if (window.electronAPI) {
+      console.log('使用Electron API下载')
+      // 使用Electron API下载音乐和歌词
+      const result = await window.electronAPI.downloadMusicWithLyrics({
+        id: music.id,
+        title: music.title,
+        artist: music.artist,
+        fileFormat: music.fileFormat || 'mp3',
+        baseUrl: apiConfig.BASE_URL
+      })
 
-    // 使用fetch获取文件数据
-    const response = await fetch(downloadUrl)
-    if (!response.ok) {
-      throw new Error('下载失败')
+      console.log('下载结果:', result)
+
+      if (result.success) {
+        alert(`下载成功！\n音乐: ${result.musicPath}\n${result.lyricsPath ? '歌词: ' + result.lyricsPath : ''}`)
+      } else {
+        alert('下载失败: ' + result.error)
+      }
+    } else {
+      console.log('Electron API不可用，使用浏览器下载')
+      // 回退到普通浏览器下载
+      const downloadUrl = `${apiConfig.BASE_URL}/api/music/file/${music.id}`
+      const response = await fetch(downloadUrl)
+      if (!response.ok) {
+        throw new Error('下载失败')
+      }
+
+      const blob = await response.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = `${music.title}-${music.artist}.mp3`
+      document.body.appendChild(link)
+      link.click()
+
+      document.body.removeChild(link)
+      URL.revokeObjectURL(blobUrl)
     }
-
-    // 将响应转换为blob
-    const blob = await response.blob()
-
-    // 创建blob URL
-    const blobUrl = URL.createObjectURL(blob)
-
-    // 创建下载链接
-    const link = document.createElement('a')
-    link.href = blobUrl
-    link.download = `${music.title}-${music.artist}.mp3`
-    document.body.appendChild(link)
-    link.click()
-
-    // 清理
-    document.body.removeChild(link)
-    URL.revokeObjectURL(blobUrl)
   } catch (error) {
     console.error('下载失败:', error)
     alert('下载失败，请重试')
