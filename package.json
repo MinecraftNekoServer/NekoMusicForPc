@@ -80,8 +80,7 @@
     "fileAssociations": [],
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        "nsis"
       ],
       "icon": "public/icon.png",
       "artifactName": "${productName}-${version}-${os}.${ext}"
