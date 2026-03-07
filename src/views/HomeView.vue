@@ -36,6 +36,30 @@
           </div>
         </div>
 
+        <!-- 最新音乐整体卡片 -->
+        <div
+          class="playlist-item latest-music-card"
+          @click="goToLatest"
+        >
+          <div class="playlist-cover latest-music-cover">
+            <div class="latest-music-mosaic">
+              <img
+                v-for="(item, index) in latestMusicList.slice(0, 4)"
+                :key="index"
+                :src="item.coverUrl"
+                :alt="item.title"
+                class="mosaic-img"
+                @error="handleImageError"
+              />
+            </div>
+            <div class="playlist-count latest-music-count">{{ latestMusicCount || 0 }}首</div>
+          </div>
+          <div class="playlist-info">
+            <h3 class="playlist-name">最新音乐</h3>
+            <p class="playlist-description">刚刚上传的最新歌曲</p>
+          </div>
+        </div>
+
         <!-- 歌单卡片 -->
         <div
           v-for="playlist in playlistList"
@@ -80,6 +104,8 @@ const playlistList = ref([])
 const playlistsLoading = ref(false)
 const hotMusicList = ref([])
 const hotMusicCount = ref(0)
+const latestMusicList = ref([])
+const latestMusicCount = ref(0)
 
 // 获取推荐歌单
 const fetchPlaylists = async () => {
@@ -147,6 +173,34 @@ const fetchHotMusic = async () => {
   }
 }
 
+// 获取最新音乐（用于拼接封面）
+const fetchLatestMusic = async () => {
+  try {
+    const timestamp = Date.now()
+    const response = await fetch(`${apiConfig.BASE_URL}/api/music/latest?limit=300&t=${timestamp}`)
+    const data = await response.json()
+
+    if (data.success && data.data && data.data.length > 0) {
+      // 保存完整的音乐数量
+      latestMusicCount.value = data.data.length
+      // 只取前4首用于拼接封面
+      latestMusicList.value = data.data.slice(0, 4).map(item => ({
+        ...item,
+        coverUrl: `${apiConfig.BASE_URL}/api/music/cover/${item.id}`
+      }))
+      console.log('最新音乐加载成功:', latestMusicCount.value, '首')
+    } else {
+      console.log('没有最新音乐数据')
+      latestMusicList.value = []
+      latestMusicCount.value = 0
+    }
+  } catch (error) {
+    console.error('获取最新音乐失败:', error)
+    latestMusicList.value = []
+    latestMusicCount.value = 0
+  }
+}
+
 // 跳转到歌单详情
 const goToPlaylist = (playlistId) => {
   router.push(`/playlist/${playlistId}`)
@@ -155,6 +209,11 @@ const goToPlaylist = (playlistId) => {
 // 跳转到排行榜
 const goToRanking = () => {
   router.push('/ranking')
+}
+
+// 跳转到最新音乐
+const goToLatest = () => {
+  router.push('/latest')
 }
 
 // 处理图片加载错误
@@ -170,6 +229,7 @@ const handlePlaylistCoverError = (event) => {
 onMounted(() => {
   fetchPlaylists()
   fetchHotMusic()
+  fetchLatestMusic()
 })
 </script>
 
@@ -380,6 +440,40 @@ onMounted(() => {
 
 .hot-music-count {
   background: rgba(102, 126, 234, 0.9);
+  color: var(--text-white);
+  font-weight: 700;
+}
+
+/* 最新音乐卡片样式 */
+.latest-music-card {
+  background: linear-gradient(135deg, rgba(240, 147, 251, 0.05) 0%, rgba(245, 87, 108, 0.05) 100%);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  transition: all var(--transition-normal);
+}
+
+.latest-music-card:hover {
+  background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+}
+
+.latest-music-cover {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  padding: 3px;
+}
+
+.latest-music-mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.latest-music-count {
+  background: rgba(245, 87, 108, 0.9);
   color: var(--text-white);
   font-weight: 700;
 }

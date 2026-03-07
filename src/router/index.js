@@ -16,6 +16,11 @@ const routes = [
     component: () => import('../views/RankingView.vue')
   },
   {
+    path: '/latest',
+    name: 'Latest',
+    component: () => import('../views/LatestView.vue')
+  },
+  {
     path: '/search',
     name: 'Search',
     component: () => import('../views/SearchView.vue')

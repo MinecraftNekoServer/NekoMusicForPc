@@ -1,7 +1,7 @@
 <template>
-  <div class="ranking-view">
-    <div class="ranking-header">
-      <h1 class="ranking-title">热门音乐</h1>
+  <div class="latest-view">
+    <div class="latest-header">
+      <h1 class="latest-title">最新音乐</h1>
       <button @click="playAll" class="play-all-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z"/>
@@ -11,16 +11,16 @@
     </div>
 
     <div v-if="loading" class="loading">加载中...</div>
-    <div v-else-if="rankingList && rankingList.length > 0" class="ranking-list">
+    <div v-else-if="latestList && latestList.length > 0" class="latest-list">
       <div
-        v-for="(item, index) in rankingList"
+        v-for="(item, index) in latestList"
         :key="item.id"
-        class="ranking-item"
+        class="latest-item"
       >
-        <div class="ranking-number" :class="`rank-${index + 1}`">
+        <div class="latest-number">
           {{ index + 1 }}
         </div>
-        <div class="ranking-cover">
+        <div class="latest-cover">
           <img
             :src="item.coverUrl"
             :alt="item.title"
@@ -28,12 +28,12 @@
             @error="handleImageError"
           />
         </div>
-        <div class="ranking-info">
+        <div class="latest-info">
           <h3 class="music-title">{{ item.title }}</h3>
           <p class="music-artist">{{ item.artist }}</p>
         </div>
-        <div class="ranking-play-count">{{ formatPlayCount(item.playCount) }}</div>
-        <div class="ranking-actions">
+        <div class="latest-time">{{ formatTime(item.createdAt) }}</div>
+        <div class="latest-actions">
           <button @click="playMusic(item)" class="action-btn play-btn" title="播放">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
@@ -50,7 +50,7 @@
       </div>
     </div>
     <div v-else class="no-content">
-      <p>暂无热门音乐</p>
+      <p>暂无最新音乐</p>
     </div>
   </div>
 </template>
@@ -59,31 +59,31 @@
 import { ref, onMounted } from 'vue'
 import apiConfig from '@/config/apiConfig.js'
 
-const rankingList = ref([])
+const latestList = ref([])
 const loading = ref(false)
 const currentMusic = ref(null)
 
-// 获取排行榜
-const fetchRanking = async () => {
+// 获取最新音乐
+const fetchLatest = async () => {
   loading.value = true
   try {
     const timestamp = Date.now()
-    const response = await fetch(`${apiConfig.BASE_URL}/api/music/ranking?t=${timestamp}`)
+    const response = await fetch(`${apiConfig.BASE_URL}/api/music/latest?limit=300&t=${timestamp}`)
     const data = await response.json()
 
     if (data.success && data.data) {
-      rankingList.value = data.data.map(item => ({
+      latestList.value = data.data.map(item => ({
         ...item,
         coverUrl: `${apiConfig.BASE_URL}/api/music/cover/${item.id}`
       }))
-      console.log('排行榜加载成功:', rankingList.value.length, '首')
+      console.log('最新音乐加载成功:', latestList.value.length, '首')
     } else {
-      console.error('获取排行榜失败:', data.message)
-      rankingList.value = []
+      console.error('获取最新音乐失败:', data.message)
+      latestList.value = []
     }
   } catch (error) {
-    console.error('排行榜请求失败:', error)
-    rankingList.value = []
+    console.error('最新音乐请求失败:', error)
+    latestList.value = []
   } finally {
     loading.value = false
   }
@@ -98,25 +98,21 @@ const playMusic = (music) => {
   window.dispatchEvent(new CustomEvent('add-to-playlist', { detail: music }))
   
   // 触发播放
-  window.dispatchEvent(new CustomEvent('music-play', { detail: music }))
+  window.dispatchEvent(new CustomEvent('play-music', { detail: music }))
 }
 
 // 播放全部
 const playAll = () => {
-  if (!rankingList.value || rankingList.value.length === 0) {
-    return
-  }
+  if (latestList.value.length === 0) return
   
-  // 设置当前音乐为第一首
-  const firstMusic = rankingList.value[0]
-  currentMusic.value = firstMusic
-  localStorage.setItem('currentMusic', JSON.stringify(firstMusic))
+  currentMusic.value = latestList.value[0]
+  localStorage.setItem('currentMusic', JSON.stringify(latestList.value[0]))
   
-  // 添加全部到播放列表
-  window.dispatchEvent(new CustomEvent('add-all-to-playlist', { detail: rankingList.value }))
+  // 设置播放列表
+  localStorage.setItem('playlist', JSON.stringify(latestList.value))
   
-  // 触发播放第一首
-  window.dispatchEvent(new CustomEvent('music-play', { detail: firstMusic }))
+  // 触发播放全部
+  window.dispatchEvent(new CustomEvent('play-all', { detail: latestList.value }))
 }
 
 // 下载音乐
@@ -152,43 +148,64 @@ const downloadMusic = async (music) => {
   }
 }
 
-// 格式化播放次数
-const formatPlayCount = (count) => {
-  if (count >= 10000) {
-    return (count / 10000).toFixed(1) + '万'
-  }
-  return count.toString()
-}
-
 // 处理图片加载错误
 const handleImageError = (event) => {
   event.target.src = '/api/defaultIcon'
 }
 
+// 格式化时间
+const formatTime = (timestamp) => {
+  if (!timestamp) return '未知时间'
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diff = now - date
+
+  const seconds = Math.floor(diff / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+
+  if (seconds < 60) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+  if (hours < 24) return `${hours}小时前`
+  if (days < 7) return `${days}天前`
+
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+}
+
 onMounted(() => {
-  fetchRanking()
+  fetchLatest()
 })
 </script>
 
 <style scoped>
-.ranking-view {
+.latest-view {
   height: 100%;
   overflow-y: auto;
   padding: 32px;
 }
 
-.ranking-header {
+.latest-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
 }
 
-.ranking-title {
+.latest-title {
+  margin: 0;
   font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0;
 }
 
 .play-all-btn {
@@ -197,22 +214,19 @@ onMounted(() => {
   gap: 8px;
   padding: 10px 20px;
   background: var(--gradient-primary);
-  color: white;
+  color: var(--text-white);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
 }
 
 .play-all-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-}
-
-.play-all-btn:active {
-  transform: translateY(0);
 }
 
 .loading {
@@ -222,17 +236,16 @@ onMounted(() => {
   font-size: 14px;
 }
 
-.ranking-list {
+.latest-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.ranking-item {
+.latest-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  padding: 16px 20px;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -240,94 +253,68 @@ onMounted(() => {
   transition: all var(--transition-normal);
 }
 
-.ranking-item:hover {
-  background: rgba(102, 126, 234, 0.03);
+.latest-item:hover {
+  background: var(--bg-card-hover);
   transform: translateX(4px);
   box-shadow: var(--shadow-md);
 }
 
-.ranking-number {
+.latest-number {
+  font-size: 20px;
+  font-weight: 700;
   width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 800;
+  text-align: center;
   color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.03);
 }
 
-.rank-1 {
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  color: white;
-}
-
-.rank-2 {
-  background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%);
-  color: white;
-}
-
-.rank-3 {
-  background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
-  color: white;
-}
-
-.ranking-cover {
-  flex-shrink: 0;
+.latest-cover {
   width: 56px;
   height: 56px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  margin-right: 16px;
+  flex-shrink: 0;
+  background: var(--gradient-primary);
 }
 
 .cover-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-normal);
 }
 
-.ranking-item:hover .cover-img {
-  transform: scale(1.05);
-}
-
-.ranking-info {
+.latest-info {
   flex: 1;
   min-width: 0;
 }
 
 .music-title {
+  margin: 0 0 6px 0;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 4px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .music-artist {
+  margin: 0;
   font-size: 13px;
   color: var(--text-secondary);
-  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.ranking-play-count {
+.latest-time {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-right: 16px;
   flex-shrink: 0;
-  font-size: 13px;
-  color: var(--text-muted);
-  padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: var(--radius-sm);
 }
 
-.ranking-actions {
+.latest-actions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
@@ -336,25 +323,21 @@ onMounted(() => {
 .action-btn {
   width: 36px;
   height: 36px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--bg-glass);
-  color: var(--text-secondary);
-  cursor: pointer;
   transition: all var(--transition-normal);
 }
 
 .action-btn:hover {
-  background: var(--primary);
-  color: white;
-  transform: scale(1.05);
-}
-
-.action-btn:active {
-  transform: scale(0.95);
+  background: var(--gradient-primary);
+  color: var(--text-white);
+  transform: scale(1.1);
 }
 
 .no-content {
@@ -365,20 +348,20 @@ onMounted(() => {
 }
 
 /* 滚动条样式 */
-.ranking-view::-webkit-scrollbar {
+.latest-view::-webkit-scrollbar {
   width: 8px;
 }
 
-.ranking-view::-webkit-scrollbar-track {
+.latest-view::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.ranking-view::-webkit-scrollbar-thumb {
+.latest-view::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
 
-.ranking-view::-webkit-scrollbar-thumb:hover {
+.latest-view::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
 }
 </style>
