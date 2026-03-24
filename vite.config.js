@@ -74,16 +74,49 @@ export default defineConfig(({ mode }) => {
         compress: {
           drop_console: true,  // 移除 console.log
           drop_debugger: true,  // 移除 debugger
-          pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn', 'console.trace'],  // 移除指定的函数
+          pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn', 'console.trace', 'console.error'],  // 移除指定的函数
           dead_code: true,  // 移除死代码
           unused: true,  // 移除未使用的变量
-        },
-        format: {
-          comments: false,  // 移除注释
+          passes: 2,  // 多次压缩
+          unsafe: true,  // 激进优化
+          unsafe_comps: true,
+          unsafe_Function: true,
+          unsafe_math: true,
+          unsafe_proto: true,
+          unsafe_regexp: true,
+          conditionals: true,
+          comparisons: true,
+          evaluate: true,
+          booleans: true,
+          loops: true,
+          keep_fargs: false,
+          hoist_funs: true,
+          hoist_vars: true,
+          if_return: true,
+          join_vars: true,
+          side_effects: true,
+          negate_iife: true,
+          sequences: true,
+          switches: true,
+          typeofs: true,
         },
         mangle: {
           safari10: true,  // 兼容 Safari 10
+          properties: {
+            regex: /^_/,  // 混淆以 _ 开头的属性
+          },
+          toplevel: true,  // 混淆顶级作用域
+          keep_classnames: false,
+          keep_fnames: false,
         },
+        format: {
+          comments: false,  // 移除注释
+          beautify: false,
+          ecma: 2020,
+        },
+        ecma: 2020,
+        module: true,
+        toplevel: true,
       },
       
       // Chunk 优化
@@ -98,28 +131,41 @@ export default defineConfig(({ mode }) => {
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
           // 优化 chunk 拆分策略
           inlineDynamicImports: false,
+          compact: true,
         },
         // 外部依赖排除
         external: [],
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+          unknownGlobalSideEffects: false,
+        },
       },
       
       // Chunk 大小警告限制（KB）
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 500,
       
       // 启用 CSS 代码分割
       cssCodeSplit: true,
+      cssMinify: true,
       
       // 构建目标
-      target: 'esnext',
+      target: 'es2020',
       
       // 资源内联限制
-      assetsInlineLimit: 4096,
+      assetsInlineLimit: 1024,
       
       // 源码映射
       sourcemap: false,
       
       // 报告压缩
-      reportCompressedSize: true,
+      reportCompressedSize: false,
+      
+      // 优化模块预构建
+      optimizeDeps: {
+        include: ['vue', 'vue-router'],
+        exclude: []
+      }
     },
     clearScreen: false,
   }
