@@ -37,6 +37,11 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "build": {
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/",
+      "strictSSL": true,
+      "version": "37.1.0"
+    },
     "appId": "com.neko.music",
     "productName": "Neko云音乐",
     "directories": {
@@ -70,11 +75,41 @@
       "!tests/**/*",
       "!coverage/**/*",
       "!.git/**/*",
-      "!.github/**/*"
+      "!.github/**/*",
+      "!**/test/**/*",
+      "!**/tests/**/*",
+      "!**/*.test.*",
+      "!**/*.spec.*",
+      "!**/.git*",
+      "!**/.DS_Store",
+      "!**/Thumbs.db",
+      "!**/.idea/**/*",
+      "!**/.vscode/**/*",
+      "!**/node_modules/**/*",
+      "!**/dist-electron/**/node_modules/**/*",
+      "!**/.nyc_output/**/*",
+      "!**/*.log",
+      "!**/*.tmp",
+      "!**/.cache/**/*",
+      "!**/.temp/**/*",
+      "!**/coverage/**/*",
+      "!**/release/**/*",
+      "!**/build/**/*",
+      "!**/.env*",
+      "!**/.eslint*",
+      "!**/.prettier*",
+      "!**/tsconfig.json",
+      "!**/.editorconfig",
+      "!**/yarn.lock",
+      "!**/pnpm-lock.yaml",
+      "!**/bun.lockb",
+      "!**/package-lock.json"
     ],
     "asar": true,
     "asarUnpack": [],
     "compression": "maximum",
+    "removePackageScripts": true,
+    "removePackageKeywords": true,
     "npmRebuild": false,
     "electronVersion": "37.1.0",
     "fileAssociations": [],
@@ -82,7 +117,6 @@
       "target": [
         "nsis"
       ],
-      "icon": "public/icon.png",
       "artifactName": "${productName}-${version}-${os}.${ext}"
     },
     "mac": {
@@ -118,7 +152,14 @@
       "createStartMenuShortcut": true,
       "perMachine": false,
       "allowElevation": false,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "license": null,
+      "differentialPackage": false,
+      "artifactName": "${productName}-${version}-${os}.${ext}",
+      "displayLanguageSelector": false,
+      "guid": "com.neko.music",
+      "packElevateHelper": false,
+      "runAfterFinish": true
     },
     "publish": null,
     "afterPack": "./scripts/afterPack.cjs"
