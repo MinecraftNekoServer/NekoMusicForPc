@@ -718,7 +718,7 @@ const handleSubmit = async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--text-light);
   transition: 0.3s;
   border-radius: 26px;
 }
@@ -730,7 +730,7 @@ const handleSubmit = async () => {
   width: 20px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  background-color: var(--bg-white);
   transition: 0.3s;
   border-radius: 50%;
 }

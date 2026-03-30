@@ -268,10 +268,10 @@ onMounted(() => {
 }
 
 .playlist-card {
-  background: white;
+  background: var(--bg-white);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -406,7 +406,7 @@ onMounted(() => {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--bg-white);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -414,11 +414,11 @@ onMounted(() => {
   justify-content: center;
   color: var(--text-secondary);
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .action-btn:hover {
-  background: white;
+  background: var(--bg-active);
   color: #e91e63;
   transform: scale(1.1);
 }

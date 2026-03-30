@@ -408,10 +408,10 @@ onMounted(() => {
 }
 
 .playlist-card {
-  background: white;
+  background: var(--bg-white);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -548,7 +548,7 @@ onMounted(() => {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--bg-white);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -556,11 +556,11 @@ onMounted(() => {
   justify-content: center;
   color: var(--text-secondary);
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .action-btn:hover {
-  background: white;
+  background: var(--bg-active);
   color: var(--primary);
   transform: scale(1.1);
 }
@@ -583,12 +583,12 @@ onMounted(() => {
 }
 
 .dialog {
-  background: white;
+  background: var(--bg-white);
   border-radius: 12px;
   padding: 24px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-xl);
 }
 
 .dialog-title {
@@ -614,18 +614,19 @@ onMounted(() => {
 .form-group textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-input);
   border-radius: 8px;
   font-size: 14px;
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
+  background: var(--bg-input);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: var(--primary);
+  border-color: var(--border-focus);
 }
 
 .form-group textarea {
@@ -651,12 +652,12 @@ onMounted(() => {
 }
 
 .btn.cancel {
-  background: #f5f5f5;
-  color: var(--text-secondary);
+  background: var(--bg-hover);
+  color: var(--text-gray);
 }
 
 .btn.cancel:hover {
-  background: #e0e0e0;
+  background: var(--bg-active);
 }
 
 .btn.primary {
@@ -665,7 +666,7 @@ onMounted(() => {
 }
 
 .btn.primary:hover {
-  background: #5a7bd6;
+  background: var(--primary-light);
 }
 
 .btn.danger {

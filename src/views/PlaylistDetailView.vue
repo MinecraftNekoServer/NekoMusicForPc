@@ -696,7 +696,7 @@ const handleCancel = () => {
   display: flex;
   gap: 24px;
   padding: 24px;
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   margin-bottom: 24px;
@@ -801,7 +801,7 @@ const handleCancel = () => {
 
 .action-btn.play-all {
   background: var(--gradient-primary);
-  color: #ffc3c3;
+  color: white;
   box-shadow: var(--shadow-md);
 }
 
@@ -811,7 +811,7 @@ const handleCancel = () => {
 }
 
 .action-btn.collect {
-  background: white;
+  background: var(--bg-white);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
@@ -827,7 +827,7 @@ const handleCancel = () => {
 }
 
 .music-list-section {
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
@@ -1036,7 +1036,7 @@ const handleCancel = () => {
 
 .context-menu {
   position: fixed;
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   padding: 8px 0;
