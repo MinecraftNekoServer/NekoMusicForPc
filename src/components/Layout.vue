@@ -1460,7 +1460,7 @@ watch(() => route.path, (newPath) => {
   width: 100%;
   max-width: 480px;
   height: 44px;
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   padding: 0 4px 0 16px;
   box-shadow: var(--shadow-md);

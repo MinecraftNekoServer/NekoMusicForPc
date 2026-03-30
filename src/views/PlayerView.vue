@@ -1397,7 +1397,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translate(-50%, -50%);
   width: 14px;
   height: 14px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
@@ -1410,7 +1410,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translate(-50%, -50%);
   width: 24px;
   height: 24px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 50%;
   filter: blur(8px);
   opacity: 0.5;
@@ -1491,7 +1491,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translateX(-50%) translateY(50%);
   width: 20px;
   height: 20px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: bottom 0.1s;

@@ -231,7 +231,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  background: var(--bg-main);
   overflow-y: auto;
 }
 
@@ -374,17 +374,17 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e5e5;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-input);
   transition: all 0.2s ease;
   width: 280px;
 }
 
 .search-wrapper:focus-within {
-  border-color: #ED4040;
-  box-shadow: 0 2px 12px rgba(237, 64, 64, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.15);
 }
 
 .search-icon {
@@ -423,7 +423,7 @@ onMounted(() => {
 }
 
 .clear-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
@@ -464,7 +464,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 50px 1fr 1fr 80px 120px;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-divider);
   cursor: pointer;
   transition: all 0.2s ease;
   align-items: center;
@@ -475,7 +475,7 @@ onMounted(() => {
 }
 
 .music-item:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--bg-hover);
 }
 
 .music-item:hover .cover-wrapper-small .cover-overlay {
@@ -483,7 +483,7 @@ onMounted(() => {
 }
 
 .music-item.playing {
-  background: rgba(237, 64, 64, 0.05);
+  background: rgba(237, 64, 64, 0.08);
 }
 
 .music-item.playing .music-title {
@@ -609,7 +609,7 @@ onMounted(() => {
 }
 
 .action-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
