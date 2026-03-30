@@ -328,11 +328,11 @@ watch(isLoggedIn, (newValue) => {
 .sidebar {
   width: 240px;
   height: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-sidebar);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid var(--border-color);
 }
 
 .sidebar-nav {
@@ -345,21 +345,21 @@ watch(isLoggedIn, (newValue) => {
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-white-muted);
   cursor: pointer;
   transition: all 0.2s;
   border-left: 3px solid transparent;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--bg-hover);
+  color: var(--text-white);
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border-left-color: white;
+  background: var(--bg-active);
+  color: var(--text-white);
+  border-left-color: var(--primary);
 }
 
 .nav-icon {
@@ -379,7 +379,7 @@ watch(isLoggedIn, (newValue) => {
 
 .nav-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   margin: 8px 20px;
 }
 
@@ -390,7 +390,7 @@ watch(isLoggedIn, (newValue) => {
 .playlists-group-title {
   padding: 8px 20px 4px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-white-muted);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -410,7 +410,7 @@ watch(isLoggedIn, (newValue) => {
 
 .sidebar-footer {
   padding: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-color);
 }
 
 .user-info {
@@ -425,7 +425,7 @@ watch(isLoggedIn, (newValue) => {
 }
 
 .user-info:not(.is-login):hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-hover);
   border-radius: 8px;
   padding: 8px;
   margin: -8px;
@@ -435,7 +435,7 @@ watch(isLoggedIn, (newValue) => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--border-color);
 }
 
 .user-details {
@@ -467,20 +467,20 @@ watch(isLoggedIn, (newValue) => {
 }
 
 .modal-content {
-  background: #2a2a2a;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 24px;
   width: 100%;
   max-width: 360px;
   text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
 }
 
 .modal-tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   padding: 4px;
   border-radius: 8px;
 }
@@ -490,7 +490,7 @@ watch(isLoggedIn, (newValue) => {
   padding: 10px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -499,8 +499,8 @@ watch(isLoggedIn, (newValue) => {
 }
 
 .tab-btn.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--bg-active);
+  color: var(--text-primary);
 }
 
 .auth-form {
@@ -512,21 +512,21 @@ watch(isLoggedIn, (newValue) => {
 
 .auth-input {
   padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-input);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: var(--bg-input);
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
 }
 
 .auth-input:focus {
-  border-color: rgba(102, 126, 234, 0.6);
+  border-color: var(--border-focus);
 }
 
 .modal-buttons {

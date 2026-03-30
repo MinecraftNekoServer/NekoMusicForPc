@@ -638,7 +638,7 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -828,7 +828,7 @@ onMounted(() => {
 }
 
 .playlist-card {
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
@@ -894,7 +894,7 @@ onMounted(() => {
 }
 
 .artist-card {
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);

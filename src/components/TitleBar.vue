@@ -185,7 +185,7 @@ onMounted(() => {
 .title {
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-dark);
 }
 
 .title-bar-center {
@@ -201,7 +201,7 @@ onMounted(() => {
   width: 100%;
   max-width: 400px;
   height: 32px;
-  background: #f5f5f7;
+  background: var(--bg-hover);
   border-radius: 16px;
   padding: 0 12px;
   -webkit-app-region: no-drag;
@@ -210,7 +210,7 @@ onMounted(() => {
 .search-icon {
   width: 16px;
   height: 16px;
-  color: #999;
+  color: var(--text-light);
   flex-shrink: 0;
 }
 
@@ -220,24 +220,24 @@ onMounted(() => {
   background: transparent;
   padding: 0 8px;
   font-size: 13px;
-  color: #333;
+  color: var(--text-dark);
   outline: none;
 }
 
 .search-box input::placeholder {
-  color: #999;
+  color: var(--text-light);
 }
 
 .mic-icon {
   width: 16px;
   height: 16px;
-  color: #d0d0e0;
+  color: var(--text-light);
   flex-shrink: 0;
   cursor: pointer;
 }
 
 .mic-icon:hover {
-  color: #999;
+  color: var(--text-gray);
 }
 
 .title-bar-right {
@@ -258,14 +258,14 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-gray);
   transition: all 0.2s;
   -webkit-app-region: no-drag;
 }
 
 .action-btn:hover {
-  background: #f5f5f7;
-  color: #333;
+  background: var(--bg-hover);
+  color: var(--text-dark);
 }
 
 .badge {
@@ -302,7 +302,7 @@ onMounted(() => {
 
 .username {
   font-size: 14px;
-  color: #333;
+  color: var(--text-dark);
   max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
@@ -310,7 +310,7 @@ onMounted(() => {
 }
 
 .dropdown-icon {
-  color: #999;
+  color: var(--text-light);
   flex-shrink: 0;
 }
 
@@ -331,13 +331,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-gray);
   transition: all 0.2s;
 }
 
 .window-btn:hover {
-  background: #f5f5f7;
-  color: #333;
+  background: var(--bg-hover);
+  color: var(--text-dark);
 }
 
 .close-btn:hover {

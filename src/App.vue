@@ -343,12 +343,12 @@ onMounted(() => {
 }
 
 .download-modal {
-  background: white;
+  background: var(--bg-white);
   border-radius: 16px;
   padding: 32px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
 }
 
 .download-header {
@@ -363,20 +363,20 @@ onMounted(() => {
 
 .download-header h3 {
   font-size: 22px;
-  color: #333;
+  color: var(--text-dark);
   margin-bottom: 12px;
   font-weight: 600;
 }
 
 .download-header p {
-  color: #666;
+  color: var(--text-gray);
   font-size: 14px;
   margin: 4px 0;
 }
 
 .download-header .file-path {
   font-size: 12px;
-  color: #999;
+  color: var(--text-light);
   word-break: break-all;
   margin-top: 8px;
 }
@@ -398,13 +398,13 @@ onMounted(() => {
 }
 
 .btn-cancel {
-  background: #f5f5f5;
-  color: #666;
+  background: var(--bg-hover);
+  color: var(--text-gray);
 }
 
 .btn-cancel:hover {
-  background: #e8e8e8;
-  color: #333;
+  background: var(--bg-active);
+  color: var(--text-dark);
 }
 
 .btn-install {

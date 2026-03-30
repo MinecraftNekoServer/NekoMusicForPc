@@ -647,28 +647,28 @@ const handleSubmit = async () => {
 
 .settings-container h2 {
   margin-bottom: 20px;
-  color: #333;
+  color: var(--text-dark);
   font-size: 24px;
   font-weight: 600;
 }
 
 .settings-section {
-  background: white;
+  background: var(--bg-white);
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   margin-bottom: 20px;
 }
 
 .settings-section h3 {
   margin-bottom: 16px;
-  color: #333;
+  color: var(--text-dark);
   font-size: 16px;
   font-weight: 600;
 }
 
 .settings-section p {
-  color: #666;
+  color: var(--text-gray);
   margin: 8px 0;
 }
 
@@ -685,7 +685,7 @@ const handleSubmit = async () => {
 
 .setting-label {
   display: block;
-  color: #333;
+  color: var(--text-dark);
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 4px;
@@ -693,7 +693,7 @@ const handleSubmit = async () => {
 
 .setting-desc {
   display: block;
-  color: #999;
+  color: var(--text-light);
   font-size: 12px;
 }
 
@@ -750,18 +750,18 @@ const handleSubmit = async () => {
 .cache-path-info {
   margin-top: 12px;
   padding: 12px;
-  background: #f5f7fa;
+  background: var(--bg-hover);
   border-radius: 8px;
   font-size: 13px;
 }
 
 .cache-path-label {
-  color: #666;
+  color: var(--text-gray);
   font-weight: 500;
 }
 
 .cache-path-value {
-  color: #333;
+  color: var(--text-dark);
   font-family: 'Courier New', monospace;
   word-break: break-all;
   display: block;
@@ -796,13 +796,13 @@ const handleSubmit = async () => {
 .update-available {
   margin-top: 12px;
   padding: 12px;
-  background: #e8f5e9;
+  background: var(--bg-success);
   border-radius: 8px;
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid var(--text-success);
 }
 
 .update-message {
-  color: #2e7d32;
+  color: var(--text-success);
   font-size: 14px;
   margin: 0 0 8px 0;
 }
@@ -838,12 +838,12 @@ const handleSubmit = async () => {
 }
 
 .download-modal {
-  background: white;
+  background: var(--bg-white);
   border-radius: 16px;
   padding: 32px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
 }
 
 .download-header {
@@ -852,26 +852,26 @@ const handleSubmit = async () => {
 }
 
 .success-icon {
-  color: #4caf50;
+  color: var(--text-success);
   margin-bottom: 16px;
 }
 
 .download-header h3 {
   font-size: 22px;
-  color: #333;
+  color: var(--text-dark);
   margin-bottom: 12px;
   font-weight: 600;
 }
 
 .download-header p {
-  color: #666;
+  color: var(--text-gray);
   font-size: 14px;
   margin: 4px 0;
 }
 
 .download-header .file-path {
   font-size: 12px;
-  color: #999;
+  color: var(--text-light);
   word-break: break-all;
   margin-top: 8px;
 }
@@ -893,13 +893,13 @@ const handleSubmit = async () => {
 }
 
 .btn-cancel {
-  background: #f5f5f5;
-  color: #666;
+  background: var(--bg-hover);
+  color: var(--text-gray);
 }
 
 .btn-cancel:hover {
-  background: #e8e8e8;
-  color: #333;
+  background: var(--bg-active);
+  color: var(--text-dark);
 }
 
 .btn-install {
@@ -927,7 +927,7 @@ const handleSubmit = async () => {
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #f0f0f0;
+  border: 3px solid var(--border-divider);
 }
 
 .account-details {
@@ -941,7 +941,7 @@ const handleSubmit = async () => {
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-divider);
 }
 
 .account-item:last-child {
@@ -949,12 +949,12 @@ const handleSubmit = async () => {
 }
 
 .account-item .label {
-  color: #999;
+  color: var(--text-light);
   font-size: 14px;
 }
 
 .account-item .value {
-  color: #333;
+  color: var(--text-dark);
   font-size: 14px;
   font-weight: 500;
 }
@@ -965,10 +965,10 @@ const handleSubmit = async () => {
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  background: #f5f5f5;
+  background: var(--bg-hover);
   border: none;
   border-radius: 8px;
-  color: #666;
+  color: var(--text-gray);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
@@ -977,8 +977,8 @@ const handleSubmit = async () => {
 }
 
 .logout-btn:hover {
-  background: #e8e8e8;
-  color: #333;
+  background: var(--bg-active);
+  color: var(--text-dark);
 }
 
 .no-login {
@@ -987,7 +987,7 @@ const handleSubmit = async () => {
 }
 
 .no-login p {
-  color: #999;
+  color: var(--text-light);
   margin-bottom: 16px;
 }
 

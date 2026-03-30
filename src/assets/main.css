@@ -553,18 +553,96 @@ body {
 /* 暗色模式支持 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-primary: #e2e8f0;
-    --text-secondary: #a0aec0;
-    --text-muted: #718096;
-    --bg-main: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-    --bg-card: rgba(45, 55, 72, 0.9);
-    --bg-glass: rgba(45, 55, 72, 0.7);
+    /* 主题颜色 - 暗色模式下保持不变或调整亮度 */
+    --primary: #8b92f2;
+    --primary-light: #a8adf5;
+    --primary-dark: #667eea;
+    
+    /* 背景颜色 */
+    --bg-main: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --bg-card: rgba(30, 41, 59, 0.95);
+    --bg-glass: rgba(30, 41, 59, 0.8);
+    --bg-sidebar: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+    
+    /* 文字颜色 */
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-white: #ffffff;
+    --text-white-muted: rgba(255, 255, 255, 0.6);
+    
+    /* 边框颜色 */
+    --border-color: rgba(255, 255, 255, 0.08);
     --border-light: rgba(255, 255, 255, 0.1);
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
+    
+    /* 阴影 - 暗色模式下增强 */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.7);
+    
+    /* 额外的常用颜色变量 */
+    --bg-white: rgba(30, 41, 59, 0.95);
+    --bg-hover: rgba(51, 65, 85, 0.8);
+    --bg-active: rgba(71, 85, 105, 0.9);
+    --bg-input: rgba(15, 23, 42, 0.8);
+    --bg-disabled: rgba(30, 41, 59, 0.5);
+    
+    --text-dark: #f1f5f9;
+    --text-gray: #94a3b8;
+    --text-light: #64748b;
+    
+    --border-divider: rgba(255, 255, 255, 0.08);
+    --border-input: rgba(255, 255, 255, 0.15);
+    --border-focus: rgba(139, 146, 242, 0.5);
+    
+    --bg-success: rgba(34, 197, 94, 0.15);
+    --bg-error: rgba(239, 68, 68, 0.15);
+    --bg-warning: rgba(234, 179, 8, 0.15);
+    --bg-info: rgba(59, 130, 246, 0.15);
+    
+    --text-success: #4ade80;
+    --text-error: #f87171;
+    --text-warning: #facc15;
+    --text-info: #60a5fa;
+    
+    --border-success: rgba(34, 197, 94, 0.3);
+    --border-error: rgba(239, 68, 68, 0.3);
+    --border-warning: rgba(234, 179, 8, 0.3);
+    --border-info: rgba(59, 130, 246, 0.3);
   }
+}
+
+/* 补充浅色模式的常用颜色变量 */
+:root {
+  --bg-white: rgba(255, 255, 255, 0.95);
+  --bg-hover: rgba(248, 250, 252, 0.95);
+  --bg-active: rgba(241, 245, 249, 0.95);
+  --bg-input: rgba(255, 255, 255, 0.95);
+  --bg-disabled: rgba(248, 250, 252, 0.5);
+  
+  --text-dark: #2d3748;
+  --text-gray: #718096;
+  --text-light: #a0aec0;
+  
+  --border-divider: rgba(0, 0, 0, 0.08);
+  --border-input: rgba(0, 0, 0, 0.1);
+  --border-focus: rgba(102, 126, 234, 0.5);
+  
+  --bg-success: rgba(34, 197, 94, 0.1);
+  --bg-error: rgba(239, 68, 68, 0.1);
+  --bg-warning: rgba(234, 179, 8, 0.1);
+  --bg-info: rgba(59, 130, 246, 0.1);
+  
+  --text-success: #22c55e;
+  --text-error: #ef4444;
+  --text-warning: #eab308;
+  --text-info: #3b82f6;
+  
+  --border-success: rgba(34, 197, 94, 0.3);
+  --border-error: rgba(239, 68, 68, 0.3);
+  --border-warning: rgba(234, 179, 8, 0.3);
+  --border-info: rgba(59, 130, 246, 0.3);
 }
 
 /* 打印样式 */
