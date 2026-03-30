@@ -301,7 +301,7 @@ onMounted(() => {
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 600;
-  color: white;
+  color: var(--bg-white);
   background: #ED4040;
   border: none;
   border-radius: 20px;
@@ -541,7 +541,7 @@ onMounted(() => {
 }
 
 .play-overlay-icon {
-  color: white;
+  color: var(--bg-white);
   transform: scale(0.8);
   transition: all 0.2s ease;
 }

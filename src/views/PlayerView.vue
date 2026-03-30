@@ -1042,7 +1042,7 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-active);
 }
 
 .window-controls {
@@ -1054,19 +1054,19 @@ watch(() => router.currentRoute.value, () => {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-hover);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--bg-white);
   transition: all 0.2s ease;
   -webkit-app-region: no-drag;
 }
 
 .window-control-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-active);
 }
 
 .window-control-btn.close:hover {
@@ -1192,16 +1192,16 @@ watch(() => router.currentRoute.value, () => {
 .lyric-line.active {
   font-size: 28px;
   font-weight: 600;
-  color: white;
+  color: var(--bg-white);
   text-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
 }
 
 .lyric-line.active .lyric-text {
-  color: white;
+  color: var(--bg-white);
 }
 
 .lyric-line.active .lyric-translation {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--bg-white-muted);
   opacity: 1;
 }
 
@@ -1211,7 +1211,7 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--bg-white-muted);
   font-size: 18px;
   height: 200px;
 }
@@ -1223,9 +1223,9 @@ watch(() => router.currentRoute.value, () => {
   left: 0;
   right: 0;
   height: 90px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -1329,7 +1329,7 @@ watch(() => router.currentRoute.value, () => {
   width: 48px;
   height: 48px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: var(--bg-white);
   box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
 }
 
@@ -1440,7 +1440,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-white);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -1534,17 +1534,17 @@ watch(() => router.currentRoute.value, () => {
 
 .btn-back {
   padding: 12px 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
-  color: white;
+  color: var(--bg-white);
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-active);
 }
 
 /* 添加到歌单模态框样式 */
