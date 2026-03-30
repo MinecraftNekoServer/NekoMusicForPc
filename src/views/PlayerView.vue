@@ -1440,7 +1440,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  background: var(--bg-white);
+  //background: var(--bg-white);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
