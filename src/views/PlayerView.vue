@@ -1021,7 +1021,7 @@ watch(() => router.currentRoute.value, () => {
   justify-content: space-between;
   padding: 0 16px;
   background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-white-10);
   -webkit-app-region: drag;
   user-select: none;
 }
@@ -1030,7 +1030,7 @@ watch(() => router.currentRoute.value, () => {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -1129,11 +1129,11 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   gap: 12px;
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
 }
 
 .separator {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-white-30);
 }
 
 .lyrics-section {
@@ -1160,7 +1160,7 @@ watch(() => router.currentRoute.value, () => {
 
 .lyric-line {
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
   transition: all 0.3s ease;
   cursor: pointer;
   padding: 8px 16px;
@@ -1177,16 +1177,16 @@ watch(() => router.currentRoute.value, () => {
   display: block;
   font-size: 0.75em;
   opacity: 0.7;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
 }
 
 .lyric-line:hover {
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-white-60);
+  background: var(--bg-glass-5);
 }
 
 .lyric-line:hover .lyric-translation {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-white-80);
 }
 
 .lyric-line.active {
@@ -1256,7 +1256,7 @@ watch(() => router.currentRoute.value, () => {
 
 .player-artist {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-white-70);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1288,7 +1288,7 @@ watch(() => router.currentRoute.value, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-white-80);
   transition: all var(--transition-normal);
 }
 
@@ -1352,7 +1352,7 @@ watch(() => router.currentRoute.value, () => {
 
 .time {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   min-width: 42px;
   text-align: center;
   font-weight: 500;
@@ -1361,7 +1361,7 @@ watch(() => router.currentRoute.value, () => {
 .progress-bar {
   flex: 1;
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   border-radius: 3px;
   cursor: pointer;
   position: relative;
@@ -1514,12 +1514,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .lyrics-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   border-radius: 3px;
 }
 
 .lyrics-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
 }
 
 .no-music {
@@ -1528,7 +1528,7 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   justify-content: center;
   gap: 24px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   height: 100%;
 }
 
@@ -1570,7 +1570,7 @@ watch(() => router.currentRoute.value, () => {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-white-10);
 }
 
 .modal-content.modal-small {
@@ -1595,18 +1595,18 @@ watch(() => router.currentRoute.value, () => {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   transition: all 0.2s;
 }
 
 .modal-close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
   color: white;
 }
 
@@ -1615,7 +1615,7 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-5);
   border-radius: 12px;
   margin-bottom: 20px;
 }
@@ -1645,7 +1645,7 @@ watch(() => router.currentRoute.value, () => {
 .current-music-artist {
   display: block;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1664,7 +1664,7 @@ watch(() => router.currentRoute.value, () => {
 .section-title {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -1683,7 +1683,7 @@ watch(() => router.currentRoute.value, () => {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-glass-5);
   margin-bottom: 6px;
 }
 
@@ -1711,14 +1711,14 @@ watch(() => router.currentRoute.value, () => {
 
 .playlist-option-count {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
   flex-shrink: 0;
 }
 
 .playlists-empty {
   text-align: center;
   padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
 }
 
 .playlists-empty svg {
@@ -1734,7 +1734,7 @@ watch(() => router.currentRoute.value, () => {
 .create-playlist-section {
   margin-bottom: 20px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-white-10);
 }
 
 .create-playlist-form {
@@ -1745,8 +1745,8 @@ watch(() => router.currentRoute.value, () => {
 .playlist-name-input {
   flex: 1;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-5);
+  border: 1px solid var(--border-white-10);
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -1755,12 +1755,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .playlist-name-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
 }
 
 .playlist-name-input:focus {
   border-color: rgba(102, 126, 234, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-glass-10);
 }
 
 .create-playlist-btn {
@@ -1806,12 +1806,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .modal-btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   color: white;
 }
 
 .modal-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
 }
 
 .modal-enter-active,
@@ -1834,12 +1834,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .playlist-selector::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
   border-radius: 2px;
 }
 
 .playlist-selector::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--bg-glass-30);
 }
 
 /* 播放模式图标颜色 */

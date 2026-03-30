@@ -99,10 +99,10 @@
             <svg class="search-icon" viewBox="0 0 20 20">
               <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
             </svg>
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              placeholder="搜索音乐、艺术家..." 
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="搜索音乐、艺术家..."
               @keyup.enter="handleSearch"
             />
             <button class="search-btn" @click="handleSearch" title="搜索">
@@ -1153,7 +1153,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   color: white;
   transform: translateX(4px);
 }
@@ -1185,7 +1185,7 @@ watch(() => route.path, (newPath) => {
   position: absolute;
   width: 30px;
   height: 30px;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--bg-glass-30);
   border-radius: 50%;
   filter: blur(8px);
   z-index: 1;
@@ -1205,12 +1205,12 @@ watch(() => route.path, (newPath) => {
   height: 60%;
   background: var(--bg-white);
   border-radius: 2px 0 0 2px;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 8px var(--bg-glass-50);
 }
 
 .nav-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, var(--bg-glass-10), transparent);
   margin: 8px 16px;
 }
 
@@ -1240,7 +1240,7 @@ watch(() => route.path, (newPath) => {
   width: 28px;
   height: 28px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
   border-radius: 50%;
   color: var(--text-white-muted);
   cursor: pointer;
@@ -1251,7 +1251,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .add-playlist-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
   color: white;
 }
 
@@ -1460,7 +1460,7 @@ watch(() => route.path, (newPath) => {
   width: 100%;
   max-width: 480px;
   height: 44px;
-  background: var(--bg-white);
+  background: var(--bg-glass-10);
   border-radius: var(--radius-lg);
   padding: 0 4px 0 16px;
   box-shadow: var(--shadow-md);

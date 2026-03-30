@@ -132,7 +132,8 @@
                 <div class="playlist-actions">
                   <span class="playlist-count">{{ playlist.length }} 首歌曲</span>
                 </div>
-              </div>        <div class="playlist-content">
+              </div>
+        <div class="playlist-content">
           <div v-if="playlist.length === 0" class="playlist-empty">
             <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1">
               <path d="M9 18V5l12-2v13"/>
@@ -1996,7 +1997,6 @@ const handleNavigateToSettings = () => {
   right: 24px;
   width: 380px;
   max-height: 500px;
-  background: var(--bg-white);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);

@@ -84,7 +84,7 @@ const handleUpdate = () => {
   text-align: center;
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+    0 0 0 1px var(--border-white-10);
   backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
@@ -123,7 +123,7 @@ const handleUpdate = () => {
 }
 
 .notification-text p {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-white-70);
   font-size: 14px;
   margin: 6px 0;
 }
@@ -154,12 +154,12 @@ const handleUpdate = () => {
 }
 
 .btn-ignore {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--bg-glass-10);
+  color: var(--text-white-70);
 }
 
 .btn-ignore:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-15);
   color: white;
 }
 
