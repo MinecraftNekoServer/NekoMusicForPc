@@ -1031,7 +1031,7 @@ const handleSubmit = async () => {
   text-align: center;
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+    0 0 0 1px var(--border-white-10);
   backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
@@ -1071,7 +1071,7 @@ const handleSubmit = async () => {
 
 .modal-subtitle {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   margin-bottom: 24px;
 }
 
@@ -1079,7 +1079,7 @@ const handleSubmit = async () => {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-5);
   padding: 4px;
   border-radius: 10px;
   position: relative;
@@ -1092,7 +1092,7 @@ const handleSubmit = async () => {
   border: none;
   background: transparent;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-white-60);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1119,9 +1119,9 @@ const handleSubmit = async () => {
 
 .auth-input {
   padding: 14px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--border-white-10);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-5);
   color: white;
   font-size: 14px;
   outline: none;
@@ -1129,11 +1129,11 @@ const handleSubmit = async () => {
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
 }
 
 .auth-input:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--border-white-20);
 }
 
 .auth-input:focus {
@@ -1163,7 +1163,7 @@ const handleSubmit = async () => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, var(--bg-glass-20), transparent);
   transition: left 0.5s;
 }
 
@@ -1348,21 +1348,21 @@ const handleSubmit = async () => {
 .toast-progress-bar {
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .toast-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  background: linear-gradient(90deg, var(--bg-glass-90) 0%, var(--bg-glass-70) 100%);
   transition: width 0.3s ease;
   border-radius: 2px;
 }
 
 .toast-speed {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-white-80);
 }
 
 .toast-icon {

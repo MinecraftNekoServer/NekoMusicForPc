@@ -1271,11 +1271,11 @@ watch(() => route.path, (newPath) => {
 }
 
 .playlist-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-10);
 }
 
 .playlist-item.active {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-15);
   border-left-color: var(--primary);
 }
 
@@ -1305,7 +1305,7 @@ watch(() => route.path, (newPath) => {
   padding: 20px 16px;
   text-align: center;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
 }
 
 .playlists-list::-webkit-scrollbar {
@@ -1317,12 +1317,12 @@ watch(() => route.path, (newPath) => {
 }
 
 .playlists-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-20);
   border-radius: 2px;
 }
 
 .playlists-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--bg-glass-30);
 }
 
 .sidebar-footer {
@@ -1338,7 +1338,7 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-glass-5);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -1346,8 +1346,8 @@ watch(() => route.path, (newPath) => {
 }
 
 .user-card:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-10);
+  border-color: var(--border-white-20);
   transform: translateY(-2px);
 }
 
@@ -1669,8 +1669,8 @@ watch(() => route.path, (newPath) => {
   text-align: center;
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 0 0 1px var(--border-white-10),
+    inset 0 1px 0 var(--border-white-10);
   position: relative;
   overflow: hidden;
 }
@@ -1711,7 +1711,7 @@ watch(() => route.path, (newPath) => {
   border-radius: 16px;
   box-shadow: 
     0 8px 24px rgba(102, 126, 234, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 var(--border-white-20);
 }
 
 .modal-title {
@@ -1727,7 +1727,7 @@ watch(() => route.path, (newPath) => {
 
 .modal-subtitle {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-white-50);
   margin: 0;
 }
 
@@ -1747,7 +1747,7 @@ watch(() => route.path, (newPath) => {
   padding: 12px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-white-50);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1762,7 +1762,7 @@ watch(() => route.path, (newPath) => {
   color: white;
   box-shadow: 
     0 4px 12px rgba(102, 126, 234, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 var(--border-white-20);
   transform: scale(1.02);
 }
 
@@ -1777,7 +1777,7 @@ watch(() => route.path, (newPath) => {
 
 .auth-input {
   padding: 14px 18px;
-  border: 2px solid rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--border-white-08);
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.3);
   color: white;
@@ -1787,7 +1787,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-white-40);
 }
 
 .auth-input:focus {
@@ -1800,7 +1800,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .auth-input:hover:not(:focus) {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--border-white-15);
 }
 
 .email-field {
@@ -1868,7 +1868,7 @@ watch(() => route.path, (newPath) => {
   color: white;
   box-shadow: 
     0 4px 16px rgba(102, 126, 234, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 var(--border-white-20);
 }
 
 .modal-btn-primary::before {
@@ -1878,7 +1878,7 @@ watch(() => route.path, (newPath) => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, var(--bg-glass-20), transparent);
   transition: left 0.5s;
 }
 
@@ -1890,7 +1890,7 @@ watch(() => route.path, (newPath) => {
   transform: translateY(-2px);
   box-shadow: 
     0 8px 24px rgba(102, 126, 234, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    inset 0 1px 0 var(--bg-glass-30);
 }
 
 .modal-btn-primary:active {
@@ -2013,12 +2013,12 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-glass-95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.5);
+    0 0 0 1px var(--bg-glass-50);
   min-width: 300px;
   pointer-events: auto;
   position: relative;
@@ -2094,7 +2094,7 @@ watch(() => route.path, (newPath) => {
   background: rgba(42, 42, 42, 0.98);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-white-10);
   min-width: 160px;
   overflow: hidden;
   backdrop-filter: blur(12px);

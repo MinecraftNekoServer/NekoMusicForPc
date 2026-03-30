@@ -1931,7 +1931,7 @@ const handleNavigateToSettings = () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-glass-95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -2381,7 +2381,7 @@ const handleNavigateToSettings = () => {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-white-10);
 }
 
 .modal-content.modal-small {
@@ -2654,7 +2654,7 @@ const handleNavigateToSettings = () => {
 }
 
 .playlist-selector::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--bg-glass-30);
 }
 
 /* 播放模式图标颜色 */
