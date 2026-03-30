@@ -453,7 +453,7 @@ onMounted(() => {
 }
 
 .play-icon {
-  color: white;
+  color: var(--bg-white);
   transform: scale(0.8);
   transition: transform 0.3s ease;
 }
@@ -471,7 +471,7 @@ onMounted(() => {
   gap: 4px;
   padding: 4px 8px;
   background: rgba(0, 0, 0, 0.5);
-  color: white;
+  color: var(--bg-white);
   font-size: 12px;
   border-radius: 4px;
 }
@@ -662,7 +662,7 @@ onMounted(() => {
 
 .btn.primary {
   background: var(--primary);
-  color: white;
+  color: var(--bg-white);
 }
 
 .btn.primary:hover {
@@ -671,7 +671,7 @@ onMounted(() => {
 
 .btn.danger {
   background: #e91e63;
-  color: white;
+  color: var(--bg-white);
 }
 
 .btn.danger:hover {

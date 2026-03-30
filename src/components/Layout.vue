@@ -1203,7 +1203,7 @@ watch(() => route.path, (newPath) => {
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: white;
+  background: var(--bg-white);
   border-radius: 2px 0 0 2px;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
@@ -1539,7 +1539,7 @@ watch(() => route.path, (newPath) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--bg-white);
   transition: all var(--transition-normal);
   margin-right: 4px;
   position: relative;
@@ -1618,7 +1618,7 @@ watch(() => route.path, (newPath) => {
 
 .close-btn:hover {
   background: #e81123;
-  color: white;
+  color: var(--bg-white);
 }
 
 /* 主内容 */

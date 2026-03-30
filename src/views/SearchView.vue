@@ -608,7 +608,7 @@ onMounted(() => {
   gap: 8px;
   padding: 8px 20px;
   background: var(--gradient-primary);
-  color: white;
+  color: var(--bg-white);
   border: none;
   border-radius: var(--radius-full);
   font-size: 14px;
@@ -734,7 +734,7 @@ onMounted(() => {
   background: var(--primary);
   border: none;
   border-radius: 50%;
-  color: white;
+  color: var(--bg-white);
   cursor: pointer;
   display: flex;
   align-items: center;

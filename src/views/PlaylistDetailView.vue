@@ -1100,7 +1100,7 @@ const handleCancel = () => {
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   padding: 32px;
   width: 90%;

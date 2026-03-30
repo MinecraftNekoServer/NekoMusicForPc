@@ -1882,7 +1882,7 @@ const handleNavigateToSettings = () => {
   top: 50%;
   width: 14px;
   height: 14px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow: var(--shadow-md);
@@ -1977,7 +1977,7 @@ const handleNavigateToSettings = () => {
   transform: translateX(-50%) translateY(50%);
   width: 20px;
   height: 20px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: bottom 0.1s;
@@ -1996,7 +1996,7 @@ const handleNavigateToSettings = () => {
   right: 24px;
   width: 380px;
   max-height: 500px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-white);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -2004,7 +2004,7 @@ const handleNavigateToSettings = () => {
   flex-direction: column;
   z-index: 100000;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border-color);
   pointer-events: auto;
 }
 
@@ -2267,7 +2267,7 @@ const handleNavigateToSettings = () => {
 
 .playing-indicator span {
   width: 2px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 1px;
   animation: playlist-wave 1s ease-in-out infinite;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
@@ -2399,14 +2399,14 @@ const handleNavigateToSettings = () => {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: white;
+  color: var(--bg-white);
 }
 
 .modal-close-btn {
   width: 32px;
   height: 32px;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-hover);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -2417,8 +2417,8 @@ const handleNavigateToSettings = () => {
 }
 
 .modal-close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--bg-active);
+  color: var(--bg-white);
 }
 
 /* 当前音乐信息 */
@@ -2427,7 +2427,7 @@ const handleNavigateToSettings = () => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   border-radius: 12px;
   margin-bottom: 20px;
 }
@@ -2496,7 +2496,7 @@ const handleNavigateToSettings = () => {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
   margin-bottom: 6px;
 }
 
@@ -2548,7 +2548,7 @@ const handleNavigateToSettings = () => {
 .create-playlist-section {
   margin-bottom: 20px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-color);
 }
 
 .create-playlist-form {
@@ -2559,8 +2559,8 @@ const handleNavigateToSettings = () => {
 .playlist-name-input {
   flex: 1;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -2574,7 +2574,7 @@ const handleNavigateToSettings = () => {
 
 .playlist-name-input:focus {
   border-color: rgba(102, 126, 234, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-active);
 }
 
 .create-playlist-btn {
@@ -2620,12 +2620,12 @@ const handleNavigateToSettings = () => {
 }
 
 .modal-btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-hover);
   color: white;
 }
 
 .modal-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-active);
 }
 
 .modal-enter-active,
@@ -2649,7 +2649,7 @@ const handleNavigateToSettings = () => {
 }
 
 .playlist-selector::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-light);
   border-radius: 2px;
 }
 

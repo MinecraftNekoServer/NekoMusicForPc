@@ -287,7 +287,7 @@ defineExpose({
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
   border: 2px solid transparent;
@@ -357,7 +357,7 @@ defineExpose({
 }
 
 .list-container {
-  background: white;
+  background: var(--bg-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
@@ -492,7 +492,7 @@ defineExpose({
 }
 
 .play-overlay-icon {
-  color: white;
+  color: var(--bg-white);
   transform: scale(0.8);
   transition: all var(--transition-fast);
 }
