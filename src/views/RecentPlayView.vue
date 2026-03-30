@@ -374,7 +374,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: var(--bg-white);
+
   border-radius: 20px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-input);

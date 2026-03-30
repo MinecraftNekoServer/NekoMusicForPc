@@ -6,20 +6,20 @@
         <svg class="search-icon" viewBox="0 0 20 20">
           <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
         </svg>
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="搜索音乐..." 
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="搜索音乐..."
           @input="handleSearch"
         />
       </div>
     </div>
-    
+
     <div v-if="loading" class="loading">
       <div class="loading-spinner"></div>
       <p>加载中...</p>
     </div>
-    
+
     <div v-else-if="musicList.length === 0" class="empty">
       <div class="empty-icon">
         <svg viewBox="0 0 24 24" width="64" height="64">
@@ -28,7 +28,7 @@
       </div>
       <p>暂无音乐</p>
     </div>
-    
+
     <div v-else class="list-container">
       <div class="list-header-row">
         <span class="col-index">#</span>
@@ -46,8 +46,8 @@
         </span>
       </div>
       <div class="music-items">
-        <div 
-          v-for="(music, index) in filteredList" 
+        <div
+          v-for="(music, index) in filteredList"
           :key="music.id"
           :class="['music-item', { playing: currentMusic?.id === music.id }]"
           @dblclick="playMusic(music)"
@@ -140,7 +140,7 @@ const filteredList = computed(() => {
 
 const fetchMusicList = async () => {
   if (!props.fetchFunction) return
-  
+
   loading.value = true
   try {
     const result = await props.fetchFunction()
@@ -170,10 +170,10 @@ const formatDuration = (seconds) => {
 const playMusic = (music) => {
   currentMusic.value = music
   localStorage.setItem('currentMusic', JSON.stringify(music))
-  
+
   // 自动添加到播放列表
   window.dispatchEvent(new CustomEvent('add-to-playlist', { detail: music }))
-  
+
   window.dispatchEvent(new CustomEvent('music-play', { detail: music }))
 }
 
@@ -211,7 +211,7 @@ const toggleFavorite = async (music) => {
     } else {
       const response = await apiRequest(apiConfig.USER_FAVORITES, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
         },
@@ -578,37 +578,37 @@ defineExpose({
   .music-list {
     padding: clamp(12px, 3vw, 16px);
   }
-  
+
   .list-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .section-title {
     font-size: clamp(18px, 4.5vw, 22px);
   }
-  
+
   .search-box {
     width: 100%;
     max-width: none;
   }
-  
+
   .list-container {
     border-radius: var(--radius-md);
   }
-  
+
   .list-header-row {
     display: none;
   }
-  
+
   .music-item {
     display: flex;
     flex-direction: column;
     padding: clamp(10px, 2.5vw, 14px);
     gap: 8px;
   }
-  
+
   .col-index {
     position: absolute;
     top: 8px;
@@ -622,53 +622,53 @@ defineExpose({
     justify-content: center;
     font-size: 10px;
   }
-  
+
   .col-title {
     flex-direction: row;
     padding-left: 32px;
   }
-  
+
   .cover-wrapper {
     width: clamp(40px, 10vw, 48px);
     height: clamp(40px, 10vw, 48px);
   }
-  
+
   .title-text {
     font-size: clamp(13px, 3.5vw, 14px);
   }
-  
+
   .col-artist,
   .col-album,
   .col-duration {
     font-size: clamp(11px, 3vw, 12px);
     padding-left: clamp(44px, 12vw, 56px);
   }
-  
+
   .col-artist::before {
     content: '艺术家: ';
     font-weight: 500;
   }
-  
+
   .col-album::before {
     content: '专辑: ';
     font-weight: 500;
   }
-  
+
   .col-duration::before {
     content: '时长: ';
     font-weight: 500;
   }
-  
+
   .col-actions {
     justify-content: flex-start;
     padding-left: clamp(44px, 12vw, 56px);
   }
-  
+
   .action-btn {
     width: 36px;
     height: 36px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 180px);
   }
@@ -679,39 +679,39 @@ defineExpose({
   .music-list {
     padding: 20px;
   }
-  
+
   .section-title {
     font-size: 24px;
   }
-  
+
   .search-box {
     width: clamp(200px, 35vw, 280px);
   }
-  
+
   .list-header-row {
     grid-template-columns: 40px 1fr 0.8fr 0.8fr 70px 120px;
     padding: 14px 16px;
   }
-  
+
   .music-item {
     grid-template-columns: 40px 1fr 0.8fr 0.8fr 70px 100px;
     padding: 12px 16px;
   }
-  
+
   .cover-wrapper {
     width: 40px;
     height: 40px;
   }
-  
+
   .title-text {
     font-size: 13px;
   }
-  
+
   .col-artist,
   .col-album {
     font-size: 12px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 140px);
   }
@@ -722,15 +722,15 @@ defineExpose({
   .music-list {
     padding: 24px;
   }
-  
+
   .section-title {
     font-size: 28px;
   }
-  
+
   .list-header-row {
     padding: 16px 20px;
   }
-  
+
   .music-item {
     padding: 14px 20px;
   }
@@ -741,55 +741,55 @@ defineExpose({
   .music-list {
     padding: 32px;
   }
-  
+
   .section-title {
     font-size: 32px;
   }
-  
+
   .search-box {
     width: clamp(280px, 25vw, 360px);
     padding: 14px 20px;
   }
-  
+
   .search-box input {
     font-size: 15px;
   }
-  
+
   .list-header-row {
     grid-template-columns: 60px 1.2fr 1fr 1fr 90px 160px;
     padding: 18px 24px;
     font-size: 14px;
   }
-  
+
   .music-item {
     grid-template-columns: 60px 1.2fr 1fr 1fr 90px 140px;
     padding: 16px 24px;
   }
-  
+
   .cover-wrapper {
     width: 50px;
     height: 50px;
     border-radius: 10px;
   }
-  
+
   .title-text {
     font-size: 15px;
   }
-  
+
   .col-artist,
   .col-album {
     font-size: 14px;
   }
-  
+
   .col-duration {
     font-size: 14px;
   }
-  
+
   .action-btn {
     width: 40px;
     height: 40px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 160px);
   }
@@ -800,55 +800,55 @@ defineExpose({
   .music-list {
     padding: 40px;
   }
-  
+
   .section-title {
     font-size: 36px;
   }
-  
+
   .search-box {
     width: clamp(320px, 28vw, 420px);
     padding: 16px 24px;
   }
-  
+
   .search-box input {
     font-size: 16px;
   }
-  
+
   .list-header-row {
     grid-template-columns: 70px 1.3fr 1.1fr 1.1fr 100px 180px;
     padding: 20px 28px;
     font-size: 15px;
   }
-  
+
   .music-item {
     grid-template-columns: 70px 1.3fr 1.1fr 1.1fr 100px 160px;
     padding: 18px 28px;
   }
-  
+
   .cover-wrapper {
     width: 56px;
     height: 56px;
     border-radius: 12px;
   }
-  
+
   .title-text {
     font-size: 16px;
   }
-  
+
   .col-artist,
   .col-album {
     font-size: 15px;
   }
-  
+
   .col-duration {
     font-size: 15px;
   }
-  
+
   .action-btn {
     width: 44px;
     height: 44px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 180px);
   }
@@ -859,60 +859,60 @@ defineExpose({
   .music-list {
     padding: 48px;
   }
-  
+
   .section-title {
     font-size: 42px;
   }
-  
+
   .search-box {
     width: clamp(380px, 30vw, 500px);
     padding: 18px 28px;
     border-radius: 28px;
   }
-  
+
   .search-box input {
     font-size: 18px;
   }
-  
+
   .list-container {
     border-radius: 24px;
   }
-  
+
   .list-header-row {
     grid-template-columns: 80px 1.4fr 1.2fr 1.2fr 110px 200px;
     padding: 24px 32px;
     font-size: 16px;
   }
-  
+
   .music-item {
     grid-template-columns: 80px 1.4fr 1.2fr 1.2fr 110px 180px;
     padding: 20px 32px;
   }
-  
+
   .cover-wrapper {
     width: 64px;
     height: 64px;
     border-radius: 14px;
   }
-  
+
   .title-text {
     font-size: 18px;
   }
-  
+
   .col-artist,
   .col-album {
     font-size: 16px;
   }
-  
+
   .col-duration {
     font-size: 16px;
   }
-  
+
   .action-btn {
     width: 48px;
     height: 48px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 200px);
   }
@@ -923,60 +923,60 @@ defineExpose({
   .music-list {
     padding: 64px;
   }
-  
+
   .section-title {
     font-size: 52px;
   }
-  
+
   .search-box {
     width: clamp(480px, 35vw, 640px);
     padding: 24px 36px;
     border-radius: 36px;
   }
-  
+
   .search-box input {
     font-size: 22px;
   }
-  
+
   .list-container {
     border-radius: 32px;
   }
-  
+
   .list-header-row {
     grid-template-columns: 100px 1.5fr 1.3fr 1.3fr 130px 240px;
     padding: 32px 40px;
     font-size: 20px;
   }
-  
+
   .music-item {
     grid-template-columns: 100px 1.5fr 1.3fr 1.3fr 130px 220px;
     padding: 28px 40px;
   }
-  
+
   .cover-wrapper {
     width: 80px;
     height: 80px;
     border-radius: 18px;
   }
-  
+
   .title-text {
     font-size: 22px;
   }
-  
+
   .col-artist,
   .col-album {
     font-size: 20px;
   }
-  
+
   .col-duration {
     font-size: 20px;
   }
-  
+
   .action-btn {
     width: 56px;
     height: 56px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 240px);
   }
@@ -987,24 +987,24 @@ defineExpose({
   .music-list {
     padding: 16px;
   }
-  
+
   .section-title {
     font-size: 20px;
   }
-  
+
   .list-header-row {
     padding: 10px 14px;
   }
-  
+
   .music-item {
     padding: 10px 14px;
   }
-  
+
   .cover-wrapper {
     width: 36px;
     height: 36px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 100px);
   }
@@ -1015,19 +1015,19 @@ defineExpose({
   .music-list {
     padding: 32px;
   }
-  
+
   .section-title {
     font-size: 30px;
   }
-  
+
   .list-header-row {
     padding: 18px 24px;
   }
-  
+
   .music-item {
     padding: 16px 24px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 200px);
   }
@@ -1038,11 +1038,11 @@ defineExpose({
   .list-header {
     margin-bottom: 16px;
   }
-  
+
   .section-title {
     font-size: 18px;
   }
-  
+
   .music-items {
     max-height: calc(100vh - var(--player-bar-height) - 80px);
   }
@@ -1053,12 +1053,12 @@ defineExpose({
   .music-item {
     padding: 16px;
   }
-  
+
   .action-btn {
     min-width: 44px;
     min-height: 44px;
   }
-  
+
   .header-action-btn {
     padding: 10px 16px;
     min-height: 44px;
