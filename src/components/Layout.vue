@@ -99,10 +99,10 @@
             <svg class="search-icon" viewBox="0 0 20 20">
               <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
             </svg>
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="搜索音乐、艺术家..."
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              placeholder="搜索音乐、艺术家..." 
               @keyup.enter="handleSearch"
             />
             <button class="search-btn" @click="handleSearch" title="搜索">
@@ -1153,7 +1153,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .nav-item:hover {
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   transform: translateX(4px);
 }
@@ -1185,7 +1185,7 @@ watch(() => route.path, (newPath) => {
   position: absolute;
   width: 30px;
   height: 30px;
-  background: var(--bg-glass-30);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   filter: blur(8px);
   z-index: 1;
@@ -1203,14 +1203,14 @@ watch(() => route.path, (newPath) => {
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--bg-white);
+  background: white;
   border-radius: 2px 0 0 2px;
-  box-shadow: 0 0 8px var(--bg-glass-50);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 .nav-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--bg-glass-10), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   margin: 8px 16px;
 }
 
@@ -1240,7 +1240,7 @@ watch(() => route.path, (newPath) => {
   width: 28px;
   height: 28px;
   border: none;
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   color: var(--text-white-muted);
   cursor: pointer;
@@ -1251,7 +1251,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .add-playlist-btn:hover {
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
 }
 
@@ -1271,11 +1271,11 @@ watch(() => route.path, (newPath) => {
 }
 
 .playlist-item:hover {
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .playlist-item.active {
-  background: var(--bg-glass-15);
+  background: rgba(255, 255, 255, 0.15);
   border-left-color: var(--primary);
 }
 
@@ -1305,7 +1305,7 @@ watch(() => route.path, (newPath) => {
   padding: 20px 16px;
   text-align: center;
   font-size: 12px;
-  color: var(--text-white-40);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .playlists-list::-webkit-scrollbar {
@@ -1317,12 +1317,12 @@ watch(() => route.path, (newPath) => {
 }
 
 .playlists-list::-webkit-scrollbar-thumb {
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 
 .playlists-list::-webkit-scrollbar-thumb:hover {
-  background: var(--bg-glass-30);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .sidebar-footer {
@@ -1338,7 +1338,7 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: var(--bg-glass-5);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -1346,8 +1346,8 @@ watch(() => route.path, (newPath) => {
 }
 
 .user-card:hover {
-  background: var(--bg-glass-10);
-  border-color: var(--border-white-20);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
@@ -1460,7 +1460,7 @@ watch(() => route.path, (newPath) => {
   width: 100%;
   max-width: 480px;
   height: 44px;
-  background: var(--bg-glass-10);
+  background: white;
   border-radius: var(--radius-lg);
   padding: 0 4px 0 16px;
   box-shadow: var(--shadow-md);
@@ -1539,7 +1539,7 @@ watch(() => route.path, (newPath) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg-white);
+  color: white;
   transition: all var(--transition-normal);
   margin-right: 4px;
   position: relative;
@@ -1618,7 +1618,7 @@ watch(() => route.path, (newPath) => {
 
 .close-btn:hover {
   background: #e81123;
-  color: var(--bg-white);
+  color: white;
 }
 
 /* 主内容 */
@@ -1669,8 +1669,8 @@ watch(() => route.path, (newPath) => {
   text-align: center;
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px var(--border-white-10),
-    inset 0 1px 0 var(--border-white-10);
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
 }
@@ -1711,7 +1711,7 @@ watch(() => route.path, (newPath) => {
   border-radius: 16px;
   box-shadow: 
     0 8px 24px rgba(102, 126, 234, 0.3),
-    inset 0 1px 0 var(--border-white-20);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .modal-title {
@@ -1727,7 +1727,7 @@ watch(() => route.path, (newPath) => {
 
 .modal-subtitle {
   font-size: 13px;
-  color: var(--text-white-50);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
 }
 
@@ -1747,7 +1747,7 @@ watch(() => route.path, (newPath) => {
   padding: 12px;
   border: none;
   background: transparent;
-  color: var(--text-white-50);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1762,7 +1762,7 @@ watch(() => route.path, (newPath) => {
   color: white;
   box-shadow: 
     0 4px 12px rgba(102, 126, 234, 0.4),
-    inset 0 1px 0 var(--border-white-20);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: scale(1.02);
 }
 
@@ -1777,7 +1777,7 @@ watch(() => route.path, (newPath) => {
 
 .auth-input {
   padding: 14px 18px;
-  border: 2px solid var(--border-white-08);
+  border: 2px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.3);
   color: white;
@@ -1787,7 +1787,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .auth-input::placeholder {
-  color: var(--text-white-40);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .auth-input:focus {
@@ -1800,7 +1800,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .auth-input:hover:not(:focus) {
-  border-color: var(--border-white-15);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .email-field {
@@ -1868,7 +1868,7 @@ watch(() => route.path, (newPath) => {
   color: white;
   box-shadow: 
     0 4px 16px rgba(102, 126, 234, 0.4),
-    inset 0 1px 0 var(--border-white-20);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .modal-btn-primary::before {
@@ -1878,7 +1878,7 @@ watch(() => route.path, (newPath) => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, var(--bg-glass-20), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s;
 }
 
@@ -1890,7 +1890,7 @@ watch(() => route.path, (newPath) => {
   transform: translateY(-2px);
   box-shadow: 
     0 8px 24px rgba(102, 126, 234, 0.5),
-    inset 0 1px 0 var(--bg-glass-30);
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .modal-btn-primary:active {
@@ -2013,12 +2013,12 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: var(--bg-glass-95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.15),
-    0 0 0 1px var(--bg-glass-50);
+    0 0 0 1px rgba(255, 255, 255, 0.5);
   min-width: 300px;
   pointer-events: auto;
   position: relative;
@@ -2094,7 +2094,7 @@ watch(() => route.path, (newPath) => {
   background: rgba(42, 42, 42, 0.98);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--border-white-10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   min-width: 160px;
   overflow: hidden;
   backdrop-filter: blur(12px);

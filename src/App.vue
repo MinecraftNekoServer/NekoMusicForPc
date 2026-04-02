@@ -309,21 +309,21 @@ onMounted(() => {
 .toast-progress-bar {
   width: 100%;
   height: 4px;
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .toast-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--bg-glass-90) 0%, var(--bg-glass-70) 100%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
   transition: width 0.3s ease;
   border-radius: 2px;
 }
 
 .toast-speed {
   font-size: 12px;
-  color: var(--text-white-80);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* 弹窗样式 */

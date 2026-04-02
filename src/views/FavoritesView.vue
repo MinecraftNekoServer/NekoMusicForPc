@@ -352,7 +352,7 @@ onMounted(async () => {
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--bg-white);
+  color: white;
   background: #ED4040;
   border: none;
   border-radius: 20px;
@@ -427,7 +427,7 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  //background: var(--bg-white);
+  background: var(--bg-white);
   border-radius: 20px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-input);
@@ -594,7 +594,7 @@ onMounted(async () => {
 }
 
 .play-overlay-icon {
-  color: var(--bg-white);
+  color: white;
   transform: scale(0.8);
   transition: all 0.2s ease;
 }

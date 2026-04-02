@@ -408,10 +408,10 @@ onMounted(() => {
 }
 
 .playlist-card {
-  background: var(--bg-white);
+  background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -453,7 +453,7 @@ onMounted(() => {
 }
 
 .play-icon {
-  color: var(--bg-white);
+  color: white;
   transform: scale(0.8);
   transition: transform 0.3s ease;
 }
@@ -471,7 +471,7 @@ onMounted(() => {
   gap: 4px;
   padding: 4px 8px;
   background: rgba(0, 0, 0, 0.5);
-  color: var(--bg-white);
+  color: white;
   font-size: 12px;
   border-radius: 4px;
 }
@@ -548,7 +548,7 @@ onMounted(() => {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--bg-white);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -556,11 +556,11 @@ onMounted(() => {
   justify-content: center;
   color: var(--text-secondary);
   transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .action-btn:hover {
-  background: var(--bg-active);
+  background: white;
   color: var(--primary);
   transform: scale(1.1);
 }
@@ -583,12 +583,12 @@ onMounted(() => {
 }
 
 .dialog {
-  background: var(--bg-white);
+  background: white;
   border-radius: 12px;
   padding: 24px;
   width: 90%;
   max-width: 400px;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .dialog-title {
@@ -614,19 +614,18 @@ onMounted(() => {
 .form-group textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 14px;
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
-  background: var(--bg-input);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: var(--border-focus);
+  border-color: var(--primary);
 }
 
 .form-group textarea {
@@ -652,26 +651,26 @@ onMounted(() => {
 }
 
 .btn.cancel {
-  background: var(--bg-hover);
-  color: var(--text-gray);
+  background: #f5f5f5;
+  color: var(--text-secondary);
 }
 
 .btn.cancel:hover {
-  background: var(--bg-active);
+  background: #e0e0e0;
 }
 
 .btn.primary {
   background: var(--primary);
-  color: var(--bg-white);
+  color: white;
 }
 
 .btn.primary:hover {
-  background: var(--primary-light);
+  background: #5a7bd6;
 }
 
 .btn.danger {
   background: #e91e63;
-  color: var(--bg-white);
+  color: white;
 }
 
 .btn.danger:hover {
