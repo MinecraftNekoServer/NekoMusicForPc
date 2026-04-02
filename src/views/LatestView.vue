@@ -1,16 +1,16 @@
 <template>
   <div class="latest-view">
     <div class="latest-header">
-      <h1 class="latest-title">最新音乐</h1>
+      <h1 class="latest-title">{{ t('latest.latestMusic') }}</h1>
       <button @click="playAll" class="play-all-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z"/>
         </svg>
-        播放全部
+        {{ t('ranking.playAll') }}
       </button>
     </div>
 
-    <div v-if="loading" class="loading">加载中...</div>
+    <div v-if="loading" class="loading">{{ t('latest.loading') }}</div>
     <div v-else-if="latestList && latestList.length > 0" class="latest-list">
       <div
         v-for="(item, index) in latestList"
@@ -57,8 +57,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '@/config/apiConfig.js'
 
+const { t } = useI18n()
 const latestList = ref([])
 const loading = ref(false)
 const currentMusic = ref(null)

@@ -157,17 +157,17 @@
     <Transition name="modal">
       <div v-if="showCreatePlaylistModal" class="modal-overlay" @click="showCreatePlaylistModal = false">
         <div class="modal-content modal-small" @click.stop>
-          <h2 class="modal-title">创建歌单</h2>
+          <h2 class="modal-title">{{ t('playlists.createPlaylist') }}</h2>
           <input 
             v-model="newPlaylistName"
             type="text" 
-            placeholder="输入歌单名称"
+            placeholder="t('playlists.playlistNamePlaceholder')"
             class="auth-input"
             @keyup.enter="handleCreatePlaylist"
           />
           <div class="modal-buttons">
-            <button class="modal-btn modal-btn-secondary" @click="showCreatePlaylistModal = false">取消</button>
-            <button class="modal-btn modal-btn-primary" @click="handleCreatePlaylist">创建</button>
+            <button class="modal-btn modal-btn-secondary" @click="showCreatePlaylistModal = false">{{ t('playlists.cancel') }}</button>
+            <button class="modal-btn modal-btn-primary" @click="handleCreatePlaylist">{{ t('playlists.createPlaylist') }}</button>
           </div>
         </div>
       </div>
@@ -206,17 +206,17 @@
     <Transition name="modal">
       <div v-if="showEditPlaylistModal" class="modal-overlay" @click="showEditPlaylistModal = false">
         <div class="modal-content modal-small" @click.stop>
-          <h2 class="modal-title">{{ editMode === 'name' ? '重命名歌单' : '修改歌单描述' }}</h2>
+          <h2 class="modal-title">{{ editMode === 'name' ? t('playlists.renamePlaylist') : t('playlists.modifyPlaylistDesc') }}</h2>
           <input 
             v-model="editPlaylistValue"
             type="text" 
-            :placeholder="editMode === 'name' ? '输入新歌单名称' : '输入歌单描述'"
+            :placeholder="editMode === 'name' ? t('playlists.inputNewPlaylistName') : t('playlists.inputPlaylistDesc')"
             class="auth-input"
             @keyup.enter="handleSavePlaylistEdit"
           />
           <div class="modal-buttons">
-            <button class="modal-btn modal-btn-secondary" @click="showEditPlaylistModal = false">取消</button>
-            <button class="modal-btn modal-btn-primary" @click="handleSavePlaylistEdit">保存</button>
+            <button class="modal-btn modal-btn-secondary" @click="showEditPlaylistModal = false">{{ t('playlists.cancel') }}</button>
+            <button class="modal-btn modal-btn-primary" @click="handleSavePlaylistEdit">{{ t('playlists.save') }}</button>
           </div>
         </div>
       </div>
@@ -234,8 +234,8 @@
           <h2 class="modal-title">{{ confirmDialog.title }}</h2>
           <p class="confirm-message">{{ confirmDialog.message }}</p>
           <div class="modal-buttons">
-            <button class="modal-btn modal-btn-secondary" @click="showConfirmDialog = false">取消</button>
-            <button class="modal-btn modal-btn-danger" @click="handleConfirmDialog">确认删除</button>
+            <button class="modal-btn modal-btn-secondary" @click="showConfirmDialog = false">{{ t('playlists.cancel') }}</button>
+            <button class="modal-btn modal-btn-danger" @click="handleConfirmDialog">{{ t('playlists.confirmDelete') }}</button>
           </div>
         </div>
       </div>
@@ -480,7 +480,7 @@ const handleCreatePlaylist = () => {
 
   if (!newPlaylistName.value.trim()) {
 
-    showToast('请输入歌单名称', 'error')
+    showToast(t('playlists.inputNameRequired'), 'error')
 
     return
 
@@ -518,7 +518,7 @@ const createPlaylist = async (name) => {
 
     if (data.success) {
 
-      showToast('歌单创建成功', 'success')
+      showToast(t('playlists.createSuccess'), 'success')
 
       showCreatePlaylistModal.value = false
 
@@ -528,7 +528,7 @@ const createPlaylist = async (name) => {
 
     } else {
 
-      showToast(data.message || '创建失败', 'error')
+      showToast(data.message || t('common.operationFailed'), 'error')
 
     }
 
@@ -536,7 +536,7 @@ const createPlaylist = async (name) => {
 
     console.error('创建歌单失败:', error)
 
-    showToast('创建失败', 'error')
+    showToast(t('common.operationFailed'), 'error')
 
   }
 
@@ -575,7 +575,7 @@ const handleEditPlaylistDescription = () => {
 // 保存歌单编辑
 const handleSavePlaylistEdit = async () => {
   if (!currentEditPlaylist.value || !editPlaylistValue.value.trim()) {
-    showToast('请输入有效的内容', 'error')
+    showToast(t('common.inputValid'), 'error')
     return
   }
 
@@ -604,7 +604,7 @@ const handleSavePlaylistEdit = async () => {
 
     const data = await response.json()
     if (data.success) {
-      showToast(editMode.value === 'name' ? '歌单重命名成功' : '歌单描述修改成功', 'success')
+      showToast(editMode.value === 'name' ? t('playlists.renameSuccess') : t('playlists.descriptionSuccess'), 'success')
       showEditPlaylistModal.value = false
 
       // 直接更新本地数据，立即反映变化
@@ -629,11 +629,11 @@ const handleSavePlaylistEdit = async () => {
         }))
       }
     } else {
-      showToast(data.message || '修改失败', 'error')
+      showToast(data.message || t('common.operationFailed'), 'error')
     }
   } catch (error) {
     console.error('修改歌单失败:', error)
-    showToast('修改失败', 'error')
+    showToast(t('common.operationFailed'), 'error')
   }
 }
 
@@ -642,8 +642,8 @@ const handleDeletePlaylist = () => {
   if (!contextMenu.value.playlist) return
 
   confirmDialog.value = {
-    title: '删除歌单',
-    message: `确定要删除歌单"${contextMenu.value.playlist.name}"吗？此操作不可恢复。`,
+    title: t('playlists.deletePlaylist'),
+    message: t('playlists.deleteConfirmWithPlaylistName', { name: contextMenu.value.playlist.name }),
     onConfirm: async () => {
       const token = localStorage.getItem('token')
       if (!token) {
@@ -660,7 +660,7 @@ const handleDeletePlaylist = () => {
 
         const data = await response.json()
         if (data.success) {
-          showToast('歌单删除成功', 'success')
+          showToast(t('playlists.deleteSuccess'), 'success')
           loadMyPlaylists()
           loadFavoritePlaylists()
           // 如果删除的是当前正在查看的歌单，跳转到首页
@@ -668,11 +668,11 @@ const handleDeletePlaylist = () => {
             router.push('/home')
           }
         } else {
-          showToast(data.message || '删除失败', 'error')
+          showToast(data.message || t('playlists.deleteFailed'), 'error')
         }
       } catch (error) {
         console.error('删除歌单失败:', error)
-        showToast('删除失败', 'error')
+        showToast(t('playlists.deleteFailed'), 'error')
       }
     }
   }

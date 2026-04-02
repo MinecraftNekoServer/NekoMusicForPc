@@ -4,13 +4,13 @@
       <h1 class="welcome-title">
         <span class="greeting">{{ greeting }}</span>
       </h1>
-      <p class="welcome-subtitle">发现好音乐，享受每一刻</p>
+      <p class="welcome-subtitle">{{ t('home.welcomeSubtitle') }}</p>
     </div>
 
     <!-- 推荐歌单 -->
     <div class="recommendation-section">
-      <h2 class="section-title">推荐歌单</h2>
-      <div v-if="playlistsLoading" class="loading">加载中...</div>
+      <h2 class="section-title">{{ t('home.recommendPlaylists') }}</h2>
+      <div v-if="playlistsLoading" class="loading">{{ t('common.loading') }}</div>
       <div v-else class="playlist-scroll">
         <!-- 热门音乐整体卡片 -->
         <div
@@ -28,11 +28,11 @@
                 @error="handleImageError"
               />
             </div>
-            <div class="playlist-count hot-music-count">{{ hotMusicCount || 0 }}首</div>
+            <div class="playlist-count hot-music-count">{{ hotMusicCount || 0 }}{{ t('common.count') }}</div>
           </div>
           <div class="playlist-info">
-            <h3 class="playlist-name">热门音乐</h3>
-            <p class="playlist-description">播放次数最高的热门歌曲</p>
+            <h3 class="playlist-name">{{ t('home.hotMusic') }}</h3>
+            <p class="playlist-description">{{ t('home.hotMusicDesc') }}</p>
           </div>
         </div>
 
@@ -52,11 +52,11 @@
                 @error="handleImageError"
               />
             </div>
-            <div class="playlist-count latest-music-count">{{ latestMusicCount || 0 }}首</div>
+            <div class="playlist-count latest-music-count">{{ latestMusicCount || 0 }}{{ t('common.count') }}</div>
           </div>
           <div class="playlist-info">
-            <h3 class="playlist-name">最新音乐</h3>
-            <p class="playlist-description">刚刚上传的最新歌曲</p>
+            <h3 class="playlist-name">{{ t('home.latestMusic') }}</h3>
+            <p class="playlist-description">{{ t('home.latestMusicDesc') }}</p>
           </div>
         </div>
 
@@ -74,11 +74,11 @@
               class="playlist-cover-img"
               @error="handlePlaylistCoverError"
             />
-            <div class="playlist-count">{{ playlist.musicCount }}首</div>
+            <div class="playlist-count">{{ playlist.musicCount }}{{ t('common.songs') }}</div>
           </div>
           <div class="playlist-info">
             <h3 class="playlist-name">{{ playlist.name }}</h3>
-            <p class="playlist-description">{{ playlist.description || '暂无描述' }}</p>
+            <p class="playlist-description">{{ playlist.description || t('common.description') }}</p>
           </div>
         </div>
       </div>
@@ -89,15 +89,18 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '@/config/apiConfig.js'
+
 const router = useRouter()
+const { t } = useI18n()
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
-  if (hour < 6) return '夜深了'
-  if (hour < 12) return '早上好'
-  if (hour < 18) return '下午好'
-  return '晚上好'
+  if (hour < 6) return t('home.lateNight')
+  if (hour < 12) return t('home.goodMorning')
+  if (hour < 18) return t('home.goodAfternoon')
+  return t('home.goodEvening')
 })
 
 const playlistList = ref([])

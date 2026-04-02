@@ -1,18 +1,18 @@
 <template>
   <div class="playlists-view">
     <div class="view-header">
-      <h1 class="view-title">我的歌单</h1>
+      <h1 class="view-title">{{ t('playlists.myPlaylists') }}</h1>
       <button class="create-btn" @click="showCreateDialog = true">
         <svg viewBox="0 0 24 24" width="20" height="20">
           <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
-        <span>创建歌单</span>
+        <span>{{ t('playlists.createPlaylist') }}</span>
       </button>
     </div>
     
     <div v-if="loading" class="loading">
       <div class="loading-spinner"></div>
-      <p>加载中...</p>
+      <p>{{ t('common.loading') }}</p>
     </div>
     
     <div v-else-if="playlists.length === 0" class="empty">
@@ -21,8 +21,8 @@
           <path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
-      <p>暂无歌单</p>
-      <button class="create-btn primary" @click="showCreateDialog = true">创建第一个歌单</button>
+      <p>{{ t('playlists.noPlaylists') }}</p>
+      <button class="create-btn primary" @click="showCreateDialog = true">{{ t('playlists.createFirstPlaylist') }}</button>
     </div>
     
     <div v-else class="playlists-grid">
@@ -49,16 +49,16 @@
         
         <div class="playlist-info">
           <h3 class="playlist-name">{{ playlist.name }}</h3>
-          <p class="playlist-description">{{ playlist.description || '暂无描述' }}</p>
+          <p class="playlist-description">{{ playlist.description || t('common.description') }}</p>
           
           <!-- 调试信息 -->
           <div style="font-size: 10px; color: #999; margin: 5px 0;">
-            创建者: {{ playlist.creator ? playlist.creator.username : '无' }}
+            {{ t('playlists.creator') }}: {{ playlist.creator ? playlist.creator.username : t('playlists.none') }}
           </div>
           
           <div class="playlist-meta">
             <div class="creator-info" v-if="playlist.creator">
-              <img :src="getAvatarUrl(playlist.creator.id)" alt="创建者头像" class="creator-avatar" @error="handleAvatarError" />
+              <img :src="getAvatarUrl(playlist.creator.id)" :alt="t('playlists.creator')" class="creator-avatar" @error="handleAvatarError" />
               <span class="creator-name">{{ playlist.creator.username }}</span>
             </div>
             <span class="update-time">{{ formatTime(playlist.updatedAt) }}</span>
@@ -66,12 +66,12 @@
         </div>
         
         <div class="playlist-actions">
-          <button class="action-btn" @click.stop="showEditDialog(playlist)" title="编辑">
+          <button class="action-btn" @click.stop="showEditDialog(playlist)" :title="t('common.edit')">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
             </svg>
           </button>
-          <button class="action-btn delete" @click.stop="showDeleteDialog(playlist)" title="删除">
+          <button class="action-btn delete" @click.stop="showDeleteDialog(playlist)" :title="t('common.delete')">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
             </svg>
@@ -83,19 +83,19 @@
     <!-- 创建歌单对话框 -->
     <div v-if="showCreateDialog" class="dialog-overlay" @click.self="showCreateDialog = false">
       <div class="dialog">
-        <h2 class="dialog-title">创建歌单</h2>
+        <h2 class="dialog-title">{{ t('playlists.createPlaylist') }}</h2>
         <form @submit.prevent="createPlaylist">
           <div class="form-group">
-            <label>歌单名称</label>
-            <input v-model="newPlaylist.name" type="text" placeholder="请输入歌单名称" required maxlength="255" />
+            <label>{{ t('playlists.playlistName') }}</label>
+            <input v-model="newPlaylist.name" type="text" :placeholder="t('playlists.playlistNamePlaceholder')" required maxlength="255" />
           </div>
           <div class="form-group">
-            <label>歌单描述</label>
-            <textarea v-model="newPlaylist.description" placeholder="请输入歌单描述（可选）" maxlength="500"></textarea>
+            <label>{{ t('playlists.playlistDescription') }}</label>
+            <textarea v-model="newPlaylist.description" :placeholder="t('playlists.playlistDescPlaceholder')" maxlength="500"></textarea>
           </div>
           <div class="dialog-actions">
-            <button type="button" class="btn cancel" @click="showCreateDialog = false">取消</button>
-            <button type="submit" class="btn primary">创建</button>
+            <button type="button" class="btn cancel" @click="showCreateDialog = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn primary">{{ t('common.create') }}</button>
           </div>
         </form>
       </div>
@@ -104,19 +104,19 @@
     <!-- 编辑歌单对话框 -->
     <div v-if="showEditDialogFlag" class="dialog-overlay" @click.self="showEditDialogFlag = false">
       <div class="dialog">
-        <h2 class="dialog-title">编辑歌单</h2>
+        <h2 class="dialog-title">{{ t('playlists.editPlaylist') }}</h2>
         <form @submit.prevent="updatePlaylist">
           <div class="form-group">
-            <label>歌单名称</label>
-            <input v-model="editingPlaylist.name" type="text" placeholder="请输入歌单名称" required maxlength="255" />
+            <label>{{ t('playlists.playlistName') }}</label>
+            <input v-model="editingPlaylist.name" type="text" :placeholder="t('playlists.playlistNamePlaceholder')" required maxlength="255" />
           </div>
           <div class="form-group">
-            <label>歌单描述</label>
-            <textarea v-model="editingPlaylist.description" placeholder="请输入歌单描述（可选）" maxlength="500"></textarea>
+            <label>{{ t('playlists.playlistDescription') }}</label>
+            <textarea v-model="editingPlaylist.description" :placeholder="t('playlists.playlistDescPlaceholder')" maxlength="500"></textarea>
           </div>
           <div class="dialog-actions">
-            <button type="button" class="btn cancel" @click="showEditDialogFlag = false">取消</button>
-            <button type="submit" class="btn primary">保存</button>
+            <button type="button" class="btn cancel" @click="showEditDialogFlag = false">{{ t('common.cancel') }}</button>
+            <button type="submit" class="btn primary">{{ t('common.save') }}</button>
           </div>
         </form>
       </div>
@@ -125,11 +125,11 @@
     <!-- 删除确认对话框 -->
     <div v-if="showDeleteDialogFlag" class="dialog-overlay" @click.self="showDeleteDialogFlag = false">
       <div class="dialog">
-        <h2 class="dialog-title">删除歌单</h2>
-        <p class="delete-message">确定要删除歌单「{{ deletingPlaylist?.name }}」吗？此操作不可恢复。</p>
+        <h2 class="dialog-title">{{ t('playlists.deletePlaylist') }}</h2>
+        <p class="delete-message">{{ t('playlists.deleteConfirm') }}</p>
         <div class="dialog-actions">
-          <button type="button" class="btn cancel" @click="showDeleteDialogFlag = false">取消</button>
-          <button type="button" class="btn danger" @click="deletePlaylist">删除</button>
+          <button type="button" class="btn cancel" @click="showDeleteDialogFlag = false">{{ t('common.cancel') }}</button>
+          <button type="button" class="btn danger" @click="deletePlaylist">{{ t('common.delete') }}</button>
         </div>
       </div>
     </div>
@@ -139,9 +139,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
 
 const router = useRouter()
+const { t } = useI18n()
 const playlists = ref([])
 const loading = ref(false)
 const showCreateDialog = ref(false)
@@ -219,12 +221,12 @@ const formatTime = (timestamp) => {
   const month = 30 * day
   const year = 365 * day
   
-  if (diff < minute) return '刚刚'
-  if (diff < hour) return `${Math.floor(diff / minute)}分钟前`
-  if (diff < day) return `${Math.floor(diff / hour)}小时前`
-  if (diff < month) return `${Math.floor(diff / day)}天前`
-  if (diff < year) return `${Math.floor(diff / month)}个月前`
-  return `${Math.floor(diff / year)}年前`
+  if (diff < minute) return t('playlists.justNow')
+  if (diff < hour) return `${Math.floor(diff / minute)}${t('playlists.minutesAgo')}`
+  if (diff < day) return `${Math.floor(diff / hour)}${t('playlists.hoursAgo')}`
+  if (diff < month) return `${Math.floor(diff / day)}${t('playlists.daysAgo')}`
+  if (diff < year) return `${Math.floor(diff / month)}${t('playlists.monthsAgo')}`
+  return `${Math.floor(diff / year)}${t('playlists.yearsAgo')}`
 }
 
 const goToPlaylist = (id) => {

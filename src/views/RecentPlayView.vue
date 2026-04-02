@@ -3,20 +3,20 @@
     <!-- 顶部封面区域 -->
     <div class="playlist-header" v-if="recentList.length > 0">
       <div class="cover-wrapper">
-        <img :src="getCoverUrl(recentList[0].id)" alt="封面" class="playlist-cover" @error="handleCoverError" />
+        <img :src="getCoverUrl(recentList[0].id)" :alt="t('common.album')" class="playlist-cover" @error="handleCoverError" />
       </div>
       <div class="playlist-info">
-        <div class="playlist-type">歌单</div>
-        <h1 class="playlist-title">最近播放</h1>
+        <div class="playlist-type">{{ t('common.playlists') }}</div>
+        <h1 class="playlist-title">{{ t('recentPlay.recentPlay') }}</h1>
         <div class="playlist-meta">
-          <span class="music-count">歌曲 {{ recentList.length }}</span>
+          <span class="music-count">{{ t('common.songs') }} {{ recentList.length }}</span>
         </div>
         <div class="action-buttons">
           <button class="btn-play" @click="playAll">
             <svg viewBox="0 0 24 24" width="20" height="20">
               <path fill="currentColor" d="M8 5v14l11-7z"/>
             </svg>
-            播放全部
+            {{ t('player.playAll') }}
           </button>
         </div>
       </div>
@@ -29,14 +29,14 @@
           <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       </div>
-      <p>暂无最近播放记录</p>
-      <button class="btn-explore" @click="$router.push('/')">去发现音乐</button>
+      <p>{{ t('recentPlay.noRecentPlay') }}</p>
+      <button class="btn-explore" @click="$router.push('/')">{{ t('home.discoverMusic') }}</button>
     </div>
 
     <div v-else class="music-list-container">
       <!-- 列表头部标签 -->
       <div class="list-tabs">
-        <div class="tab active">歌曲 {{ recentList.length }}</div>
+        <div class="tab active">{{ t('common.songs') }} {{ recentList.length }}</div>
         <div class="search-wrapper">
           <svg class="search-icon" viewBox="0 0 20 20">
             <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
@@ -44,7 +44,7 @@
           <input 
             v-model="searchQuery" 
             type="text" 
-            placeholder="搜索音乐..." 
+            :placeholder="t('common.searchPlaceholder')" 
             class="search-input"
             @input="handleSearch"
           />
@@ -59,10 +59,10 @@
       <!-- 歌曲列表 -->
       <div class="list-header-row">
         <span class="col-index">#</span>
-        <span class="col-info">标题</span>
-        <span class="col-album">专辑</span>
-        <span class="col-duration">时长</span>
-        <span class="col-actions">操作</span>
+        <span class="col-info">{{ t('common.title') }}</span>
+        <span class="col-album">{{ t('common.album') }}</span>
+        <span class="col-duration">{{ t('common.duration') }}</span>
+        <span class="col-actions">{{ t('common.actions') }}</span>
       </div>
       <div 
         v-for="(music, index) in filteredList" 
@@ -118,6 +118,9 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const recentList = ref([])
 const currentMusic = ref(null)

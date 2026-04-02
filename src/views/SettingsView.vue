@@ -1,25 +1,25 @@
 <template>
   <div class="settings-view">
     <div class="settings-container">
-      <h2>设置</h2>
+      <h2>{{ t('settings.settings') }}</h2>
       
       <div class="settings-section">
-        <h3>账号信息</h3>
+        <h3>{{ t('settings.accountInfo') }}</h3>
         <div v-if="currentUser" class="account-info">
           <div class="account-avatar">
-            <img :src="userAvatar" alt="用户头像" />
+            <img :src="userAvatar" :alt="t('common.username')" />
           </div>
           <div class="account-details">
             <div class="account-item">
-              <span class="label">用户名</span>
+              <span class="label">{{ t('common.username') }}</span>
               <span class="value">{{ currentUser.username }}</span>
             </div>
             <div class="account-item">
-              <span class="label">邮箱</span>
-              <span class="value">{{ currentUser.email || '未设置' }}</span>
+              <span class="label">{{ t('common.email') }}</span>
+              <span class="value">{{ currentUser.email || t('common.noData') }}</span>
             </div>
             <div class="account-item">
-              <span class="label">注册时间</span>
+              <span class="label">{{ t('settings.registerTime') }}</span>
               <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
             </div>
           </div>
@@ -27,12 +27,12 @@
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
             </svg>
-            退出登录
+            {{ t('settings.logout') }}
           </button>
         </div>
         <div v-else class="no-login">
-          <p>未登录</p>
-          <button class="login-btn" @click="showLoginModal = true">去登录</button>
+          <p>{{ t('settings.notLoggedIn') }}</p>
+          <button class="login-btn" @click="showLoginModal = true">{{ t('settings.goToLogin') }}</button>
         </div>
       </div>
       
@@ -78,20 +78,34 @@
       </div>
       
       <div class="settings-section">
-        <h3>关于</h3>
-        <p>NekoMusic {{ getDisplayOSType() }} 版本</p>
-        <p>版本号: {{ APP_VERSION }}</p>
+        <h3>{{ t('settings.about') }}</h3>
+        <p>NekoMusic {{ getDisplayOSType() }} {{ t('settings.appVersion') }}</p>
+        <p>{{ t('settings.appVersion') }}: {{ APP_VERSION }}</p>
+        <div class="links-section">
+          <a href="https://github.com/FantasyNetworkCN/NekoMusicForPc" target="_blank" class="link-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            {{ t('settings.githubRepo') }}
+          </a>
+          <a href="https://github.com/NyaNyagulugulu/NekoMusicDocs" target="_blank" class="link-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M0 1a1 1 0 011 1v12a1 1 0 11-2 0V2a1 1 0 011-1zm4.03 6.03a.75.75 0 000 1.06l1.72 1.72-1.72 1.72a.75.75 0 101.06 1.06L6.81 11.03l1.72 1.72a.75.75 0 101.06-1.06L7.87 9.97l1.72-1.72a.75.75 0 00-1.06-1.06L6.81 8.91 5.09 7.19a.75.75 0 00-1.06 0zM8 9a2 2 0 100-4 2 2 0 000 4z"/>
+            </svg>
+            {{ t('settings.apiDocs') }}
+          </a>
+        </div>
         <div class="update-section">
           <button class="check-update-btn" @click="checkForUpdates" :disabled="checkingUpdate">
-            {{ checkingUpdate ? '检查中...' : '检查更新' }}
+            {{ checkingUpdate ? t('settings.checking') : t('settings.checkUpdate') }}
           </button>
           <div v-if="updateAvailable" class="update-available">
-            <p class="update-message">发现新版本: {{ latestVersion }}</p>
+            <p class="update-message">{{ t('settings.updateAvailable') }}: {{ latestVersion }}</p>
             <button class="download-btn" @click="handleDownload" :disabled="downloading">
-              {{ downloading ? '下载中...' : '立即下载' }}
+              {{ downloading ? t('settings.downloading') : t('settings.downloadUpdate') }}
             </button>
           </div>
-          <p v-if="noUpdate" class="no-update">当前已是最新版本</p>
+          <p v-if="noUpdate" class="no-update">{{ t('settings.isLatest') }}</p>
         </div>
       </div>
     </div>
@@ -101,8 +115,8 @@
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <img src="/icon.png" alt="Logo" class="modal-logo" />
-            <h3 class="modal-title">欢迎回来</h3>
-            <p class="modal-subtitle">登录您的账号继续使用</p>
+            <h3 class="modal-title">{{ t('login.welcome') }}</h3>
+            <p class="modal-subtitle">{{ t('login.login') }} {{ t('settings.accountSettings') }}</p>
           </div>
           
           <div class="modal-tabs">
@@ -125,13 +139,13 @@
               <input 
                 v-model="formData.username"
                 type="text" 
-                :placeholder="authTab === 'login' ? '邮箱' : '名称'"
+                :placeholder="authTab === 'login' ? t('settings.email') : t('common.nickname')"
                 class="auth-input"
               />
               <input 
                 v-model="formData.password"
                 type="password" 
-                placeholder="密码"
+                placeholder="t('settings.password')"
                 class="auth-input"
               />
               <Transition name="field-fade">
@@ -139,14 +153,14 @@
                   <input 
                     v-model="formData.email"
                     type="email" 
-                    placeholder="邮箱"
+                    placeholder="t('settings.email')"
                     class="auth-input"
                   />
                   <div class="verification-code">
                     <input 
                       v-model="formData.verificationCode"
                       type="text" 
-                      placeholder="验证码"
+                      placeholder="t('settings.verificationCode')"
                       class="auth-input"
                     />
                     <button 
@@ -160,7 +174,7 @@
                 </div>
               </Transition>
               <button class="submit-btn" @click="handleSubmit">
-                {{ authTab === 'login' ? '登录' : '注册' }}
+                {{ authTab === 'login' ? t('common.login') : t('common.register') }}
               </button>
             </div>
           </Transition>
@@ -202,7 +216,7 @@
             </svg>
           </div>
           <div class="download-toast-content">
-            <span class="toast-message">下载更新中... {{ downloadProgress }}%</span>
+            <span class="toast-message">{{ t('settings.downloadProgress') }} {{ downloadProgress }}%</span>
             <div class="toast-progress-bar">
               <div class="toast-progress-fill" :style="{ width: downloadProgress + '%' }"></div>
             </div>
@@ -226,8 +240,8 @@
             <p class="file-path">{{ downloadedFilePath }}</p>
           </div>
           <div class="download-actions">
-            <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">稍后安装</button>
-            <button class="download-action-btn btn-install" @click="handleInstallUpdate">立即安装</button>
+            <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">{{ t('settings.installLater') }}</button>
+            <button class="download-action-btn btn-install" @click="handleInstallUpdate">{{ t('settings.installNow') }}</button>
           </div>
         </div>
       </div>
@@ -262,7 +276,7 @@ const handleLanguageChange = async (newLanguage) => {
     showToast(t('settings.language') + ' ' + t('settings.languageSettings') + ' ' + t('common.save'), 'success')
   } catch (error) {
     console.error('切换语言失败:', error)
-    showToast('切换语言失败', 'error')
+    showToast(t('common.switchLanguageFailed'), 'error')
   }
 }
 
@@ -388,7 +402,7 @@ const toasts = ref([])
 let toastId = 0
 
 const codeBtnText = computed(() => {
-  return countdown.value > 0 ? `${countdown.value}秒后重发` : '获取验证码'
+  return countdown.value > 0 ? `${countdown.value}${t('settings.sendCodeAfter')}` : t('settings.getCode')
 })
 
 const userAvatar = computed(() => {
@@ -399,7 +413,7 @@ const userAvatar = computed(() => {
 })
 
 const formatDate = (dateStr) => {
-  if (!dateStr) return '未知'
+  if (!dateStr) return t('settings.unknown')
   const date = new Date(dateStr)
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -449,7 +463,7 @@ const checkForUpdates = async () => {
       }
     }
   } catch (error) {
-    showToast('检查更新失败，请稍后重试', 'error')
+    showToast(t('common.checkUpdateFailed'), 'error')
   } finally {
     checkingUpdate.value = false
   }
@@ -464,7 +478,7 @@ const handleDownload = async () => {
   
   try {
     const response = await fetch(downloadUrl.value)
-    if (!response.ok) throw new Error('下载失败')
+    if (!response.ok) throw new Error(t('settings.downloadFailed'))
     
     const contentLength = response.headers.get('content-length')
     const total = parseInt(contentLength, 10)
@@ -509,7 +523,7 @@ const handleDownload = async () => {
         downloadedFilePath.value = filePath
         showUpdateConfirm.value = true
       } else {
-        showToast('下载已取消', 'info')
+        showToast(t('common.downloadCancelled'), 'info')
       }
     } else {
       const link = document.createElement('a')
@@ -517,10 +531,10 @@ const handleDownload = async () => {
       link.download = downloadUrl.value.split('/').pop()
       link.click()
       URL.revokeObjectURL(link.href)
-      showToast('下载完成', 'success')
+      showToast(t('common.downloadComplete'), 'success')
     }
   } catch (error) {
-    showToast('下载失败: ' + error.message, 'error')
+    showToast(t('common.downloadFailed') + ': ' + error.message, 'error')
   } finally {
     downloading.value = false
     downloadProgress.value = 0
@@ -542,13 +556,13 @@ const handleCancelUpdate = () => {
 
 const sendVerificationCode = async () => {
   if (!formData.value.email) {
-    showToast('请先输入邮箱地址', 'error')
+    showToast(t('common.inputEmail'), 'error')
     return
   }
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(formData.value.email)) {
-    showToast('请输入有效的邮箱地址', 'error')
+    showToast(t('common.inputValidEmail'), 'error')
     return
   }
   
@@ -564,13 +578,13 @@ const sendVerificationCode = async () => {
     
     const result = await response.json()
     if (result.success) {
-      showToast('验证码已发送至您的邮箱', 'success')
+      showToast(t('common.verifyCodeSent'), 'success')
       startCountdown()
     } else {
-      showToast(result.message || '发送验证码失败', 'error')
+      showToast(result.message || t('common.sendVerifyCodeFailed'), 'error')
     }
   } catch (error) {
-    showToast('网络错误，请检查服务器连接', 'error')
+    showToast(t('common.networkError'), 'error')
   } finally {
     codeSending.value = false
   }
@@ -592,24 +606,24 @@ const handleLogout = () => {
   localStorage.removeItem('loginTimestamp')
   currentUser.value = null
   window.dispatchEvent(new CustomEvent('user-logout'))
-  showToast('已退出登录', 'success')
+  showToast(t('common.logoutSuccess'), 'success')
 }
 
 const handleSubmit = async () => {
   errorMessage.value = ''
   
   if (!formData.value.username || !formData.value.password) {
-    errorMessage.value = '请填写用户名和密码'
+    errorMessage.value = t('settings.fillUsernameAndPassword')
     return
   }
 
   if (authTab.value === 'register' && !formData.value.email) {
-    errorMessage.value = '请填写邮箱'
+    errorMessage.value = t('settings.fillEmail')
     return
   }
 
   if (authTab.value === 'register' && !formData.value.verificationCode) {
-    errorMessage.value = '请填写验证码'
+    errorMessage.value = t('settings.fillVerificationCode')
     return
   }
 
@@ -625,7 +639,7 @@ const handleSubmit = async () => {
       })
       
       if (!response.ok) {
-        throw new Error('登录失败')
+        throw new Error(t('common.loginFailed'))
       }
       
       const result = await response.json()
@@ -646,9 +660,9 @@ const handleSubmit = async () => {
         console.log('[SettingsView] 派发 user-login 事件')
         window.dispatchEvent(new CustomEvent('user-login', { detail: user }))
         
-        showToast('登录成功，欢迎回来！', 'success')
+        showToast(t('common.loginSuccess'), 'success')
       } else {
-        throw new Error(result.message || '登录失败')
+        throw new Error(result.message || t('common.loginFailed'))
       }
     } else {
       const response = await apiRequest(apiConfig.USER_REGISTER, {
@@ -663,7 +677,7 @@ const handleSubmit = async () => {
       })
       
       if (!response.ok) {
-        throw new Error('注册失败')
+        throw new Error(t('common.registerFailed'))
       }
       
       const result = await response.json()
@@ -675,13 +689,13 @@ const handleSubmit = async () => {
         if (countdownInterval.value) {
           clearInterval(countdownInterval.value)
         }
-        showToast('注册成功，请登录', 'success')
+        showToast(t('common.registerSuccess'), 'success')
       } else {
-        throw new Error(result.message || '注册失败')
+        throw new Error(result.message || t('common.registerFailed'))
       }
     }
   } catch (error) {
-    errorMessage.value = error.message || `${authTab.value === 'login' ? '登录' : '注册'}失败，请重试`
+    errorMessage.value = error.message || `${authTab.value === 'login' ? t('common.loginFailed') : t('common.registerFailed')}`
     showToast(errorMessage.value, 'error')
   }
 }
@@ -724,6 +738,35 @@ const handleSubmit = async () => {
 .settings-section p {
   color: var(--text-gray);
   margin: 8px 0;
+}
+
+.links-section {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.link-btn:hover {
+  background: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.link-btn:active {
+  transform: translateY(0);
 }
 
 .setting-item {

@@ -3,20 +3,20 @@
     <!-- 顶部封面区域 -->
     <div class="playlist-header" v-if="musicList.length > 0">
       <div class="cover-wrapper">
-        <img :src="getCoverUrl(musicList[0].id)" alt="封面" class="playlist-cover" @error="handleCoverError" />
+        <img :src="getCoverUrl(musicList[0].id)" :alt="t('common.album')" class="playlist-cover" @error="handleCoverError" />
       </div>
       <div class="playlist-info">
-        <div class="playlist-type">歌单</div>
-        <h1 class="playlist-title">我喜欢的音乐</h1>
+        <div class="playlist-type">{{ t('common.playlists') }}</div>
+        <h1 class="playlist-title">{{ t('favorites.myFavorites') }}</h1>
         <div class="playlist-meta">
-          <span class="music-count">歌曲 {{ musicList.length }}</span>
+          <span class="music-count">{{ t('common.songs') }} {{ musicList.length }}</span>
         </div>
         <div class="action-buttons">
           <button class="btn-play" @click="playAll">
             <svg viewBox="0 0 24 24" width="20" height="20">
               <path fill="currentColor" d="M8 5v14l11-7z"/>
             </svg>
-            播放全部
+            {{ t('player.playAll') }}
           </button>
         </div>
       </div>
@@ -29,14 +29,14 @@
           <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </div>
-      <p>暂无喜欢的音乐</p>
-      <button class="btn-explore" @click="$router.push('/')">去发现音乐</button>
+      <p>{{ t('favorites.noFavorites') }}</p>
+      <button class="btn-explore" @click="$router.push('/')">{{ t('home.discoverMusic') }}</button>
     </div>
 
     <div v-else class="music-list-container">
       <!-- 列表头部标签 -->
       <div class="list-tabs">
-        <div class="tab active">歌曲 {{ musicList.length }}</div>
+        <div class="tab active">{{ t('common.songs') }} {{ musicList.length }}</div>
         <div class="search-wrapper">
           <svg class="search-icon" viewBox="0 0 20 20">
             <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
@@ -44,7 +44,7 @@
           <input 
             v-model="searchQuery" 
             type="text" 
-            placeholder="搜索音乐..." 
+            :placeholder="t('common.searchPlaceholder')" 
             class="search-input"
             @input="handleSearch"
           />
@@ -59,10 +59,10 @@
       <!-- 歌曲列表 -->
       <div class="list-header-row">
         <span class="col-index">#</span>
-        <span class="col-info">标题</span>
-        <span class="col-album">专辑</span>
-        <span class="col-duration">时长</span>
-        <span class="col-actions">操作</span>
+        <span class="col-info">{{ t('common.title') }}</span>
+        <span class="col-album">{{ t('common.album') }}</span>
+        <span class="col-duration">{{ t('common.duration') }}</span>
+        <span class="col-actions">{{ t('common.actions') }}</span>
       </div>
       <div 
         v-for="(music, index) in filteredList" 
@@ -118,7 +118,10 @@
 
 <script setup>
 import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
+
+const { t } = useI18n()
 
 const musicList = ref([])
 const currentMusic = ref(null)

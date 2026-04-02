@@ -23,18 +23,18 @@
               <svg viewBox="0 0 24 24" width="18" height="18">
                 <path fill="currentColor" d="M8 5v14l11-7z"/>
               </svg>
-              播放全部
+              {{ t('player.playAll') }}
             </button>
-            <span class="result-count">{{ musicResults.length }} 首单曲</span>
+            <span class="result-count">{{ musicResults.length }} {{ t('search.songs') }}</span>
             </div>
             
             <div v-if="loadingMusic" class="loading">
             <div class="loading-spinner"></div>
-            <p>加载中...</p>
+            <p>{{ t('common.loading') }}</p>
           </div>
           
           <div v-else-if="musicResults.length === 0" class="empty">
-            <p>暂无单曲</p>
+            <p>{{ t('search.noResults') }}</p>
           </div>
           
           <div v-else class="music-list">
@@ -97,10 +97,10 @@
         <div v-else-if="activeTab === 'playlist'" class="playlist-results" :key="'playlist'">
           <div v-if="loadingPlaylists" class="loading">
             <div class="loading-spinner"></div>
-            <p>加载中...</p>
+            <p>{{ t('common.loading') }}</p>
           </div>
           <div v-else-if="playlistResults.length === 0" class="empty">
-            <p>暂无歌单</p>
+            <p>{{ t('search.noResults') }}</p>
           </div>
           <div v-else class="playlist-grid">
             <div 
@@ -119,9 +119,9 @@
               </div>
               <div class="playlist-info">
                 <div class="playlist-name">{{ playlist.name }}</div>
-                <div class="playlist-description">{{ playlist.description || '暂无描述' }}</div>
+                <div class="playlist-description">{{ playlist.description || t('common.description') }}</div>
                 <div class="playlist-meta">
-                  <span class="playlist-count">{{ playlist.musicCount }} 首音乐</span>
+                  <span class="playlist-count">{{ playlist.musicCount }} {{ t('common.songs') }}</span>
                 </div>
               </div>
             </div>
@@ -188,15 +188,18 @@
       <svg class="empty-icon" viewBox="0 0 24 24" width="80" height="80">
         <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
       </svg>
-      <p class="empty-text">输入关键词开始搜索</p>
+      <p class="empty-text">{{ t('search.inputKeywordToSearch') }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
+
+const { t } = useI18n()
 
 // 统一的 API 请求函数
 async function apiRequest(url, options = {}) {
@@ -217,11 +220,11 @@ const loadingArtists = ref(false)
 const currentMusic = ref(null)
 const favorites = ref([])
 
-const tabs = [
-  { key: 'music', label: '单曲' },
-  { key: 'playlist', label: '歌单' },
-  { key: 'artist', label: '歌手' }
-]
+const tabs = computed(() => [
+  { key: 'music', label: t('search.searchMusic') },
+  { key: 'playlist', label: t('search.searchPlaylist') },
+  { key: 'artist', label: t('search.searchMusic') }
+])
 
 // 加载收藏列表
 const loadFavorites = async () => {
@@ -421,7 +424,7 @@ const toggleFavorite = async (music) => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: '请先登录', type: 'error' } 
+      detail: { message: t('search.pleaseLoginFirst'), type: 'error' } 
     }))
     return
   }
@@ -440,12 +443,12 @@ const toggleFavorite = async (music) => {
         favorites.value = favorites.value.filter(f => f.id !== music.id)
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: '已取消收藏', type: 'success' } 
+          detail: { message: t('search.cancelFavoriteSuccess'), type: 'success' } 
         }))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || '取消收藏失败', type: 'error' } 
+          detail: { message: result.message || t('search.cancelFavoriteFailed'), type: 'error' } 
         }))
       }
     } else {
@@ -465,19 +468,19 @@ const toggleFavorite = async (music) => {
         favorites.value.push(music)
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: '收藏成功', type: 'success' } 
+          detail: { message: t('search.favoriteSuccess'), type: 'success' } 
         }))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || '收藏失败', type: 'error' } 
+          detail: { message: result.message || t('search.favoriteFailed'), type: 'error' } 
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: '网络错误，请重试', type: 'error' } 
+      detail: { message: t('search.networkErrorRetry'), type: 'error' } 
     }))
   }
 }

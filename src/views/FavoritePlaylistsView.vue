@@ -1,7 +1,7 @@
 <template>
   <div class="favorite-playlists-view">
     <div class="view-header">
-      <h1 class="view-title">收藏的歌单</h1>
+      <h1 class="view-title">{{ t('favoritePlaylists.favoritePlaylists') }}</h1>
     </div>
     
     <div v-if="loading" class="loading">
@@ -16,7 +16,7 @@
         </svg>
       </div>
       <p>还没有收藏任何歌单</p>
-      <p class="empty-hint">去搜索喜欢的歌单并收藏吧！</p>
+      <p class="empty-hint">{{ t('favoritePlaylists.hint') }}</p>
     </div>
     
     <div v-else class="playlists-grid">
@@ -43,7 +43,7 @@
         
         <div class="playlist-info">
           <h3 class="playlist-name">{{ playlist.name }}</h3>
-          <p class="playlist-description">{{ playlist.description || '暂无描述' }}</p>
+          <p class="playlist-description">{{ playlist.description || t('favoritePlaylists.noDescription') }}</p>
           
           <div class="playlist-meta">
             <div class="creator-info">
@@ -149,12 +149,12 @@ const formatTime = (timestamp) => {
   const month = 30 * day
   const year = 365 * day
   
-  if (diff < minute) return '刚刚收藏'
-  if (diff < hour) return `${Math.floor(diff / minute)}分钟前收藏`
-  if (diff < day) return `${Math.floor(diff / hour)}小时前收藏`
-  if (diff < month) return `${Math.floor(diff / day)}天前收藏`
-  if (diff < year) return `${Math.floor(diff / month)}个月前收藏`
-  return `${Math.floor(diff / year)}年前收藏`
+  if (diff < minute) return t('favoritePlaylists.justFavorite')
+  if (diff < hour) return `${Math.floor(diff / minute)}${t('favoritePlaylists.minutesAgoFavorite')}`
+  if (diff < day) return `${Math.floor(diff / hour)}${t('favoritePlaylists.hoursAgoFavorite')}`
+  if (diff < month) return `${Math.floor(diff / day)}${t('favoritePlaylists.daysAgoFavorite')}`
+  if (diff < year) return `${Math.floor(diff / month)}${t('favoritePlaylists.monthsAgoFavorite')}`
+  return `${Math.floor(diff / year)}${t('favoritePlaylists.yearsAgoFavorite')}`
 }
 
 const goToPlaylist = (id) => {
@@ -179,7 +179,7 @@ const unfavoritePlaylist = async (playlist) => {
     if (data.success) {
       playlists.value = playlists.value.filter(p => p.id !== playlist.id)
       window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { message: '已取消收藏', type: 'success' } 
+        detail: { message: t('favoritePlaylists.cancelFavoriteSuccess'), type: 'success' } 
       }))
       // 触发收藏歌单更新事件，更新侧边栏
       window.dispatchEvent(new CustomEvent('favorite-playlist-updated'))
@@ -187,7 +187,7 @@ const unfavoritePlaylist = async (playlist) => {
   } catch (error) {
     console.error('取消收藏失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: '取消收藏失败', type: 'error' } 
+      detail: { message: t('favoritePlaylists.cancelFavoriteFailed'), type: 'error' } 
     }))
   }
 }

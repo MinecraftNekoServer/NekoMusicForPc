@@ -20,7 +20,7 @@
         
         <!-- 我的歌单 -->
         <div v-if="myPlaylists.length > 0" class="playlists-group">
-          <div class="playlists-group-title">我的歌单</div>
+          <div class="playlists-group-title">{{ t('sidebar.myPlaylistsTitle') }}</div>
           <div 
             v-for="playlist in myPlaylists.slice(0, 5)" 
             :key="`my-${playlist.id}`"
@@ -33,7 +33,7 @@
         
         <!-- 收藏的歌单 -->
         <div v-if="favoritePlaylists.length > 0" class="playlists-group">
-          <div class="playlists-group-title">收藏的歌单</div>
+          <div class="playlists-group-title">{{ t('sidebar.favoritePlaylistsTitle') }}</div>
           <div 
             v-for="playlist in favoritePlaylists.slice(0, 5)" 
             :key="`fav-${playlist.id}`"
@@ -49,7 +49,7 @@
       <div class="user-info" @click="handleUserClick" :class="{ 'is-login': isLoggedIn }">
         <img :src="userAvatar" alt="用户头像" class="user-avatar" />
         <div class="user-details">
-          <span class="username">{{ username || '未登录' }}</span>
+          <span class="username">{{ username || t('sidebar.notLoggedIn') }}</span>
         </div>
       </div>
     </div>
@@ -60,8 +60,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
 
+const { t } = useI18n()
 console.log('Sidebar 组件已加载')
 
 // 统一的 API 请求函数
