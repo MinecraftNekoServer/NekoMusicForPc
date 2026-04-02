@@ -54,61 +54,11 @@
       </div>
     </div>
 
-    <Transition name="modal">
-      <div v-if="showLoginModal" class="modal-overlay" @click="showLoginModal = false">
-        <div class="modal-content" @click.stop>
-          <div class="modal-tabs">
-            <button 
-              :class="['tab-btn', { active: authTab === 'login' }]"
-              @click="authTab = 'login'"
-            >
-              登录
-            </button>
-            <button 
-              :class="['tab-btn', { active: authTab === 'register' }]"
-              @click="authTab = 'register'"
-            >
-              注册
-            </button>
-          </div>
-          
-          <div class="auth-form">
-            <input 
-              v-model="formData.username"
-              type="text" 
-              placeholder="用户名"
-              class="auth-input"
-            />
-            <input 
-              v-model="formData.password"
-              type="password" 
-              placeholder="密码"
-              class="auth-input"
-            />
-            <input 
-              v-if="authTab === 'register'"
-              v-model="formData.email"
-              type="email" 
-              placeholder="邮箱"
-              class="auth-input"
-            />
-          </div>
-
-          <div class="modal-buttons">
-            <button class="modal-btn modal-btn-primary" @click="handleSubmit">
-              {{ authTab === 'login' ? '登录' : '注册' }}
-            </button>
-          </div>
-          
-          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-        </div>
-      </div>
-    </Transition>
-  </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import apiConfig from '../config/apiConfig'
 
@@ -124,15 +74,7 @@ const router = useRouter()
 const route = useRoute()
 const currentRoute = ref('home')
 const username = ref('')
-const showLoginModal = ref(false)
 const isLoggedIn = ref(false)
-const authTab = ref('login')
-const errorMessage = ref('')
-const formData = ref({
-  username: '',
-  password: '',
-  email: ''
-})
 
 // 歌单列表
 const myPlaylists = ref([])
@@ -170,81 +112,8 @@ const navigateTo = (route) => {
 }
 
 const handleUserClick = () => {
-  if (!isLoggedIn.value) {
-    showLoginModal.value = true
-  }
-}
-
-const handleSubmit = async () => {
-  errorMessage.value = ''
-  
-  if (!formData.value.username || !formData.value.password) {
-    errorMessage.value = '请填写用户名和密码'
-    return
-  }
-
-  if (authTab.value === 'register' && !formData.value.email) {
-    errorMessage.value = '请填写邮箱'
-    return
-  }
-
-  try {
-    if (authTab.value === 'login') {
-      const response = await apiRequest(apiConfig.USER_LOGIN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.value.username,
-          password: formData.value.password
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error('登录失败')
-      }
-      
-      const result = await response.json()
-      if (result.success && result.data && result.data.user) {
-        const user = result.data.user
-        const token = result.data.token
-        
-        localStorage.setItem('user', JSON.stringify(user))
-        localStorage.setItem('token', token)
-        username.value = user.username
-        isLoggedIn.value = true
-        showLoginModal.value = false
-        formData.value = { username: '', password: '', email: '' }
-        // 加载歌单列表
-        loadPlaylists()
-      } else {
-        throw new Error(result.message || '登录失败')
-      }
-    } else {
-      const response = await apiRequest(apiConfig.USER_REGISTER, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.value.username,
-          password: formData.value.password,
-          email: formData.value.email
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error('注册失败')
-      }
-      
-      const result = await response.json()
-      if (result.success) {
-        authTab.value = 'login'
-        errorMessage.value = ''
-      } else {
-        throw new Error(result.message || '注册失败')
-      }
-    }
-  } catch (error) {
-    errorMessage.value = error.message || `${authTab.value === 'login' ? '登录' : '注册'}失败，请重试`
-  }
+  // 无论是否登录，都跳转到设置页面
+  router.push('/settings')
 }
 
 onMounted(() => {
@@ -264,36 +133,52 @@ onMounted(() => {
   } else {
     console.log('Sidebar onMounted: 用户未登录')
   }
+  
+  // 监听歌单更新事件
+  window.addEventListener('playlist-updated', loadPlaylists)
+  
+  // 监听全局刷新事件
+  window.addEventListener('playlist-refresh-needed', loadPlaylists)
 })
 
 // 加载歌单列表
 const loadPlaylists = async () => {
+  console.log('[Sidebar] loadPlaylists 开始执行')
   const token = localStorage.getItem('token')
-  if (!token) return
+  if (!token) {
+    console.log('[Sidebar] 未登录，跳过加载歌单')
+    return
+  }
 
   try {
     // 获取我的歌单
+    console.log('[Sidebar] 开始获取我的歌单')
     const myResponse = await apiRequest(`${apiConfig.PLAYLISTS}?t=${Date.now()}`, {
       method: 'GET',
       headers: { 'Authorization': token }
     })
     const myData = await myResponse.json()
-    console.log('我的歌单数据:', myData)
+    console.log('[Sidebar] 我的歌单数据:', myData)
     if (myData.success && myData.playlists) {
       myPlaylists.value = myData.playlists
-      console.log('我的歌单数量:', myPlaylists.value.length)
+      console.log('[Sidebar] 我的歌单数量:', myPlaylists.value.length)
+    } else {
+      console.log('[Sidebar] 我的歌单数据无效:', myData)
     }
 
     // 获取收藏的歌单
+    console.log('[Sidebar] 开始获取收藏歌单')
     const favResponse = await apiRequest(`${apiConfig.FAVORITE_PLAYLISTS}?t=${Date.now()}`, {
       method: 'GET',
       headers: { 'Authorization': token }
     })
     const favData = await favResponse.json()
-    console.log('收藏歌单数据:', favData)
+    console.log('[Sidebar] 收藏歌单数据:', favData)
     if (favData.success && favData.playlists) {
       favoritePlaylists.value = favData.playlists
-      console.log('收藏歌单数量:', favoritePlaylists.value.length)
+      console.log('[Sidebar] 收藏歌单数量:', favoritePlaylists.value.length)
+    } else {
+      console.log('[Sidebar] 收藏歌单数据无效:', favData)
     }
   } catch (error) {
     console.error('加载歌单列表失败:', error)
@@ -310,9 +195,6 @@ const navigateToPlaylist = (playlistId) => {
   router.push(`/playlist/${playlistId}`)
 }
 
-// 监听歌单更新事件
-window.addEventListener('playlist-updated', loadPlaylists)
-
 // 监听登录状态变化
 watch(isLoggedIn, (newValue) => {
   if (newValue) {
@@ -321,6 +203,12 @@ watch(isLoggedIn, (newValue) => {
     myPlaylists.value = []
     favoritePlaylists.value = []
   }
+})
+
+// 组件卸载时清理事件监听器
+onUnmounted(() => {
+  window.removeEventListener('playlist-updated', loadPlaylists)
+  window.removeEventListener('playlist-refresh-needed', loadPlaylists)
 })
 </script>
 

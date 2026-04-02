@@ -117,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import apiConfig from '../config/apiConfig'
 
 const musicList = ref([])
@@ -143,7 +143,7 @@ const filteredList = computed(() => {
   )
 })
 
-async function fetchFavorites() {
+async function fetchFavorites(forceRefresh = false) {
   const token = localStorage.getItem('token')
   if (!token) {
     console.log('未登录，跳过获取收藏列表')
@@ -151,23 +151,25 @@ async function fetchFavorites() {
   }
 
   try {
-    // 先尝试从本地存储读取
-    const localFavorites = localStorage.getItem('favorites')
-    if (localFavorites) {
-      try {
-        const parsed = JSON.parse(localFavorites)
-        if (parsed && parsed.length > 0) {
-          console.log('fetchFavorites: 从本地读取收藏列表，数量:', parsed.length)
-          favorites.value = parsed
-          return parsed
+    // 如果不是强制刷新，先尝试从本地存储读取
+    if (!forceRefresh) {
+      const localFavorites = localStorage.getItem('favorites')
+      if (localFavorites) {
+        try {
+          const parsed = JSON.parse(localFavorites)
+          if (parsed && parsed.length > 0) {
+            console.log('fetchFavorites: 从本地读取收藏列表，数量:', parsed.length)
+            favorites.value = parsed
+            return parsed
+          }
+        } catch (e) {
+          console.error('解析本地收藏列表失败:', e)
         }
-      } catch (e) {
-        console.error('解析本地收藏列表失败:', e)
       }
     }
 
-    // 从服务器同步
-    const fullUrl = `${apiConfig.BASE_URL}${apiConfig.USER_FAVORITES}`
+    // 从服务器同步（添加时间戳参数防止缓存）
+    const fullUrl = `${apiConfig.BASE_URL}${apiConfig.USER_FAVORITES}?t=${Date.now()}`
     const response = await fetch(fullUrl, {
       headers: { 'Authorization': token }
     })
@@ -263,7 +265,28 @@ function handleCoverError(e) {
   e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23f0f0f0" width="200" height="200"/><text fill="%23999" font-size="16" x="50%25" y="50%25" text-anchor="middle" dy="8">无封面</text></svg>'
 }
 
+// 处理用户登录事件
+const handleUserLogin = async () => {
+  console.log('[FavoritesView] 收到 user-login 事件，开始重新加载收藏列表')
+  musicList.value = await fetchFavorites(true)  // 强制从服务器刷新
+}
+
+// 处理刷新请求事件
+const handleRefreshNeeded = async () => {
+  console.log('[FavoritesView] 收到 favorites-refresh-needed 事件，开始重新加载收藏列表')
+  musicList.value = await fetchFavorites(true)  // 强制从服务器刷新
+}
+
+// 处理用户登出事件
+const handleUserLogout = () => {
+  musicList.value = []
+  favorites.value = []
+  currentMusic.value = null
+}
+
 onMounted(async () => {
+  console.log('[FavoritesView] 组件已挂载')
+  
   const savedMusic = localStorage.getItem('currentMusic')
   if (savedMusic) {
     try {
@@ -273,7 +296,35 @@ onMounted(async () => {
     }
   }
 
-  musicList.value = await fetchFavorites()
+  // 检查是否有 token
+  const token = localStorage.getItem('token')
+  if (token) {
+    // 检查是否需要刷新（通过 localStorage 标志）
+    const loginTimestamp = localStorage.getItem('loginTimestamp')
+    const componentMountedTime = Date.now()
+    
+    // 如果登录时间与当前时间相差小于 5 秒，说明刚登录，需要刷新
+    if (loginTimestamp && (componentMountedTime - parseInt(loginTimestamp)) < 5000) {
+      console.log('[FavoritesView] 检测到刚登录，强制刷新收藏列表')
+      musicList.value = await fetchFavorites(true)
+    } else {
+      musicList.value = await fetchFavorites()
+    }
+  }
+
+  // 监听账号变更事件
+  window.addEventListener('user-login', handleUserLogin)
+  window.addEventListener('user-logout', handleUserLogout)
+  // 监听全局刷新事件
+  window.addEventListener('favorites-refresh-needed', handleRefreshNeeded)
+  console.log('[FavoritesView] 事件监听器已注册')
+})
+
+// 组件卸载时清理事件监听器
+onUnmounted(() => {
+  window.removeEventListener('user-login', handleUserLogin)
+  window.removeEventListener('user-logout', handleUserLogout)
+  window.removeEventListener('favorites-refresh-needed', handleRefreshNeeded)
 })
 </script>
 

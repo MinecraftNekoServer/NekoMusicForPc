@@ -137,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiConfig from '../config/apiConfig'
 
@@ -153,26 +153,37 @@ const deletingPlaylist = ref(null)
 
 const fetchPlaylists = async () => {
   const token = localStorage.getItem('token')
+  console.log('[PlaylistsView] fetchPlaylists 开始执行，token:', token ? '存在' : '不存在')
+  
   if (!token) {
     playlists.value = []
+    console.log('[PlaylistsView] 未登录，清空歌单列表')
     return
   }
 
   loading.value = true
   try {
-    const response = await fetch(`${apiConfig.BASE_URL}${apiConfig.PLAYLISTS}`, {
+    // 添加时间戳参数防止浏览器缓存
+    const url = `${apiConfig.BASE_URL}${apiConfig.PLAYLISTS}?t=${Date.now()}`
+    console.log('[PlaylistsView] 请求URL:', url)
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'Authorization': token }
     })
 
     const data = await response.json()
-    console.log('获取歌单列表响应:', data)
+    console.log('[PlaylistsView] 获取歌单列表响应:', data)
+    
     if (data.success && data.playlists) {
-      console.log('歌单数据:', data.playlists)
+      console.log('[PlaylistsView] 歌单数据:', data.playlists)
       playlists.value = data.playlists
+      console.log('[PlaylistsView] 更新后的歌单列表长度:', playlists.value.length)
+    } else {
+      console.log('[PlaylistsView] 响应数据无效:', data)
     }
   } catch (error) {
-    console.error('获取歌单列表失败:', error)
+    console.error('[PlaylistsView] 获取歌单列表失败:', error)
   } finally {
     loading.value = false
   }
@@ -308,8 +319,55 @@ const deletePlaylist = async () => {
   }
 }
 
-onMounted(() => {
+// 处理用户登录事件
+const handleUserLogin = () => {
+  console.log('[PlaylistsView] 收到 user-login 事件，开始重新加载歌单')
   fetchPlaylists()
+}
+
+// 处理刷新请求事件
+const handleRefreshNeeded = () => {
+  console.log('[PlaylistsView] 收到 playlist-refresh-needed 事件，开始重新加载歌单')
+  fetchPlaylists()
+}
+
+// 处理用户登出事件
+const handleUserLogout = () => {
+  playlists.value = []
+}
+
+onMounted(() => {
+  console.log('[PlaylistsView] 组件已挂载')
+  
+  // 检查是否有 token
+  const token = localStorage.getItem('token')
+  if (token) {
+    // 检查是否需要刷新（通过 localStorage 标志）
+    const loginTimestamp = localStorage.getItem('loginTimestamp')
+    const componentMountedTime = Date.now()
+    
+    // 如果登录时间与当前时间相差小于 5 秒，说明刚登录，需要刷新
+    if (loginTimestamp && (componentMountedTime - parseInt(loginTimestamp)) < 5000) {
+      console.log('[PlaylistsView] 检测到刚登录，强制刷新歌单')
+      fetchPlaylists()
+    } else {
+      fetchPlaylists()
+    }
+  }
+  
+  // 监听账号变更事件
+  window.addEventListener('user-login', handleUserLogin)
+  window.addEventListener('user-logout', handleUserLogout)
+  // 监听全局刷新事件
+  window.addEventListener('playlist-refresh-needed', handleRefreshNeeded)
+  console.log('[PlaylistsView] 事件监听器已注册')
+})
+
+// 组件卸载时清理事件监听器
+onUnmounted(() => {
+  window.removeEventListener('user-login', handleUserLogin)
+  window.removeEventListener('user-logout', handleUserLogout)
+  window.removeEventListener('playlist-refresh-needed', handleRefreshNeeded)
 })
 </script>
 
