@@ -868,16 +868,16 @@ watch(() => route.path, (newPath) => {
 
 /* 侧边栏样式 */
 .layout-sidebar {
-  width: 260px;
+  width: 280px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border-color);
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  margin-top: 56px;
-  background: var(--bg-sidebar);
+  margin-top: 64px;
+  background: linear-gradient(180deg, rgba(30, 30, 50, 0.98) 0%, rgba(20, 20, 35, 0.98) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .layout-sidebar::before {
@@ -887,13 +887,13 @@ watch(() => route.path, (newPath) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(102, 126, 234, 0.08) 0%, transparent 100%);
   pointer-events: none;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 12px 12px;
+  padding: 16px 14px;
   overflow-y: auto;
   position: relative;
   z-index: 1;
@@ -902,25 +902,25 @@ watch(() => route.path, (newPath) => {
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  color: var(--text-white-muted);
+  padding: 14px 18px;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all var(--transition-normal);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   position: relative;
   margin-bottom: 4px;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: white;
   transform: translateX(4px);
 }
 
 .nav-item.active {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
 .nav-icon-wrapper {
@@ -938,6 +938,11 @@ watch(() => route.path, (newPath) => {
   height: 20px;
   position: relative;
   z-index: 2;
+  transition: transform var(--transition-normal);
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.1);
 }
 
 .nav-icon-glow {
@@ -948,6 +953,16 @@ watch(() => route.path, (newPath) => {
   border-radius: 50%;
   filter: blur(8px);
   z-index: 1;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.nav-item:hover .nav-icon-glow {
+  opacity: 1;
+}
+
+.nav-item.active .nav-icon-glow {
+  opacity: 0.6;
 }
 
 .nav-item span {
@@ -970,7 +985,7 @@ watch(() => route.path, (newPath) => {
 .nav-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  margin: 8px 16px;
+  margin: 12px 0;
 }
 
 .sidebar-spacer {
@@ -991,8 +1006,9 @@ watch(() => route.path, (newPath) => {
 
 .playlists-title {
   font-size: 13px;
-  color: var(--text-white-muted);
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 .add-playlist-btn {
@@ -1001,7 +1017,7 @@ watch(() => route.path, (newPath) => {
   border: none;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  color: var(--text-white-muted);
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1012,6 +1028,7 @@ watch(() => route.path, (newPath) => {
 .add-playlist-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   color: white;
+  transform: scale(1.05);
 }
 
 .playlists-list {
@@ -1023,19 +1040,22 @@ watch(() => route.path, (newPath) => {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 16px;
+  padding: 10px 16px;
   cursor: pointer;
   transition: all 0.2s;
   border-left: 3px solid transparent;
+  margin: 2px 4px;
+  border-radius: 8px;
 }
 
 .playlist-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
 }
 
 .playlist-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  border-left-color: var(--primary);
+  background: rgba(255, 255, 255, 0.12);
+  border-left-color: #667eea;
 }
 
 .playlist-item.active .playlist-name {
@@ -1053,11 +1073,16 @@ watch(() => route.path, (newPath) => {
 
 .playlist-name {
   font-size: 13px;
-  color: var(--text-white-muted);
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  transition: color 0.2s;
+}
+
+.playlist-item:hover .playlist-name {
+  color: white;
 }
 
 .playlists-empty {
@@ -1091,7 +1116,8 @@ watch(() => route.path, (newPath) => {
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  padding-top: 56px;
+  padding-top: 64px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
 /* 标题栏 */
@@ -1100,18 +1126,17 @@ watch(() => route.path, (newPath) => {
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   flex-shrink: 0;
   -webkit-app-region: drag;
   user-select: none;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg, rgba(30, 30, 50, 0.98) 0%, rgba(20, 20, 35, 0.98) 100%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .title-bar::after {
@@ -1121,72 +1146,83 @@ watch(() => route.path, (newPath) => {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
 }
 
 .title-bar-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
-  width: 260px;
+  width: 280px;
   padding: 0 16px;
   -webkit-app-region: no-drag;
   box-sizing: border-box;
 }
 
 .app-logo {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   position: relative;
   z-index: 2;
-  animation: pulse 3s ease-in-out infinite;
+  transition: all var(--transition-normal);
+}
+
+.app-logo:hover {
+  transform: scale(1.05);
 }
 
 .app-logo::before {
   content: '';
   position: absolute;
-  width: 36px;
-  height: 36px;
-  background: var(--gradient-primary);
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 50%;
-  filter: blur(8px);
-  opacity: 0.4;
+  filter: blur(12px);
+  opacity: 0.6;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: -1;
+  transition: all var(--transition-normal);
+}
+
+.title-bar-left:hover .app-logo::before {
+  opacity: 0.8;
+  filter: blur(14px);
 }
 
 .app-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: 0.5px;
 }
 
 .title-bar-center {
   flex: 1;
   display: flex;
   justify-content: flex-start;
-  padding: 0 24px;
+  padding: 0 32px;
 }
 
 .search-box {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 400px;
-  height: 44px;
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: 0 4px 0 16px;
-  box-shadow: var(--shadow-md);
+  max-width: 450px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 0 6px 0 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.1);
   -webkit-app-region: no-drag;
   transition: all var(--transition-normal);
-  border: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
 }
@@ -1198,26 +1234,27 @@ watch(() => route.path, (newPath) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   opacity: 0;
   transition: opacity var(--transition-normal);
-  border-radius: var(--radius-lg);
+  border-radius: 24px;
 }
 
 .search-box:focus-within {
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
-  border-color: var(--primary);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .search-box:focus-within::before {
-  opacity: 0.05;
+  opacity: 0.1;
 }
 
 .search-icon {
   width: 20px;
   height: 20px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
   transition: color var(--transition-fast);
   position: relative;
@@ -1225,55 +1262,57 @@ watch(() => route.path, (newPath) => {
 }
 
 .search-box:focus-within .search-icon {
-  color: var(--primary);
+  color: #667eea;
 }
 
 .search-box input {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 0 12px;
+  padding: 0 16px;
   font-size: 15px;
-  color: var(--text-primary);
+  color: white;
   outline: none;
   position: relative;
   z-index: 1;
+  font-weight: 400;
 }
 
 .search-box input::placeholder {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.4);
   transition: opacity var(--transition-fast);
 }
 
 .search-box:focus-within input::placeholder {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .search-btn {
-  width: 40px;
-  height: 36px;
+  width: 44px;
+  height: 40px;
   border: none;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   transition: all var(--transition-normal);
-  margin-right: 4px;
+  margin-right: 6px;
   position: relative;
   z-index: 1;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .search-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 .search-btn:active {
-  transform: scale(0.95);
+  transform: translateY(0);
 }
 
 .search-btn svg {
@@ -1284,38 +1323,45 @@ watch(() => route.path, (newPath) => {
 .title-bar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all var(--transition-normal);
   -webkit-app-region: no-drag;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .user-info:hover {
-  background: rgba(102, 126, 234, 0.1);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 2px solid var(--primary);
+  border: 2px solid rgba(102, 126, 234, 0.5);
   object-fit: cover;
+  transition: all var(--transition-normal);
+}
+
+.user-info:hover .user-avatar {
+  border-color: rgba(102, 126, 234, 0.8);
 }
 
 .username {
   font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1324,24 +1370,25 @@ watch(() => route.path, (newPath) => {
 
 .action-btn {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border: none;
-  background: transparent;
-  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   transition: all var(--transition-normal);
   -webkit-app-region: no-drag;
 }
 
 .action-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: var(--primary);
+  background: rgba(255, 255, 255, 0.15);
+  color: #667eea;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .window-controls {
@@ -1352,26 +1399,26 @@ watch(() => route.path, (newPath) => {
 }
 
 .window-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: none;
   background: transparent;
-  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
-  transition: all var(--transition-fast);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s;
+  border-radius: 6px;
 }
 
 .window-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
-.close-btn:hover {
-  background: #e81123;
+.window-btn.close:hover {
+  background: #e74c3c;
   color: white;
 }
 
@@ -1381,7 +1428,25 @@ watch(() => route.path, (newPath) => {
   overflow: auto;
   background: transparent;
   position: relative;
-  padding-bottom: 90px; /* 为播放栏留出空间 */
+  padding-bottom: 90px;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.4);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.6);
 }
 
 /* 页面过渡动画 */
@@ -1407,7 +1472,7 @@ watch(() => route.path, (newPath) => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1416,23 +1481,35 @@ watch(() => route.path, (newPath) => {
 }
 
 .modal-content {
-  background: linear-gradient(135deg, rgba(42, 42, 42, 0.95) 0%, rgba(30, 30, 30, 0.95) 100%);
-  border-radius: 20px;
-  padding: 32px;
+  background: linear-gradient(135deg, rgba(42, 42, 42, 0.98) 0%, rgba(30, 30, 30, 0.98) 100%);
+  border-radius: 24px;
+  padding: 36px;
   width: 100%;
   max-width: 380px;
   text-align: center;
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 24px 80px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-content.modal-small {
   max-width: 320px;
-  padding: 24px;
+  padding: 28px;
 }
 
 .modal-content::before {
@@ -1442,13 +1519,13 @@ watch(() => route.path, (newPath) => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.12) 0%, transparent 50%);
   pointer-events: none;
 }
 
 .modal-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   position: relative;
   z-index: 1;
 }
@@ -1456,7 +1533,7 @@ watch(() => route.path, (newPath) => {
 .modal-logo {
   width: 64px;
   height: 64px;
-  margin: 0 auto 16px;
+  margin: 0 auto 18px;
   position: relative;
 }
 
@@ -1539,6 +1616,7 @@ watch(() => route.path, (newPath) => {
   font-size: 14px;
   outline: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 400;
 }
 
 .auth-input::placeholder {
@@ -1549,13 +1627,14 @@ watch(() => route.path, (newPath) => {
   border-color: #667eea;
   background: rgba(0, 0, 0, 0.4);
   box-shadow: 
-    0 0 0 4px rgba(102, 126, 234, 0.1),
+    0 0 0 4px rgba(102, 126, 234, 0.12),
     0 4px 12px rgba(102, 126, 234, 0.2);
   transform: translateY(-1px);
 }
 
 .auth-input:hover:not(:focus) {
   border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.35);
 }
 
 .email-field {
@@ -1644,13 +1723,24 @@ watch(() => route.path, (newPath) => {
 .modal-btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 24px rgba(102, 126, 234, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 6px 20px rgba(102, 126, 234, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .modal-btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  transform: translateY(-1px);
 }
 
 .error-message {

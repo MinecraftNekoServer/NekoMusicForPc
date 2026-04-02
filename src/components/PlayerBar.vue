@@ -1644,7 +1644,7 @@ const handleNavigateToSettings = () => {
 
 .player-bar {
   height: 90px;
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -1654,7 +1654,8 @@ const handleNavigateToSettings = () => {
   right: 0;
   bottom: 0;
   z-index: 100;
-  background: white;
+  background: linear-gradient(135deg, rgba(30, 30, 50, 0.98) 0%, rgba(20, 20, 35, 0.98) 100%);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
 }
 
 .player-bar::before {
@@ -1733,7 +1734,7 @@ const handleNavigateToSettings = () => {
 .player-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1741,7 +1742,7 @@ const handleNavigateToSettings = () => {
 
 .player-artist {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1768,12 +1769,12 @@ const handleNavigateToSettings = () => {
   height: 38px;
   border: none;
   background: transparent;
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   transition: all var(--transition-normal);
 }
 
@@ -1787,8 +1788,8 @@ const handleNavigateToSettings = () => {
 }
 
 .control-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: var(--primary);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
   transform: scale(1.1);
 }
 
@@ -1797,8 +1798,8 @@ const handleNavigateToSettings = () => {
 }
 
 .control-btn.active {
-  color: var(--primary);
-  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .control-btn.active img {
@@ -1835,7 +1836,7 @@ const handleNavigateToSettings = () => {
 
 .time {
   font-size: 12px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.7);
   min-width: 42px;
   text-align: center;
   font-weight: 500;
@@ -1844,7 +1845,7 @@ const handleNavigateToSettings = () => {
 .progress-bar {
   flex: 1;
   height: 6px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
   cursor: pointer;
   position: relative;
@@ -1935,10 +1936,10 @@ const handleNavigateToSettings = () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 50, 0.98);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1946,6 +1947,7 @@ const handleNavigateToSettings = () => {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .volume-slider-vertical {
@@ -1959,7 +1961,7 @@ const handleNavigateToSettings = () => {
 .volume-track {
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   position: relative;
   overflow: hidden;
