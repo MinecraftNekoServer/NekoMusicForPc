@@ -287,23 +287,24 @@ defineExpose({
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  background: white;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
-  border: 2px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   transition: all var(--transition-normal);
   width: 280px;
 }
 
 .search-box:focus-within {
-  border-color: var(--primary);
+  border-color: #667eea;
   box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .search-icon {
   width: 18px;
   height: 18px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
   flex-shrink: 0;
 }
 
@@ -357,21 +358,22 @@ defineExpose({
 }
 
 .list-container {
-  background: white;
+  background: rgba(30, 30, 50, 0.9);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .list-header-row {
   display: grid;
   grid-template-columns: 50px 1fr 1fr 1fr 80px 140px;
   padding: 16px 20px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
   font-size: 13px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 600;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-action-btn {
@@ -381,9 +383,9 @@ defineExpose({
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--primary);
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -391,8 +393,8 @@ defineExpose({
 }
 
 .header-action-btn:hover {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: rgba(102, 126, 234, 0.25);
+  border-color: rgba(102, 126, 234, 0.5);
   transform: translateY(-1px);
 }
 
@@ -421,7 +423,7 @@ defineExpose({
 }
 
 .music-item:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
 }
 
 .music-item:hover .cover-wrapper .cover-overlay {
@@ -429,16 +431,16 @@ defineExpose({
 }
 
 .music-item.playing {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
 }
 
 .music-item.playing .title-text {
-  color: var(--primary);
+  color: #667eea;
   font-weight: 600;
 }
 
 .music-item.playing .cover {
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
 }
 
 .col-index {
@@ -541,13 +543,13 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   transition: all var(--transition-normal);
 }
 
 .action-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: var(--primary);
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
   transform: scale(1.1);
 }
 
@@ -557,16 +559,16 @@ defineExpose({
 }
 
 .music-items::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .music-items::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(102, 126, 234, 0.4);
   border-radius: 3px;
 }
 
 .music-items::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(102, 126, 234, 0.6);
 }
 
 /* ========================================

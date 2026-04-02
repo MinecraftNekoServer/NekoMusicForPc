@@ -16,14 +16,14 @@
   
   /* 背景颜色 */
   --bg-sidebar: linear-gradient(180deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 35, 0.98) 100%);
-  --bg-main: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-main: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  --bg-card: rgba(30, 30, 50, 0.9);
+  --bg-glass: rgba(30, 30, 50, 0.7);
   
   /* 文字颜色 */
-  --text-primary: #2d3748;
-  --text-secondary: #718096;
-  --text-muted: #a0aec0;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
   --text-white: #ffffff;
   --text-white-muted: rgba(255, 255, 255, 0.7);
   
@@ -268,14 +268,14 @@ body {
 }
 
 .btn-secondary {
-  background: white;
-  color: var(--text-primary);
-  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-secondary:hover {
-  background: #f8f9fa;
-  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #667eea;
 }
 
 .btn-ghost {
@@ -550,26 +550,26 @@ body {
   }
 }
 
-/* 补充浅色模式的常用颜色变量 */
+/* 补充深色模式的常用颜色变量 */
 :root {
-  --bg-white: rgba(255, 255, 255, 0.95);
-  --bg-hover: rgba(248, 250, 252, 0.95);
-  --bg-active: rgba(241, 245, 249, 0.95);
-  --bg-input: rgba(255, 255, 255, 0.95);
-  --bg-disabled: rgba(248, 250, 252, 0.5);
+  --bg-white: rgba(30, 30, 50, 0.95);
+  --bg-hover: rgba(40, 40, 65, 0.95);
+  --bg-active: rgba(50, 50, 80, 0.95);
+  --bg-input: rgba(30, 30, 50, 0.95);
+  --bg-disabled: rgba(30, 30, 50, 0.5);
   
-  --text-dark: #2d3748;
-  --text-gray: #718096;
-  --text-light: #a0aec0;
+  --text-dark: #ffffff;
+  --text-gray: rgba(255, 255, 255, 0.7);
+  --text-light: rgba(255, 255, 255, 0.5);
   
-  --border-divider: rgba(0, 0, 0, 0.08);
-  --border-input: rgba(0, 0, 0, 0.1);
+  --border-divider: rgba(255, 255, 255, 0.1);
+  --border-input: rgba(255, 255, 255, 0.15);
   --border-focus: rgba(102, 126, 234, 0.5);
   
-  --bg-success: rgba(34, 197, 94, 0.1);
-  --bg-error: rgba(239, 68, 68, 0.1);
-  --bg-warning: rgba(234, 179, 8, 0.1);
-  --bg-info: rgba(59, 130, 246, 0.1);
+  --bg-success: rgba(34, 197, 94, 0.15);
+  --bg-error: rgba(239, 68, 68, 0.15);
+  --bg-warning: rgba(234, 179, 8, 0.15);
+  --bg-info: rgba(59, 130, 246, 0.15);
   
   --text-success: #22c55e;
   --text-error: #ef4444;

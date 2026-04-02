@@ -466,18 +466,20 @@ onUnmounted(() => {
 }
 
 .playlist-card {
-  background: white;
+  background: rgba(30, 30, 50, 0.9);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .playlist-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-color: rgba(102, 126, 234, 0.3);
 }
 
 .playlist-cover {
@@ -618,8 +620,8 @@ onUnmounted(() => {
 }
 
 .action-btn:hover {
-  background: white;
-  color: var(--primary);
+  background: rgba(255, 255, 255, 0.2);
+  color: #667eea;
   transform: scale(1.1);
 }
 
@@ -641,19 +643,20 @@ onUnmounted(() => {
 }
 
 .dialog {
-  background: white;
+  background: rgba(30, 30, 50, 0.98);
   border-radius: 12px;
   padding: 24px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dialog-title {
   margin: 0 0 20px;
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
 }
 
 .form-group {
@@ -665,17 +668,18 @@ onUnmounted(() => {
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   font-size: 14px;
-  color: var(--text-primary);
+  color: white;
+  background: rgba(0, 0, 0, 0.2);
   outline: none;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
@@ -683,7 +687,8 @@ onUnmounted(() => {
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: var(--primary);
+  border-color: #667eea;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .form-group textarea {

@@ -696,10 +696,11 @@ const handleCancel = () => {
   display: flex;
   gap: 24px;
   padding: 24px;
-  background: white;
+  background: rgba(30, 30, 50, 0.9);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .playlist-cover-wrapper {
@@ -725,7 +726,7 @@ const handleCancel = () => {
 
 .playlist-type {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -734,14 +735,14 @@ const handleCancel = () => {
 .playlist-name {
   font-size: 28px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: white;
   margin: 0 0 12px 0;
   line-height: 1.3;
 }
 
 .playlist-description {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 16px;
   line-height: 1.6;
   display: -webkit-box;
@@ -754,7 +755,7 @@ const handleCancel = () => {
   display: flex;
   gap: 16px;
   font-size: 13px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 20px;
   align-items: center;
 }
@@ -777,7 +778,7 @@ const handleCancel = () => {
 
 .creator-name {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 500;
 }
 
@@ -811,26 +812,27 @@ const handleCancel = () => {
 }
 
 .action-btn.collect {
-  background: white;
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .action-btn.collect:hover {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .action-btn.collect.collected {
   color: #ff4545;
   border-color: rgba(255, 69, 69, 0.3);
-  background: rgba(255, 69, 69, 0.05);
+  background: rgba(255, 69, 69, 0.1);
 }
 
 .music-list-section {
-  background: white;
+  background: rgba(30, 30, 50, 0.9);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .list-header {
@@ -838,19 +840,19 @@ const handleCancel = () => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: rgba(40, 40, 65, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .list-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
 }
 
 .list-count {
   font-size: 13px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .music-list {
@@ -865,7 +867,7 @@ const handleCancel = () => {
   padding: 12px 20px;
   cursor: pointer;
   transition: background var(--transition-fast);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .music-item:last-child {
@@ -873,15 +875,15 @@ const handleCancel = () => {
 }
 
 .music-item:hover {
-  background: var(--bg-secondary);
+  background: rgba(102, 126, 234, 0.1);
 }
 
 .music-item.playing {
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .music-item.playing .music-title {
-  color: var(--primary);
+  color: #667eea;
 }
 
 .music-item-enter-active,
@@ -911,11 +913,11 @@ const handleCancel = () => {
 
 .index-num {
   font-size: 14px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .playing-icon {
-  color: var(--primary);
+  color: #667eea;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -980,7 +982,7 @@ const handleCancel = () => {
 .music-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: white;
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -992,7 +994,7 @@ const handleCancel = () => {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .music-artist,
@@ -1036,13 +1038,13 @@ const handleCancel = () => {
 
 .context-menu {
   position: fixed;
-  background: white;
+  background: rgba(30, 30, 50, 0.98);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   padding: 8px 0;
   z-index: 1000;
   min-width: 180px;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .context-menu-item {
@@ -1053,11 +1055,11 @@ const handleCancel = () => {
   cursor: pointer;
   transition: all var(--transition-fast);
   font-size: 14px;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .context-menu-item:hover {
-  background: var(--bg-secondary);
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .context-menu-item.delete {
@@ -1065,7 +1067,7 @@ const handleCancel = () => {
 }
 
 .context-menu-item.delete:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .context-menu-enter-active,
@@ -1100,13 +1102,14 @@ const handleCancel = () => {
 }
 
 .modal-content {
-  background: white;
+  background: rgba(30, 30, 50, 0.98);
   border-radius: var(--radius-lg);
   padding: 32px;
   width: 90%;
   max-width: 400px;
   text-align: center;
   box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-icon {
@@ -1118,7 +1121,7 @@ const handleCancel = () => {
 .modal-title {
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
   margin: 0 0 12px 0;
 }
 

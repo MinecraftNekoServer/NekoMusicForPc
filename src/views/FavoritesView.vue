@@ -622,21 +622,21 @@ onUnmounted(() => {
 }
 
 .music-item.playing {
-  background: rgba(237, 64, 64, 0.08);
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .music-item.playing .music-title {
-  color: #ED4040;
+  color: #667eea;
 }
 
 .col-index {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
   text-align: center;
 }
 
 .playing-icon {
-  color: #ED4040;
+  color: #667eea;
   display: flex;
   align-items: center;
   justify-content: center;
