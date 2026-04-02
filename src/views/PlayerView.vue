@@ -1410,7 +1410,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translate(-50%, -50%);
   width: 24px;
   height: 24px;
-  background: white;
+  background: #667eea;
   border-radius: 50%;
   filter: blur(8px);
   opacity: 0.5;
@@ -1501,7 +1501,7 @@ watch(() => router.currentRoute.value, () => {
   margin-top: 8px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* 滚动条样式 */

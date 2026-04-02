@@ -231,7 +231,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  background: transparent;
   overflow-y: auto;
 }
 
@@ -374,23 +374,24 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: white;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e5e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
   width: 280px;
 }
 
 .search-wrapper:focus-within {
-  border-color: #ED4040;
-  box-shadow: 0 2px 12px rgba(237, 64, 64, 0.15);
+  border-color: #667eea;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .search-icon {
   width: 16px;
   height: 16px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
   flex-shrink: 0;
 }
 
@@ -456,15 +457,16 @@ onMounted(() => {
   grid-template-columns: 50px 1fr 1fr 80px 120px;
   padding: 12px 0;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .music-item {
   display: grid;
   grid-template-columns: 50px 1fr 1fr 80px 120px;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all 0.2s ease;
   align-items: center;
@@ -475,7 +477,7 @@ onMounted(() => {
 }
 
 .music-item:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: rgba(102, 126, 234, 0.1);
 }
 
 .music-item:hover .cover-wrapper-small .cover-overlay {
@@ -483,21 +485,21 @@ onMounted(() => {
 }
 
 .music-item.playing {
-  background: rgba(237, 64, 64, 0.05);
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .music-item.playing .music-title {
-  color: #ED4040;
+  color: #667eea;
 }
 
 .col-index {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
   text-align: center;
 }
 
 .playing-icon {
-  color: #ED4040;
+  color: #667eea;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -604,13 +606,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   transition: all 0.2s ease;
 }
 
 .action-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary);
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
 }
 
 /* 滚动条样式 */

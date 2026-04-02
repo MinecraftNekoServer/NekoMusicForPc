@@ -13,7 +13,7 @@
         <span class="player-artist">{{ currentMusic?.artist || '-' }}</span>
       </div>
     </div>
-    
+
     <div class="player-controls-main">
       <div class="control-buttons">
         <button class="control-btn" @click="togglePlayMode" :title="playModeTitle" :class="{ active: playMode !== 'off' }">
@@ -58,12 +58,12 @@
           </svg>
         </button>
       </div>
-      
+
       <div class="player-progress">
         <span class="time">{{ formatTime(currentTime) }}</span>
-        <div class="progress-bar" 
-             @mousedown="handleProgressMouseDown" 
-             @mousemove="handleProgressMouseMove" 
+        <div class="progress-bar"
+             @mousedown="handleProgressMouseDown"
+             @mousemove="handleProgressMouseMove"
              @mouseup="handleProgressMouseUp"
              @mouseleave="handleProgressLeave"
              @click="seekTo">
@@ -77,7 +77,7 @@
         <span class="time">{{ audioLoaded ? formatTime(duration) : '--:--' }}</span>
       </div>
     </div>
-    
+
     <div class="player-controls-right">
       <button class="control-btn" @click="showAddToPlaylistModal" title="添加到歌单" :disabled="!currentMusic">
         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
@@ -89,7 +89,7 @@
           <path fill="currentColor" d="M810.666667 640m0 42.666667l0 170.666666q0 42.666667-42.666667 42.666667l0 0q-42.666667 0-42.666667-42.666667l0-170.666666q0-42.666667 42.666667-42.666667l0 0q42.666667 0 42.666667 42.666667Z"/>
         </svg>
       </button>
-      
+
       <div class="volume-wrapper">
         <button class="control-btn" @click="toggleMute" :title="isMuted ? '取消静音' : '静音'">
           <svg v-if="!isMuted && volume > 50" viewBox="0 0 24 24" width="18" height="18">
@@ -102,10 +102,10 @@
             <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
           </svg>
         </button>
-        
+
         <div class="volume-panel">
-          <div class="volume-slider-vertical" 
-               @mousedown="handleVolumeMouseDown" 
+          <div class="volume-slider-vertical"
+               @mousedown="handleVolumeMouseDown"
                @mousemove="handleVolumeMouseMove">
             <div class="volume-track">
               <div class="volume-fill" :style="{ height: volume + '%' }"></div>
@@ -115,14 +115,14 @@
           <div class="volume-value">{{ volume }}%</div>
         </div>
       </div>
-      
+
       <button class="control-btn" @click="togglePlaylist" title="播放列表">
         <svg viewBox="0 0 24 24" width="18" height="18">
           <path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
         </svg>
       </button>
     </div>
-    
+
     <!-- 播放列表面板 -->
       <Teleport to="body">
       <Transition name="playlist-panel">
@@ -151,8 +151,8 @@
             </button>
           </div>
           <TransitionGroup name="playlist-item" tag="div" class="playlist-items">
-            <div 
-              v-for="item in playlist" 
+            <div
+              v-for="item in playlist"
               :key="item.localId"
               class="playlist-item"
               :class="{ playing: currentMusic && currentMusic.id === item.id }"
@@ -337,7 +337,7 @@ const loadFavorites = async () => {
     favorites.value = []
     return
   }
-  
+
   // 先从本地存储读取
   const localFavorites = localStorage.getItem('favorites')
   if (localFavorites) {
@@ -349,16 +349,16 @@ const loadFavorites = async () => {
       favorites.value = []
     }
   }
-  
+
   try {
     const response = await apiRequest(apiConfig.USER_FAVORITES, {
       headers: {
         'Authorization': token
       }
     })
-    
+
     console.log('loadFavorites: response status =', response.status)
-    
+
     if (response.ok) {
       const result = await response.json()
       if (result.success && result.favorites) {
@@ -382,15 +382,15 @@ const checkFavoriteStatus = () => {
 
 const toggleFavorite = async () => {
   if (!currentMusic.value) return
-  
+
   const token = localStorage.getItem('token')
   if (!token) {
-    window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: '请先登录', type: 'error' } 
+    window.dispatchEvent(new CustomEvent('show-toast', {
+      detail: { message: '请先登录', type: 'error' }
     }))
     return
   }
-  
+
   try {
     if (isFavorite.value) {
       // 取消收藏
@@ -400,19 +400,19 @@ const toggleFavorite = async () => {
           'Authorization': token
         }
       })
-      
+
       if (response.ok) {
         favorites.value = favorites.value.filter(f => f.id !== currentMusic.value.id)
         isFavorite.value = false
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
-        window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: '已取消收藏', type: 'success' } 
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: { message: '已取消收藏', type: 'success' }
         }))
         window.dispatchEvent(new CustomEvent('favorite-changed'))
       } else {
         const result = await response.json()
-        window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || '取消收藏失败', type: 'error' } 
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: { message: result.message || '取消收藏失败', type: 'error' }
         }))
       }
     } else {
@@ -422,7 +422,7 @@ const toggleFavorite = async () => {
       }
       console.log('toggleFavorite POST request body:', requestBody)
       console.log('musicId type:', typeof currentMusic.value.id, 'value:', currentMusic.value.id)
-      
+
       const response = await apiRequest(apiConfig.USER_FAVORITES, {
         method: 'POST',
         headers: {
@@ -431,30 +431,30 @@ const toggleFavorite = async () => {
         },
         body: JSON.stringify(requestBody)
       })
-      
+
       console.log('toggleFavorite POST response status:', response.status)
       const responseText = await response.text()
       console.log('toggleFavorite POST response body:', responseText)
-      
+
       if (response.ok) {
         favorites.value.push(currentMusic.value)
         isFavorite.value = true
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
-        window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: '收藏成功', type: 'success' } 
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: { message: '收藏成功', type: 'success' }
         }))
         window.dispatchEvent(new CustomEvent('favorite-changed'))
       } else {
         const result = await response.json()
-        window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || '收藏失败', type: 'error' } 
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: { message: result.message || '收藏失败', type: 'error' }
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
-    window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: '网络错误，请稍后重试', type: 'error' } 
+    window.dispatchEvent(new CustomEvent('show-toast', {
+      detail: { message: '网络错误，请稍后重试', type: 'error' }
     }))
   }
 }
@@ -481,19 +481,19 @@ const handlePlaylistCoverError = (event) => {
 
 const togglePlay = () => {
   if (!audioElement.value) return
-  
+
   console.log('togglePlay: 切换播放状态，当前:', isPlaying.value, '音频源:', audioElement.value.src, '音频已加载:', audioLoaded.value, '音频就绪状态:', audioElement.value.readyState)
-  
+
   // 如果要播放但音频未加载完成，不执行播放
   if (!isPlaying.value && !audioLoaded.value) {
     console.log('⚠️ 音频未加载完成，无法播放')
     return
   }
-  
+
   // 立即更新 UI 状态
   isPlaying.value = !isPlaying.value
   notifyPlayerState()
-  
+
   // 执行淡入淡出效果
   if (isPlaying.value) {
     // 淡入播放
@@ -520,28 +520,28 @@ const fadeIn = () => {
   if (fadeInterval.value) {
     clearInterval(fadeInterval.value)
   }
-  
+
   // 记录目标音量
   const targetVolume = volume.value / 100
-  
+
   // 从当前音量开始淡入，而不是从0开始
   const startVolume = audioElement.value.volume
-  
+
   // 如果音量已经是目标值或更高，不需要淡入
   if (startVolume >= targetVolume) {
     audioElement.value.volume = targetVolume
     return
   }
-  
+
   const step = (targetVolume - startVolume) / FADE_STEPS
   let currentStep = 0
-  
+
   audioElement.value.volume = startVolume
-  
+
   fadeInterval.value = setInterval(() => {
     currentStep++
     audioElement.value.volume = Math.min(startVolume + currentStep * step, targetVolume)
-    
+
     if (currentStep >= FADE_STEPS) {
       clearInterval(fadeInterval.value)
       fadeInterval.value = null
@@ -555,15 +555,15 @@ const fadeOut = (callback) => {
   if (fadeInterval.value) {
     clearInterval(fadeInterval.value)
   }
-  
+
   const currentVolume = audioElement.value.volume
   const step = currentVolume / FADE_STEPS
   let currentStep = 0
-  
+
   fadeInterval.value = setInterval(() => {
     currentStep++
     audioElement.value.volume = Math.max(currentVolume - currentStep * step, 0)
-    
+
     if (currentStep >= FADE_STEPS) {
       clearInterval(fadeInterval.value)
       fadeInterval.value = null
@@ -577,22 +577,22 @@ const previous = () => {
     console.log('播放列表为空，无法播放上一首')
     return
   }
-  
+
   if (!currentMusic.value) {
     console.log('没有当前音乐，无法播放上一首')
     return
   }
-  
+
   const currentIndex = playlist.value.findIndex(item => item.id === currentMusic.value.id)
   if (currentIndex === -1) {
     console.log('当前音乐不在播放列表中')
     return
   }
-  
+
   // 播放上一首
   const prevIndex = (currentIndex - 1 + playlist.value.length) % playlist.value.length
   playFromPlaylist(playlist.value[prevIndex].localId)
-  
+
   console.log('播放上一首:', playlist.value[prevIndex].title)
 }
 
@@ -601,22 +601,22 @@ const next = () => {
     console.log('播放列表为空，无法播放下一首')
     return
   }
-  
+
   if (!currentMusic.value) {
     console.log('没有当前音乐，播放第一首')
     playFromPlaylist(playlist.value[0].localId)
     return
   }
-  
+
   const currentIndex = playlist.value.findIndex(item => item.id === currentMusic.value.id)
   if (currentIndex === -1) {
     console.log('当前音乐不在播放列表中，播放第一首')
     playFromPlaylist(playlist.value[0].localId)
     return
   }
-  
+
   let nextIndex = currentIndex + 1
-  
+
   // 根据播放模式决定下一首
   if (playMode.value === 'single') {
     // 单曲循环：重新播放当前音乐
@@ -630,9 +630,9 @@ const next = () => {
     // 列表循环：播放下一首，到达末尾时循环
     nextIndex = nextIndex % playlist.value.length
   }
-  
+
   playFromPlaylist(playlist.value[nextIndex].localId)
-  
+
   console.log('播放下一首:', playlist.value[nextIndex].title, '播放模式:', playMode.value)
 }
 
@@ -671,7 +671,7 @@ const isVolumeDragging = ref(false)
 
 const seekTo = (event) => {
   if (!audioElement.value || !duration.value) return
-  
+
   const rect = event.currentTarget.getBoundingClientRect()
   const x = event.clientX - rect.left
   const percentage = Math.max(0, Math.min(1, x / rect.width))
@@ -775,7 +775,7 @@ const toggleMute = () => {
   if (audioElement.value) {
     audioElement.value.muted = isMuted.value
   }
-  
+
   // 保存音量设置到本地存储
   localStorage.setItem('volume', volume.value.toString())
 }
@@ -790,12 +790,12 @@ const handleVolumeChange = () => {
     clearInterval(fadeInterval.value)
     fadeInterval.value = null
   }
-  
+
   if (audioElement.value) {
     audioElement.value.volume = volume.value / 100
     isMuted.value = volume.value === 0
   }
-  
+
   // 保存音量设置到本地存储
   localStorage.setItem('volume', volume.value.toString())
 }
@@ -921,7 +921,7 @@ const addToUserPlaylist = async (playlistId) => {
         detail: { message: '添加到歌单成功', type: 'success' }
       }))
       showAddToPlaylistPanel.value = false
-      
+
       // 通知侧边栏刷新歌单列表
       window.dispatchEvent(new CustomEvent('playlist-updated', {
         detail: {
@@ -1011,69 +1011,69 @@ const handleCreateNewPlaylist = async () => {
 // 添加音乐到播放列表
 const addToPlaylist = (music) => {
   console.log('addToPlaylist: 收到添加请求', music)
-  
+
   if (!music) {
     console.log('音乐数据为空')
     return
   }
-  
+
   // 检查是否已存在
   const exists = playlist.value.some(item => item.id === music.id)
   if (exists) {
     console.log('音乐已在播放列表中:', music.title)
     return
   }
-  
+
   // 生成本地 ID
   const localId = Date.now() + Math.random().toString(36).substr(2, 9)
-  
+
   // 添加到播放列表
   playlist.value.push({
     ...music,
     localId: localId
   })
-  
+
   // 保存到 localStorage
   savePlaylist()
-  
+
   console.log('添加到播放列表成功:', music.title, '当前播放列表总数:', playlist.value.length)
 }
 
 // 添加多个音乐到播放列表
 const addAllToPlaylist = (musicList) => {
   console.log('addAllToPlaylist: 收到添加全部请求，音乐数量:', musicList?.length)
-  
+
   if (!musicList || !Array.isArray(musicList) || musicList.length === 0) {
     console.log('无效的音乐列表')
     return
   }
-  
+
   let addedCount = 0
-  
+
   musicList.forEach(music => {
     console.log('处理音乐:', music.title, 'ID:', music.id)
-    
+
     // 检查是否已存在
     const exists = playlist.value.some(item => item.id === music.id)
     if (!exists) {
       // 生成本地 ID
       const localId = Date.now() + Math.random().toString(36).substr(2, 9)
-      
+
       // 添加到播放列表
       playlist.value.push({
         ...music,
         localId: localId
       })
-      
+
       addedCount++
     } else {
       console.log('音乐已存在，跳过:', music.title)
     }
   })
-  
+
   // 保存到 localStorage
   savePlaylist()
-  
+
   console.log('批量添加到播放列表完成:', addedCount, '首音乐，当前播放列表总数:', playlist.value.length)
 }
 
@@ -1099,7 +1099,7 @@ const savePlaylist = () => {
   try {
     localStorage.setItem('playlist', JSON.stringify(playlist.value))
     console.log('✓ 播放列表已保存到 localStorage，共', playlist.value.length, '首音乐')
-    
+
     // 验证保存是否成功
     const saved = localStorage.getItem('playlist')
     if (saved) {
@@ -1118,7 +1118,7 @@ const loadPlaylist = () => {
   try {
     const saved = localStorage.getItem('playlist')
     console.log('loadPlaylist: 从 localStorage 读取播放列表，数据:', saved?.substring(0, 100))
-    
+
     if (saved) {
       playlist.value = JSON.parse(saved)
       console.log('✓ 播放列表加载成功，共', playlist.value.length, '首音乐')
@@ -1152,7 +1152,7 @@ const playFromPlaylist = (localId) => {
         audioElement.value.removeEventListener('loadedmetadata', checkAndPlay)
       }
     }
-    
+
     // 如果已经加载完成，立即播放
     if (audioLoaded.value) {
       audioElement.value.play().then(() => {
@@ -1176,7 +1176,7 @@ const playAll = () => {
     console.log('播放列表为空，无法播放全部')
     return
   }
-  
+
   // 播放第一首
   playFromPlaylist(playlist.value[0].localId)
   console.log('开始播放全部音乐，共', playlist.value.length, '首')
@@ -1193,12 +1193,12 @@ const handleVolumeClick = (event) => {
 // 添加到最近播放
 const addToRecent = (music) => {
   if (!music) return
-  
+
   try {
     // 获取当前最近播放列表
     const recentData = localStorage.getItem('recentPlay')
     let recentList = []
-    
+
     if (recentData) {
       try {
         recentList = JSON.parse(recentData)
@@ -1207,19 +1207,19 @@ const addToRecent = (music) => {
         recentList = []
       }
     }
-    
+
     // 移除已存在的相同音乐
     const index = recentList.findIndex(m => m.id === music.id)
     if (index !== -1) {
       recentList.splice(index, 1)
     }
-    
+
     // 添加到开头
     recentList.unshift(music)
-    
+
     // 保存到 localStorage
     localStorage.setItem('recentPlay', JSON.stringify(recentList))
-    
+
     console.log('✓ 已添加到最近播放:', music.title, '当前最近播放总数:', recentList.length)
   } catch (e) {
     console.error('添加到最近播放失败:', e)
@@ -1241,36 +1241,36 @@ const cacheMusicAfterLoad = async (musicId) => {
 
   try {
     console.log('开始缓存音乐:', musicId)
-    
+
     // 生成缓存文件名
     const fileName = `${musicId}.mp3`
-    
+
     // 请求保存文件路径（系统下载目录下的 NekoMusic/Music_temp）
     const filePath = await window.electronAPI.saveFile({
       fileName: fileName,
       fileType: 'audio/mpeg',
       suggestedPath: 'NekoMusic/Music_temp'
     })
-    
+
     if (!filePath) {
       console.log('获取文件路径失败，跳过缓存')
       return
     }
-    
+
     // 下载音乐文件
     const audioUrl = `https://music.cnmsb.xin/api/music/file/${musicId}`
     const response = await fetch(audioUrl)
-    
+
     if (!response.ok) {
       console.log('下载音乐失败，跳过缓存')
       return
     }
-    
+
     const arrayBuffer = await response.arrayBuffer()
-    
+
     // 写入文件
     const result = await window.electronAPI.writeFile(filePath, arrayBuffer)
-    
+
     if (result.success) {
       // 保存缓存路径
       localStorage.setItem(cacheKey, result.path)
@@ -1287,34 +1287,34 @@ const loadMusic = async (music) => {
   if (!music) return
 
   console.log('loadMusic: 加载音乐', music.title)
-  
+
   currentMusic.value = music
   isPlaying.value = false
   currentTime.value = 0
   duration.value = music.duration || 0
   audioLoaded.value = false // 重置加载状态
-  
+
   // 检查收藏状态
   checkFavoriteStatus()
-  
+
   // 保存到 localStorage
   localStorage.setItem('currentMusic', JSON.stringify(music))
-  
+
   // 添加到最近播放
   addToRecent(music)
-  
+
   // 通知 PlayerView 音乐已切换
   window.dispatchEvent(new CustomEvent('music-changed', {
     detail: music
   }))
-  
+
   // 加载歌词并缓存到内存
   try {
     console.log('loadMusic: 开始加载歌词')
     const lyricsUrl = `${apiConfig.BASE_URL}${apiConfig.MUSIC_LYRICS(music.id)}?t=${Date.now()}`
     const response = await fetch(lyricsUrl)
     const result = await response.json()
-    
+
     if (result.success && result.data) {
       console.log('loadMusic: 歌词加载成功')
       window.cachedLyrics = window.cachedLyrics || {}
@@ -1323,12 +1323,12 @@ const loadMusic = async (music) => {
   } catch (error) {
     console.error('loadMusic: 加载歌词失败:', error)
   }
-  
+
   if (audioElement.value) {
     // 检查缓存键
     const cacheKey = `music_cache_${music.id}`
     const cachedFilePath = localStorage.getItem(cacheKey)
-    
+
     if (musicCacheEnabled.value && cachedFilePath && window.electronAPI) {
       // 从缓存加载
       audioElement.value.src = cachedFilePath
@@ -1339,7 +1339,7 @@ const loadMusic = async (music) => {
       audioElement.value.src = `https://music.cnmsb.xin/api/music/file/${music.id}`
       console.log('✓ 音频已加载到元素，等待 loadedmetadata 事件')
       audioElement.value.load()
-      
+
       // 如果启用了缓存，在加载完成后缓存到本地
       if (musicCacheEnabled.value && window.electronAPI && window.electronAPI.saveFile && window.electronAPI.writeFile) {
         // 延迟缓存，等待音频开始加载
@@ -1349,23 +1349,23 @@ const loadMusic = async (music) => {
       }
     }
   }
-  
+
   // 通知主进程 (已移除)
 }
 const handleTimeUpdate = () => {
   if (audioElement.value && audioLoaded.value) {
     const now = Date.now()
     const newTime = audioElement.value.currentTime
-    
+
     // 只在时间变化超过 0.1 秒或距离上次更新超过 100ms 时才更新
     if (Math.abs(newTime - currentTime.value) > 0.1 || now - lastUpdateTime > 100) {
       currentTime.value = newTime
       lastUpdateTime = now
-      
+
       // 限制事件分发频率（每 200ms 最多一次）
       if (now - lastEventDispatchTime > 200) {
         lastEventDispatchTime = now
-        
+
         // 通知播放页面更新
         window.dispatchEvent(new CustomEvent('player-state-change', {
           detail: {
@@ -1376,7 +1376,7 @@ const handleTimeUpdate = () => {
             volume: volume.value
           }
         }))
-        
+
         // 广播音频时间更新（用于歌词同步）
         window.dispatchEvent(new CustomEvent('audio-time-update', {
           detail: {
@@ -1410,7 +1410,7 @@ const handleError = (error) => {
 
 const handleEnded = () => {
   console.log('音乐播放完成，当前播放模式:', playMode.value)
-  
+
   // 根据播放模式决定下一步操作
   if (playMode.value === 'single') {
     // 单曲循环：重新播放当前音乐
@@ -1447,7 +1447,7 @@ const handleMusicPlay = (event) => {
         audioElement.value.removeEventListener('loadedmetadata', checkAndPlay)
       }
     }
-    
+
     // 如果已经加载完成，立即播放
     if (audioLoaded.value) {
       audioElement.value.play().then(() => {
@@ -1468,13 +1468,13 @@ const handleMusicPlay = (event) => {
 onMounted(() => {
   audioElement.value = new Audio()
   audioElement.value.volume = volume.value / 100
-  
+
   audioElement.value.addEventListener('timeupdate', handleTimeUpdate)
   audioElement.value.addEventListener('loadedmetadata', handleLoadedMetadata)
   audioElement.value.addEventListener('canplay', handleCanPlay)
   audioElement.value.addEventListener('error', handleError)
   audioElement.value.addEventListener('ended', handleEnded)
-  
+
   window.addEventListener('music-play', handleMusicPlay)
   window.addEventListener('add-to-playlist', (event) => {
     addToPlaylist(event.detail)
@@ -1485,7 +1485,7 @@ onMounted(() => {
   window.addEventListener('clear-playlist', () => {
     clearPlaylist()
   })
-  
+
   // 监听播放页面的同步请求
   window.addEventListener('get-player-state', () => {
     window.dispatchEvent(new CustomEvent('player-state-change', {
@@ -1497,7 +1497,7 @@ onMounted(() => {
       }
     }))
   })
-  
+
   // 监听播放页面的同步
   window.addEventListener('player-state-sync', (event) => {
     if (event.detail?.isPlaying !== undefined) {
@@ -1516,41 +1516,41 @@ onMounted(() => {
       playMode.value = event.detail.playMode
     }
   })
-  
+
   // 监听播放页面的控制请求
   window.addEventListener('toggle-play', () => {
     togglePlay()
   })
-  
+
   window.addEventListener('seek-to', (event) => {
     if (audioElement.value && duration.value) {
       audioElement.value.currentTime = event.detail
     }
   })
-  
+
   window.addEventListener('toggle-mute', () => {
     toggleMute()
   })
-  
+
   window.addEventListener('set-volume', (event) => {
     volume.value = event.detail
     if (audioElement.value) {
       audioElement.value.volume = volume.value / 100
     }
   })
-  
+
   window.addEventListener('toggle-playlist-panel', () => {
     togglePlaylist()
   })
-  
+
   loadFavorites()
-  
+
   window.addEventListener('user-login', loadFavorites)
   window.addEventListener('user-logout', () => {
     favorites.value = []
     isFavorite.value = false
   })
-  
+
   // 监听托盘事件
   window.addEventListener('tray-previous', previous)
   window.addEventListener('tray-play-pause', togglePlay)
@@ -1568,13 +1568,13 @@ onMounted(() => {
     toggleDesktopLyrics(event.detail)
   })
   window.addEventListener('navigate-to-settings', handleNavigateToSettings)
-  
+
   // 全局鼠标抬起事件，处理拖动进度条和音量结束
   window.addEventListener('mouseup', (event) => {
     handleProgressMouseUp()
     handleVolumeMouseUp()
   })
-  
+
   // 恢复之前播放的音乐
   const savedMusic = localStorage.getItem('currentMusic')
   if (savedMusic) {
@@ -1586,7 +1586,7 @@ onMounted(() => {
       console.error('解析音乐失败:', e)
     }
   }
-  
+
   // 加载播放列表
   loadPlaylist()
 })
@@ -1596,7 +1596,7 @@ onUnmounted(() => {
     clearInterval(fadeInterval.value)
     fadeInterval.value = null
   }
-  
+
   if (audioElement.value) {
     audioElement.value.removeEventListener('timeupdate', handleTimeUpdate)
     audioElement.value.removeEventListener('loadedmetadata', handleLoadedMetadata)
@@ -2002,15 +2002,15 @@ const handleNavigateToSettings = () => {
   right: 24px;
   width: 380px;
   max-height: 500px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 50, 0.98);
   backdrop-filter: blur(20px);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   z-index: 100000;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   pointer-events: auto;
 }
 
@@ -2031,18 +2031,18 @@ const handleNavigateToSettings = () => {
 
 .playlist-header {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(40, 40, 65, 0.9);
 }
 
 .playlist-header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
 }
 
 .playlist-actions {
@@ -2053,7 +2053,7 @@ const handleNavigateToSettings = () => {
 
 .playlist-count {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
@@ -2061,8 +2061,8 @@ const handleNavigateToSettings = () => {
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
-  background: rgba(0, 0, 0, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -2070,7 +2070,7 @@ const handleNavigateToSettings = () => {
 }
 
 .playlist-action-btn:hover {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(255, 59, 48, 0.2);
   color: #ff3b30;
   transform: translateY(-1px);
 }
@@ -2087,23 +2087,23 @@ const handleNavigateToSettings = () => {
 }
 
 .playlist-content::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .playlist-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(102, 126, 234, 0.4);
   border-radius: 3px;
 }
 
 .playlist-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(102, 126, 234, 0.6);
 }
 
 .playlist-actions-bar {
   display: flex;
   gap: 8px;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .playlist-action-button {
@@ -2115,17 +2115,17 @@ const handleNavigateToSettings = () => {
   padding: 8px 12px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-primary);
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  color: white;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .playlist-action-button:hover {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: rgba(102, 126, 234, 0.25);
+  border-color: rgba(102, 126, 234, 0.5);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
@@ -2144,7 +2144,7 @@ const handleNavigateToSettings = () => {
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .playlist-empty svg {
@@ -2299,7 +2299,7 @@ const handleNavigateToSettings = () => {
 .playlist-item-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2307,12 +2307,12 @@ const handleNavigateToSettings = () => {
 }
 
 .playlist-item.playing .playlist-item-title {
-  color: var(--primary);
+  color: #667eea;
 }
 
 .playlist-item-artist {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2328,7 +2328,7 @@ const handleNavigateToSettings = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
   transition: all 0.2s ease;
   flex-shrink: 0;
   margin-left: 8px;
@@ -2681,7 +2681,7 @@ const handleNavigateToSettings = () => {
     right: 0;
     z-index: 9998;
   }
-  
+
   .player-bar {
     height: var(--player-bar-height);
     padding: clamp(6px, 1.5vw, 10px);
@@ -2689,114 +2689,114 @@ const handleNavigateToSettings = () => {
     flex-wrap: nowrap;
     overflow: hidden;
   }
-  
+
   .player-info {
     width: clamp(120px, 30vw, 160px);
     gap: clamp(8px, 2vw, 12px);
   }
-  
+
   .player-cover-wrapper {
     width: clamp(36px, 10vw, 44px);
     height: clamp(36px, 10vw, 44px);
     flex-shrink: 0;
   }
-  
+
   .player-cover {
     border-radius: 6px;
   }
-  
+
   .player-details {
     margin-left: 0;
     min-width: 0;
     flex: 1;
   }
-  
+
   .player-title {
     font-size: clamp(12px, 3vw, 14px);
     max-width: 100%;
   }
-  
+
   .player-artist {
     font-size: clamp(10px, 2.5vw, 12px);
   }
-  
+
   .player-controls-main {
     min-width: 0;
     flex: 1;
     gap: clamp(4px, 1vw, 6px);
   }
-  
+
   .control-buttons {
     gap: clamp(2px, 0.5vw, 6px);
   }
-  
+
   .control-btn {
     width: clamp(28px, 7vw, 36px);
     height: clamp(28px, 7vw, 36px);
     flex-shrink: 0;
   }
-  
+
   .play-btn {
     width: clamp(36px, 9vw, 44px);
     height: clamp(36px, 9vw, 44px);
   }
-  
+
   .player-progress {
     gap: clamp(4px, 1vw, 8px);
     min-width: 0;
   }
-  
+
   .time {
     font-size: clamp(10px, 2.5vw, 12px);
     min-width: clamp(24px, 6vw, 32px);
   }
-  
+
   .progress-bar {
     height: 3px;
     flex: 1;
     min-width: 60px;
   }
-  
+
   .progress-thumb {
     width: 8px;
     height: 8px;
   }
-  
+
   .player-controls-right {
     gap: clamp(4px, 1vw, 6px);
     flex-shrink: 0;
   }
-  
+
   .volume-wrapper {
     display: none;
   }
-  
+
   .volume-panel {
     display: none;
   }
-  
+
   .playlist-panel {
     bottom: var(--player-bar-height);
     max-height: calc(100vh - var(--player-bar-height) - 20px);
   }
-  
+
   .playlist-content {
     padding: clamp(12px, 3vw, 16px);
   }
-  
+
   .playlist-item {
     padding: clamp(10px, 2.5vw, 14px);
   }
-  
+
   .playlist-item-cover {
     width: clamp(32px, 8vw, 40px);
     height: clamp(32px, 8vw, 40px);
   }
-  
+
   .playlist-item-title {
     font-size: clamp(12px, 3vw, 14px);
   }
-  
+
   .playlist-item-artist {
     font-size: clamp(10px, 2.5vw, 12px);
   }
@@ -2808,76 +2808,76 @@ const handleNavigateToSettings = () => {
     padding: 6px;
     gap: 6px;
   }
-  
+
   .player-info {
     width: 100px;
     gap: 6px;
   }
-  
+
   .player-cover-wrapper {
     width: 36px;
     height: 36px;
   }
-  
+
   .player-title {
     font-size: 12px;
   }
-  
+
   .player-artist {
     font-size: 11px;
   }
-  
+
   .player-controls-main {
     gap: 4px;
   }
-  
+
   .control-buttons {
     gap: 2px;
   }
-  
+
   .control-btn {
     width: 28px;
     height: 28px;
   }
-  
+
   .play-btn {
     width: 32px;
     height: 32px;
   }
-  
+
   .control-btn svg,
   .play-btn svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .player-progress {
     gap: 4px;
   }
-  
+
   .time {
     font-size: 10px;
     min-width: 24px;
   }
-  
+
   .progress-bar {
     min-width: 50px;
   }
-  
+
   .progress-thumb {
     width: 6px;
     height: 6px;
   }
-  
+
   .player-controls-right {
     gap: 4px;
   }
-  
+
   .player-controls-right .control-btn {
     width: 28px;
     height: 28px;
   }
-  
+
   .player-controls-right .control-btn svg {
     width: 16px;
     height: 16px;
@@ -2890,54 +2890,54 @@ const handleNavigateToSettings = () => {
     padding: 4px;
     gap: 4px;
   }
-  
+
   .player-info {
     width: 90px;
     gap: 4px;
   }
-  
+
   .player-cover-wrapper {
     width: 32px;
     height: 32px;
   }
-  
+
   .player-title {
     font-size: 11px;
   }
-  
+
   .player-artist {
     font-size: 10px;
   }
-  
+
   .control-buttons {
     gap: 1px;
   }
-  
+
   .control-btn {
     width: 24px;
     height: 24px;
   }
-  
+
   .play-btn {
     width: 28px;
     height: 28px;
   }
-  
+
   .control-btn svg,
   .play-btn svg {
     width: 14px;
     height: 14px;
   }
-  
+
   .time {
     font-size: 9px;
     min-width: 20px;
   }
-  
+
   .progress-bar {
     min-width: 40px;
   }
-  
+
   .player-controls-right .control-btn {
     width: 24px;
     height: 24px;
@@ -2949,29 +2949,29 @@ const handleNavigateToSettings = () => {
   .player-bar {
     padding: 12px clamp(16px, 3vw, 20px);
   }
-  
+
   .player-cover-wrapper {
     width: 48px;
     height: 48px;
   }
-  
+
   .player-details {
     margin-left: 12px;
   }
-  
+
   .player-title {
     font-size: 14px;
     max-width: 180px;
   }
-  
+
   .player-artist {
     font-size: 12px;
   }
-  
+
   .volume-panel {
     display: none;
   }
-  
+
   .playlist-panel {
     right: clamp(10px, 2vw, 20px);
     bottom: calc(var(--player-bar-height) + 10px);
@@ -2984,12 +2984,12 @@ const handleNavigateToSettings = () => {
   .player-bar {
     padding: 14px 24px;
   }
-  
+
   .player-cover-wrapper {
     width: 52px;
     height: 52px;
   }
-  
+
   .player-title {
     max-width: 200px;
   }
@@ -3001,77 +3001,77 @@ const handleNavigateToSettings = () => {
     padding: 18px 32px;
     height: var(--player-bar-height);
   }
-  
+
   .player-cover-wrapper {
     width: 60px;
     height: 60px;
   }
-  
+
   .player-cover {
     border-radius: 12px;
   }
-  
+
   .player-details {
     margin-left: 16px;
   }
-  
+
   .player-title {
     font-size: 16px;
     max-width: 240px;
   }
-  
+
   .player-artist {
     font-size: 14px;
   }
-  
+
   .control-btn {
     width: 44px;
     height: 44px;
   }
-  
+
   .play-btn {
     width: 52px;
     height: 52px;
   }
-  
+
   .control-buttons {
     gap: 10px;
   }
-  
+
   .progress-bar {
     height: 5px;
   }
-  
+
   .progress-thumb {
     width: 12px;
     height: 12px;
   }
-  
+
   .time {
     font-size: 14px;
     min-width: 42px;
   }
-  
+
   .volume-panel {
     width: 40px;
     height: 120px;
     padding: 8px;
   }
-  
+
   .volume-thumb {
     width: 14px;
     height: 14px;
   }
-  
+
   .playlist-panel {
     width: 420px;
     max-height: 500px;
   }
-  
+
   .playlist-item {
     padding: 14px 16px;
   }
-  
+
   .playlist-item-cover {
     width: 44px;
     height: 44px;
@@ -3084,86 +3084,86 @@ const handleNavigateToSettings = () => {
     padding: 20px 40px;
     height: var(--player-bar-height);
   }
-  
+
   .player-cover-wrapper {
     width: 68px;
     height: 68px;
   }
-  
+
   .player-cover {
     border-radius: 14px;
   }
-  
+
   .player-details {
     margin-left: 18px;
   }
-  
+
   .player-title {
     font-size: 17px;
     max-width: 280px;
   }
-  
+
   .player-artist {
     font-size: 15px;
   }
-  
+
   .control-btn {
     width: 48px;
     height: 48px;
   }
-  
+
   .play-btn {
     width: 58px;
     height: 58px;
   }
-  
+
   .control-buttons {
     gap: 12px;
   }
-  
+
   .progress-bar {
     height: 6px;
   }
-  
+
   .progress-thumb {
     width: 14px;
     height: 14px;
   }
-  
+
   .time {
     font-size: 15px;
     min-width: 48px;
   }
-  
+
   .volume-panel {
     width: 44px;
     height: 140px;
     padding: 10px;
   }
-  
+
   .volume-thumb {
     width: 16px;
     height: 16px;
   }
-  
+
   .playlist-panel {
     width: 480px;
     max-height: 560px;
   }
-  
+
   .playlist-item {
     padding: 16px 18px;
   }
-  
+
   .playlist-item-cover {
     width: 48px;
     height: 48px;
   }
-  
+
   .playlist-item-title {
     font-size: 15px;
   }
-  
+
   .playlist-item-artist {
     font-size: 13px;
   }
@@ -3175,91 +3175,91 @@ const handleNavigateToSettings = () => {
     padding: 24px 48px;
     height: var(--player-bar-height);
   }
-  
+
   .player-cover-wrapper {
     width: 80px;
     height: 80px;
   }
-  
+
   .player-cover {
     border-radius: 16px;
   }
-  
+
   .player-details {
     margin-left: 20px;
   }
-  
+
   .player-title {
     font-size: 20px;
     max-width: 320px;
   }
-  
+
   .player-artist {
     font-size: 17px;
   }
-  
+
   .control-btn {
     width: 54px;
     height: 54px;
   }
-  
+
   .play-btn {
     width: 66px;
     height: 66px;
   }
-  
+
   .control-buttons {
     gap: 14px;
   }
-  
+
   .progress-bar {
     height: 8px;
   }
-  
+
   .progress-thumb {
     width: 16px;
     height: 16px;
   }
-  
+
   .time {
     font-size: 17px;
     min-width: 56px;
   }
-  
+
   .volume-panel {
     width: 48px;
     height: 160px;
     padding: 12px;
   }
-  
+
   .volume-thumb {
     width: 18px;
     height: 18px;
   }
-  
+
   .playlist-panel {
     width: 560px;
     max-height: 640px;
     border-radius: 20px;
   }
-  
+
   .playlist-item {
     padding: 18px 20px;
   }
-  
+
   .playlist-item-cover {
     width: 56px;
     height: 56px;
   }
-  
+
   .playlist-item-title {
     font-size: 17px;
   }
-  
+
   .playlist-item-artist {
     font-size: 15px;
   }
-  
+
   .playlist-header h3 {
     font-size: 20px;
   }
@@ -3271,87 +3271,87 @@ const handleNavigateToSettings = () => {
     padding: 36px 64px;
     height: var(--player-bar-height);
   }
-  
+
   .player-cover-wrapper {
     width: 100px;
     height: 100px;
   }
-  
+
   .player-cover {
     border-radius: 20px;
   }
-  
+
   .player-details {
     margin-left: 28px;
   }
-  
+
   .player-title {
     font-size: 26px;
     max-width: 400px;
   }
-  
+
   .player-artist {
     font-size: 22px;
   }
-  
+
   .control-btn {
     width: 68px;
     height: 68px;
   }
-  
+
   .play-btn {
     width: 84px;
     height: 84px;
   }
-  
+
   .control-buttons {
     gap: 18px;
   }
-  
+
   .progress-bar {
     height: 10px;
   }
-  
+
   .progress-thumb {
     width: 20px;
     height: 20px;
   }
-  
+
   .time {
     font-size: 22px;
     min-width: 72px;
   }
-  
+
   .volume-panel {
     width: 56px;
     height: 200px;
     padding: 16px;
   }
-  
+
   .volume-thumb {
     width: 22px;
     height: 22px;
   }
-  
+
   .playlist-panel {
     width: 680px;
     max-height: 800px;
     border-radius: 28px;
   }
-  
+
   .playlist-item {
     padding: 24px 28px;
   }
-  
+
   .playlist-item-cover {
     width: 72px;
     height: 72px;
   }
-  
+
   .playlist-item-title {
     font-size: 22px;
   }
-  
+
   .playlist-item-artist {
     font-size: 18px;
   }
@@ -3362,22 +3362,22 @@ const handleNavigateToSettings = () => {
   .player-bar {
     padding: 8px 16px;
   }
-  
+
   .player-cover-wrapper {
     width: 40px;
     height: 40px;
   }
-  
+
   .control-btn {
     width: 36px;
     height: 36px;
   }
-  
+
   .play-btn {
     width: 44px;
     height: 44px;
   }
-  
+
   .volume-panel {
     display: none;
   }
@@ -3388,7 +3388,7 @@ const handleNavigateToSettings = () => {
   .player-bar {
     padding: 22px 44px;
   }
-  
+
   .player-cover-wrapper {
     width: 72px;
     height: 72px;
@@ -3402,11 +3402,11 @@ const handleNavigateToSettings = () => {
     min-width: 48px;
     min-height: 48px;
   }
-  
+
   .progress-bar {
     height: 10px;
   }
-  
+
   .progress-thumb {
     width: 20px;
     height: 20px;

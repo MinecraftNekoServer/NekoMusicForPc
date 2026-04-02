@@ -317,18 +317,20 @@ onUnmounted(() => {
 }
 
 .playlist-card {
-  background: white;
+  background: rgba(30, 30, 50, 0.9);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .playlist-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-color: rgba(102, 126, 234, 0.3);
 }
 
 .playlist-cover {
@@ -467,7 +469,7 @@ onUnmounted(() => {
 }
 
 .action-btn:hover {
-  background: white;
+  background: rgba(255, 255, 255, 0.2);
   color: #e91e63;
   transform: scale(1.1);
 }
@@ -478,11 +480,11 @@ onUnmounted(() => {
 }
 
 .favorite-playlists-view::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .favorite-playlists-view::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(102, 126, 234, 0.4);
   border-radius: 4px;
 }
 
