@@ -1649,8 +1649,12 @@ const handleNavigateToSettings = () => {
   align-items: center;
   padding: 0 24px;
   gap: 24px;
-  position: relative;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 100;
+  background: white;
 }
 
 .player-bar::before {
