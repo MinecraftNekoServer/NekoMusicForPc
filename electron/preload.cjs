@@ -28,6 +28,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 获取系统路径
   getPath: (name) => ipcRenderer.invoke('get-path', name),
   
+  // 在外部浏览器中打开链接
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  
   // 其他可以暴露的 API
   platform: process.platform,
   arch: process.arch

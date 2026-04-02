@@ -82,13 +82,13 @@
         <p>NekoMusic {{ getDisplayOSType() }} {{ t('settings.appVersion') }}</p>
         <p>{{ t('settings.appVersion') }}: {{ APP_VERSION }}</p>
         <div class="links-section">
-          <a href="https://github.com/FantasyNetworkCN/NekoMusicForPc" target="_blank" class="link-btn">
+          <a href="#" @click.prevent="openExternalLink('https://github.com/FantasyNetworkCN/NekoMusicForPc')" class="link-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
             </svg>
             {{ t('settings.githubRepo') }}
           </a>
-          <a href="https://github.com/NyaNyagulugulu/NekoMusicDocs" target="_blank" class="link-btn">
+          <a href="#" @click.prevent="openExternalLink('https://github.com/NyaNyagulugulu/NekoMusicDocs')" class="link-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M1 2.5A1.5 1.5 0 012.5 1h3A1.5 1.5 0 017 2.5v3A1.5 1.5 0 015.5 7h-3A1.5 1.5 0 011 5.5v-3zM2.5 2a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3zm6.5.5A1.5 1.5 0 0110.5 1h3A1.5 1.5 0 0115 2.5v3A1.5 1.5 0 0113.5 7h-3A1.5 1.5 0 019 5.5v-3zm1.5-.5a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3zM1 10.5A1.5 1.5 0 012.5 9h3A1.5 1.5 0 017 10.5v3A1.5 1.5 0 015.5 15h-3A1.5 1.5 0 011 13.5v-3zm1.5-.5a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3zm6.5.5A1.5 1.5 0 0110.5 9h3a1.5 1.5 0 011.5 1.5v3a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 13.5v-3zm1.5-.5a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3z"/>
             </svg>
@@ -309,6 +309,20 @@ const handleCacheToggle = () => {
     detail: { enabled: musicCacheEnabled.value }
   }))
   showToast(musicCacheEnabled.value ? '音乐缓存已开启' : '音乐缓存已关闭', 'success')
+}
+
+// 在外部浏览器中打开链接
+const openExternalLink = (url) => {
+  // 检测是否在 Electron 环境中
+  const isElectron = window.electronAPI || (window.process && window.process.type === 'renderer')
+  
+  if (isElectron && window.electronAPI && window.electronAPI.openExternal) {
+    // 在 Electron 环境中，使用 shell.openExternal 在系统浏览器中打开
+    window.electronAPI.openExternal(url)
+  } else {
+    // 在纯浏览器环境中，使用 window.open
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 }
 
 // 检测系统类型

@@ -86,6 +86,7 @@ function createWindow() {
       contextIsolation: true,
       devTools: true,
       sandbox: false,  // 关闭沙箱以允许 localStorage 访问
+      nativeWindowOpen: true,  // 允许使用原生 window.open
     },
     backgroundColor: '#667eea',
   })
@@ -116,6 +117,15 @@ function createWindow() {
     if (input.key === 'F11' || input.key === 'f11') {
       event.preventDefault()
     }
+  })
+
+  // 拦截所有新窗口的打开，强制在系统浏览器中打开
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    const { shell } = require('electron')
+    shell.openExternal(url).catch(err => {
+      console.error('Failed to open external URL:', err)
+    })
+    return { action: 'deny' }
   })
 
   // 根据环境判断加载开发服务器还是生产文件
@@ -428,6 +438,17 @@ ipcMain.on('window-close', () => {
 // 文件保存 IPC 处理
 ipcMain.handle('get-path', async (event, name) => {
   return app.getPath(name)
+})
+
+ipcMain.handle('open-external', async (event, url) => {
+  const { shell } = await import('electron')
+  try {
+    await shell.openExternal(url)
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to open external URL:', error)
+    return { success: false, error: error.message }
+  }
 })
 
 ipcMain.handle('save-file', async (event, options) => {
