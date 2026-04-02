@@ -75,22 +75,6 @@
         </div>
       </div>
       </nav>
-      
-      <div class="sidebar-footer">
-        <div class="user-card" @click="handleUserClick">
-          <div class="user-avatar-wrapper">
-            <img :src="userAvatar" alt="用户头像" class="user-avatar" />
-            <div class="user-avatar-ring"></div>
-          </div>
-          <div class="user-details">
-            <span class="username">{{ username || '未登录' }}</span>
-            <span class="user-status">{{ isLoggedIn ? '已登录' : '点击登录' }}</span>
-          </div>
-          <svg class="user-arrow" viewBox="0 0 24 24" width="16" height="16">
-            <path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-          </svg>
-        </div>
-      </div>
     </div>
     <div class="layout-main">
       <div class="title-bar glass">
@@ -113,6 +97,10 @@
           </div>
         </div>
         <div class="title-bar-right">
+          <div class="user-info" @click="handleUserClick">
+            <img :src="userAvatar" alt="用户头像" class="user-avatar" />
+            <span class="username">{{ username || '未登录' }}</span>
+          </div>
           <button class="action-btn" @click="navigateTo('settings')" title="设置">
             <svg viewBox="0 0 24 24" width="20" height="20">
               <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -1138,95 +1126,6 @@ watch(() => route.path, (newPath) => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.sidebar-footer {
-  padding: 16px 12px;
-  border-top: 1px solid var(--border-color);
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.user-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  border: 1px solid transparent;
-}
-
-.user-card:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.user-avatar-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-  position: relative;
-  z-index: 2;
-}
-
-.user-avatar-ring {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  border: 2px solid transparent;
-  border-radius: 50%;
-  background: var(--gradient-primary);
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: rotate 8s linear infinite;
-}
-
-.user-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.username {
-  font-size: 14px;
-  color: white;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-.user-status {
-  font-size: 12px;
-  color: var(--text-white-muted);
-  margin-top: 2px;
-  display: block;
-}
-
-.user-arrow {
-  color: var(--text-white-muted);
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: all var(--transition-normal);
-}
-
-.user-card:hover .user-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-
 /* 主内容区域 */
 .layout-main {
   flex: 1;
@@ -1379,6 +1278,40 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  -webkit-app-region: no-drag;
+}
+
+.user-info:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  object-fit: cover;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 }
 
 .action-btn {
