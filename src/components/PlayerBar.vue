@@ -2663,7 +2663,7 @@ const handleNavigateToSettings = () => {
 
 /* 播放模式图标颜色 */
 .play-mode-icon {
-  filter: brightness(0);
+  /* 移除亮度滤镜，让图标继承父元素的颜色 */
 }
 
 /* ========================================
