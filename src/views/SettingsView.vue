@@ -37,11 +37,11 @@
       </div>
       
       <div class="settings-section">
-        <h3>播放设置</h3>
+        <h3>{{ t('settings.playSettings') }}</h3>
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">音乐缓存</span>
-            <span class="setting-desc">自动缓存听过的音乐到本地下载目录</span>
+            <span class="setting-label">{{ t('settings.musicCache') }}</span>
+            <span class="setting-desc">{{ t('settings.musicCacheDesc') }}</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" v-model="musicCacheEnabled" @change="handleCacheToggle" />
@@ -49,8 +49,31 @@
           </label>
         </div>
         <div class="cache-path-info">
-          <span class="cache-path-label">缓存路径：</span>
+          <span class="cache-path-label">{{ t('settings.cachePath') }}：</span>
           <span class="cache-path-value">{{ cachePath }}</span>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>{{ t('settings.languageSettings') }}</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">{{ t('settings.language') }}</span>
+            <span class="setting-desc">{{ t('settings.language') }}</span>
+          </div>
+          <select 
+            class="language-select" 
+            :value="currentLanguage"
+            @change="handleLanguageChange($event.target.value)"
+          >
+            <option 
+              v-for="option in languageOptions" 
+              :key="option.value" 
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
         </div>
       </div>
       
@@ -214,11 +237,34 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { setLanguage } from '../locales'
 import apiConfig from '../config/apiConfig'
 import { APP_VERSION } from '../version'
 
+const { t, locale } = useI18n()
+
 // 音乐缓存设置
 const musicCacheEnabled = ref(localStorage.getItem('musicCacheEnabled') !== 'false')
+
+// 语言设置
+const currentLanguage = ref(locale.value)
+
+const languageOptions = [
+  { value: 'zh-CN', label: t('settings.languageChinese') },
+  { value: 'en-US', label: t('settings.languageEnglish') }
+]
+
+const handleLanguageChange = async (newLanguage) => {
+  try {
+    await setLanguage(newLanguage)
+    currentLanguage.value = newLanguage
+    showToast(t('settings.language') + ' ' + t('settings.languageSettings') + ' ' + t('common.save'), 'success')
+  } catch (error) {
+    console.error('切换语言失败:', error)
+    showToast('切换语言失败', 'error')
+  }
+}
 
 // 获取系统下载目录路径
 const cachePath = ref('~/Downloads/NekoMusic/Music_temp')
@@ -774,6 +820,27 @@ const handleSubmit = async () => {
   word-break: break-all;
   display: block;
   margin-top: 4px;
+}
+
+.language-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--text-dark);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 150px;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.language-select:hover {
+  border-color: var(--border-focus);
 }
 
 .update-section {
