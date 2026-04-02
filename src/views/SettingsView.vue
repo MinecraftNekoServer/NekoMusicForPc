@@ -102,7 +102,7 @@
               <input 
                 v-model="formData.username"
                 type="text" 
-                placeholder="用户名（昵称）"
+                :placeholder="authTab === 'login' ? '邮箱' : '名称'"
                 class="auth-input"
               />
               <input 
