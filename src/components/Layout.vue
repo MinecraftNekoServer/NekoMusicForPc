@@ -878,6 +878,9 @@ watch(() => route.path, (newPath) => {
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
+  margin-top: -10px;
+  padding-top: 10px;
+  background: var(--bg-sidebar);
 }
 
 .layout-sidebar::before {
@@ -892,7 +895,7 @@ watch(() => route.path, (newPath) => {
 }
 
 .sidebar-header {
-  padding: 24px 20px;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -935,7 +938,7 @@ watch(() => route.path, (newPath) => {
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 12px 12px;
   overflow-y: auto;
   position: relative;
   z-index: 1;
@@ -944,7 +947,7 @@ watch(() => route.path, (newPath) => {
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 14px 16px;
+  padding: 12px 16px;
   color: var(--text-white-muted);
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -1021,14 +1024,14 @@ watch(() => route.path, (newPath) => {
 }
 
 .sidebar-playlists {
-  padding: 0 0 12px 0;
+  padding: 0 0 8px 0;
 }
 
 .playlists-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px 8px 16px;
+  padding: 8px 16px 4px 16px;
 }
 
 .playlists-title {
@@ -1373,6 +1376,7 @@ watch(() => route.path, (newPath) => {
   overflow: auto;
   background: transparent;
   position: relative;
+  padding-bottom: 90px; /* 为播放栏留出空间 */
 }
 
 /* 页面过渡动画 */
