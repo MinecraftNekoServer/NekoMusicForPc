@@ -258,7 +258,7 @@ body {
 
 .btn-primary {
   background: var(--gradient-primary);
-  color: var(--bg-white);
+  color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
@@ -268,7 +268,7 @@ body {
 }
 
 .btn-secondary {
-  background: var(--bg-white);
+  background: white;
   color: var(--text-primary);
   border: 1px solid var(--border-light);
 }
@@ -322,17 +322,17 @@ body {
 
 .badge-primary {
   background: var(--gradient-primary);
-  color: var(--bg-white);
+  color: white;
 }
 
 .badge-secondary {
   background: var(--gradient-secondary);
-  color: var(--bg-white);
+  color: white;
 }
 
 .badge-accent {
   background: var(--gradient-accent);
-  color: var(--bg-white);
+  color: white;
 }
 
 /* 工具类 */
@@ -648,7 +648,7 @@ body {
 /* 打印样式 */
 @media print {
   body {
-    background: var(--bg-white) !important;
+    background: white !important;
     color: black !important;
   }
   

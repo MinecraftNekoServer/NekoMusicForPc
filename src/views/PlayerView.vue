@@ -1021,7 +1021,7 @@ watch(() => router.currentRoute.value, () => {
   justify-content: space-between;
   padding: 0 16px;
   background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid var(--border-white-10);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-app-region: drag;
   user-select: none;
 }
@@ -1030,7 +1030,7 @@ watch(() => router.currentRoute.value, () => {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -1042,7 +1042,7 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .close-btn:hover {
-  background: var(--bg-active);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .window-controls {
@@ -1054,19 +1054,19 @@ watch(() => router.currentRoute.value, () => {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg-white);
+  color: white;
   transition: all 0.2s ease;
   -webkit-app-region: no-drag;
 }
 
 .window-control-btn:hover {
-  background: var(--bg-active);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .window-control-btn.close:hover {
@@ -1129,11 +1129,11 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   gap: 12px;
   font-size: 16px;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .separator {
-  color: var(--text-white-30);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .lyrics-section {
@@ -1160,7 +1160,7 @@ watch(() => router.currentRoute.value, () => {
 
 .lyric-line {
   font-size: 20px;
-  color: var(--text-white-40);
+  color: rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
   cursor: pointer;
   padding: 8px 16px;
@@ -1177,31 +1177,31 @@ watch(() => router.currentRoute.value, () => {
   display: block;
   font-size: 0.75em;
   opacity: 0.7;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .lyric-line:hover {
-  color: var(--text-white-60);
-  background: var(--bg-glass-5);
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .lyric-line:hover .lyric-translation {
-  color: var(--text-white-80);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .lyric-line.active {
   font-size: 28px;
   font-weight: 600;
-  color: var(--bg-white);
+  color: white;
   text-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
 }
 
 .lyric-line.active .lyric-text {
-  color: var(--bg-white);
+  color: white;
 }
 
 .lyric-line.active .lyric-translation {
-  color: var(--bg-white-muted);
+  color: rgba(255, 255, 255, 0.9);
   opacity: 1;
 }
 
@@ -1211,7 +1211,7 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: var(--bg-white-muted);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 18px;
   height: 200px;
 }
@@ -1223,9 +1223,9 @@ watch(() => router.currentRoute.value, () => {
   left: 0;
   right: 0;
   height: 90px;
-  background: var(--bg-glass);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -1256,7 +1256,7 @@ watch(() => router.currentRoute.value, () => {
 
 .player-artist {
   font-size: 13px;
-  color: var(--text-white-70);
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1288,7 +1288,7 @@ watch(() => router.currentRoute.value, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-white-80);
+  color: rgba(255, 255, 255, 0.8);
   transition: all var(--transition-normal);
 }
 
@@ -1329,7 +1329,7 @@ watch(() => router.currentRoute.value, () => {
   width: 48px;
   height: 48px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: var(--bg-white);
+  color: white;
   box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
 }
 
@@ -1352,7 +1352,7 @@ watch(() => router.currentRoute.value, () => {
 
 .time {
   font-size: 12px;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
   min-width: 42px;
   text-align: center;
   font-weight: 500;
@@ -1361,7 +1361,7 @@ watch(() => router.currentRoute.value, () => {
 .progress-bar {
   flex: 1;
   height: 6px;
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   cursor: pointer;
   position: relative;
@@ -1397,7 +1397,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translate(-50%, -50%);
   width: 14px;
   height: 14px;
-  background: var(--bg-white);
+  background: white;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
@@ -1410,7 +1410,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translate(-50%, -50%);
   width: 24px;
   height: 24px;
-  background: var(--bg-white);
+  background: white;
   border-radius: 50%;
   filter: blur(8px);
   opacity: 0.5;
@@ -1440,7 +1440,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  //background: var(--bg-white);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -1491,7 +1491,7 @@ watch(() => router.currentRoute.value, () => {
   transform: translateX(-50%) translateY(50%);
   width: 20px;
   height: 20px;
-  background: var(--bg-white);
+  background: white;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: bottom 0.1s;
@@ -1514,12 +1514,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .lyrics-container::-webkit-scrollbar-thumb {
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
 .lyrics-container::-webkit-scrollbar-thumb:hover {
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .no-music {
@@ -1528,23 +1528,23 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   justify-content: center;
   gap: 24px;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
   height: 100%;
 }
 
 .btn-back {
   padding: 12px 32px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
-  color: var(--bg-white);
+  color: white;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-back:hover {
-  background: var(--bg-active);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* 添加到歌单模态框样式 */
@@ -1570,7 +1570,7 @@ watch(() => router.currentRoute.value, () => {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-white-10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-content.modal-small {
@@ -1595,18 +1595,18 @@ watch(() => router.currentRoute.value, () => {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
   transition: all 0.2s;
 }
 
 .modal-close-btn:hover {
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
 }
 
@@ -1615,7 +1615,7 @@ watch(() => router.currentRoute.value, () => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: var(--bg-glass-5);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   margin-bottom: 20px;
 }
@@ -1645,7 +1645,7 @@ watch(() => router.currentRoute.value, () => {
 .current-music-artist {
   display: block;
   font-size: 12px;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1664,7 +1664,7 @@ watch(() => router.currentRoute.value, () => {
 .section-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-white-60);
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -1683,7 +1683,7 @@ watch(() => router.currentRoute.value, () => {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--bg-glass-5);
+  background: rgba(255, 255, 255, 0.03);
   margin-bottom: 6px;
 }
 
@@ -1711,14 +1711,14 @@ watch(() => router.currentRoute.value, () => {
 
 .playlist-option-count {
   font-size: 12px;
-  color: var(--text-white-40);
+  color: rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
 }
 
 .playlists-empty {
   text-align: center;
   padding: 40px 20px;
-  color: var(--text-white-40);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .playlists-empty svg {
@@ -1734,7 +1734,7 @@ watch(() => router.currentRoute.value, () => {
 .create-playlist-section {
   margin-bottom: 20px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-white-10);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .create-playlist-form {
@@ -1745,8 +1745,8 @@ watch(() => router.currentRoute.value, () => {
 .playlist-name-input {
   flex: 1;
   padding: 10px 14px;
-  background: var(--bg-glass-5);
-  border: 1px solid var(--border-white-10);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -1755,12 +1755,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .playlist-name-input::placeholder {
-  color: var(--text-white-40);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .playlist-name-input:focus {
   border-color: rgba(102, 126, 234, 0.5);
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .create-playlist-btn {
@@ -1806,12 +1806,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .modal-btn-secondary {
-  background: var(--bg-glass-10);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
 .modal-btn-secondary:hover {
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .modal-enter-active,
@@ -1834,12 +1834,12 @@ watch(() => router.currentRoute.value, () => {
 }
 
 .playlist-selector::-webkit-scrollbar-thumb {
-  background: var(--bg-glass-20);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 
 .playlist-selector::-webkit-scrollbar-thumb:hover {
-  background: var(--bg-glass-30);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* 播放模式图标颜色 */

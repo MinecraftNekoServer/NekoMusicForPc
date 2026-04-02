@@ -132,8 +132,7 @@
                 <div class="playlist-actions">
                   <span class="playlist-count">{{ playlist.length }} 首歌曲</span>
                 </div>
-              </div>
-        <div class="playlist-content">
+              </div>        <div class="playlist-content">
           <div v-if="playlist.length === 0" class="playlist-empty">
             <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1">
               <path d="M9 18V5l12-2v13"/>
@@ -1883,7 +1882,7 @@ const handleNavigateToSettings = () => {
   top: 50%;
   width: 14px;
   height: 14px;
-  background: var(--bg-white);
+  background: white;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow: var(--shadow-md);
@@ -1932,7 +1931,7 @@ const handleNavigateToSettings = () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  background: var(--bg-glass-95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -1978,7 +1977,7 @@ const handleNavigateToSettings = () => {
   transform: translateX(-50%) translateY(50%);
   width: 20px;
   height: 20px;
-  background: var(--bg-white);
+  background: white;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: bottom 0.1s;
@@ -1997,6 +1996,7 @@ const handleNavigateToSettings = () => {
   right: 24px;
   width: 380px;
   max-height: 500px;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -2004,7 +2004,7 @@ const handleNavigateToSettings = () => {
   flex-direction: column;
   z-index: 100000;
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   pointer-events: auto;
 }
 
@@ -2267,7 +2267,7 @@ const handleNavigateToSettings = () => {
 
 .playing-indicator span {
   width: 2px;
-  background: var(--bg-white);
+  background: white;
   border-radius: 1px;
   animation: playlist-wave 1s ease-in-out infinite;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
@@ -2381,7 +2381,7 @@ const handleNavigateToSettings = () => {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-white-10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-content.modal-small {
@@ -2399,14 +2399,14 @@ const handleNavigateToSettings = () => {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: var(--bg-white);
+  color: white;
 }
 
 .modal-close-btn {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -2417,8 +2417,8 @@ const handleNavigateToSettings = () => {
 }
 
 .modal-close-btn:hover {
-  background: var(--bg-active);
-  color: var(--bg-white);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 /* 当前音乐信息 */
@@ -2427,7 +2427,7 @@ const handleNavigateToSettings = () => {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   margin-bottom: 20px;
 }
@@ -2496,7 +2496,7 @@ const handleNavigateToSettings = () => {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.03);
   margin-bottom: 6px;
 }
 
@@ -2548,7 +2548,7 @@ const handleNavigateToSettings = () => {
 .create-playlist-section {
   margin-bottom: 20px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .create-playlist-form {
@@ -2559,8 +2559,8 @@ const handleNavigateToSettings = () => {
 .playlist-name-input {
   flex: 1;
   padding: 10px 14px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -2574,7 +2574,7 @@ const handleNavigateToSettings = () => {
 
 .playlist-name-input:focus {
   border-color: rgba(102, 126, 234, 0.5);
-  background: var(--bg-active);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .create-playlist-btn {
@@ -2620,12 +2620,12 @@ const handleNavigateToSettings = () => {
 }
 
 .modal-btn-secondary {
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
 .modal-btn-secondary:hover {
-  background: var(--bg-active);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .modal-enter-active,
@@ -2649,12 +2649,12 @@ const handleNavigateToSettings = () => {
 }
 
 .playlist-selector::-webkit-scrollbar-thumb {
-  background: var(--text-light);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
 }
 
 .playlist-selector::-webkit-scrollbar-thumb:hover {
-  background: var(--bg-glass-30);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* 播放模式图标颜色 */

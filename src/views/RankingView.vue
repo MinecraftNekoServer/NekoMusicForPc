@@ -215,7 +215,7 @@ onMounted(() => {
   gap: 8px;
   padding: 10px 20px;
   background: var(--gradient-primary);
-  color: var(--bg-white);
+  color: white;
   border: none;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -279,17 +279,17 @@ onMounted(() => {
 
 .rank-1 {
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  color: var(--bg-white);
+  color: white;
 }
 
 .rank-2 {
   background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%);
-  color: var(--bg-white);
+  color: white;
 }
 
 .rank-3 {
   background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
-  color: var(--bg-white);
+  color: white;
 }
 
 .ranking-cover {
@@ -367,7 +367,7 @@ onMounted(() => {
 
 .action-btn:hover {
   background: var(--primary);
-  color: var(--bg-white);
+  color: white;
   transform: scale(1.05);
 }
 
