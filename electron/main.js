@@ -84,7 +84,7 @@ function createWindow() {
       preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: true,
+      devTools: false,
       sandbox: false,  // 关闭沙箱以允许 localStorage 访问
       nativeWindowOpen: true,  // 允许使用原生 window.open
     },
