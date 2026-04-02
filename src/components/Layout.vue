@@ -1,13 +1,6 @@
 <template>
   <div class="layout">
     <div class="layout-sidebar glass-dark">
-      <div class="sidebar-header">
-        <div class="logo-wrapper">
-          <img src="/icon.png" alt="Logo" class="app-logo animate-pulse" />
-          <div class="logo-glow"></div>
-        </div>
-        <span class="app-name text-gradient">Neko云音乐</span>
-      </div>
       <nav class="sidebar-nav">
         <div 
           v-for="item in navItems" 
@@ -78,6 +71,10 @@
     </div>
     <div class="layout-main">
       <div class="title-bar glass">
+        <div class="title-bar-left">
+          <img src="/icon.png" alt="Logo" class="app-logo animate-pulse" />
+          <span class="app-name text-gradient">Neko云音乐</span>
+        </div>
         <div class="title-bar-center">
           <div class="search-box">
             <svg class="search-icon" viewBox="0 0 20 20">
@@ -866,6 +863,7 @@ watch(() => route.path, (newPath) => {
   height: 100vh;
   overflow: hidden;
   background: var(--bg-main);
+  position: relative;
 }
 
 /* 侧边栏样式 */
@@ -878,8 +876,7 @@ watch(() => route.path, (newPath) => {
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  margin-top: -10px;
-  padding-top: 10px;
+  margin-top: 56px;
   background: var(--bg-sidebar);
 }
 
@@ -892,48 +889,6 @@ watch(() => route.path, (newPath) => {
   bottom: 0;
   background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
   pointer-events: none;
-}
-
-.sidebar-header {
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.logo-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.app-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  position: relative;
-  z-index: 2;
-}
-
-.logo-glow {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  background: var(--gradient-primary);
-  border-radius: 50%;
-  filter: blur(20px);
-  opacity: 0.5;
-  z-index: 1;
-}
-
-.app-name {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
 }
 
 .sidebar-nav {
@@ -1136,44 +1091,94 @@ watch(() => route.path, (newPath) => {
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  padding-top: 56px;
 }
 
 /* 标题栏 */
 .title-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 16px;
   flex-shrink: 0;
   -webkit-app-region: drag;
   user-select: none;
-  position: relative;
-  z-index: 10;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .title-bar::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 20px;
-  right: 20px;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.title-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 260px;
+  padding: 0 16px;
+  -webkit-app-region: no-drag;
+  box-sizing: border-box;
+}
+
+.app-logo {
+  width: 28px;
+  height: 28px;
+  position: relative;
+  z-index: 2;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.app-logo::before {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.4;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .title-bar-center {
   flex: 1;
   display: flex;
-  justify-content: center;
-  max-width: 520px;
+  justify-content: flex-start;
+  padding: 0 24px;
 }
 
 .search-box {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 400px;
   height: 44px;
   background: white;
   border-radius: var(--radius-lg);
