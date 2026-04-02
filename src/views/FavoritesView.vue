@@ -146,9 +146,11 @@ const filteredList = computed(() => {
 async function fetchFavorites(forceRefresh = false) {
   const token = localStorage.getItem('token')
   if (!token) {
-    console.log('未登录，跳过获取收藏列表')
+    console.log('[FavoritesView] fetchFavorites: 未登录，跳过获取收藏列表')
     return []
   }
+
+  console.log('[FavoritesView] fetchFavorites: 开始获取收藏列表，forceRefresh =', forceRefresh)
 
   try {
     // 如果不是强制刷新，先尝试从本地存储读取
@@ -158,37 +160,44 @@ async function fetchFavorites(forceRefresh = false) {
         try {
           const parsed = JSON.parse(localFavorites)
           if (parsed && parsed.length > 0) {
-            console.log('fetchFavorites: 从本地读取收藏列表，数量:', parsed.length)
+            console.log('[FavoritesView] fetchFavorites: 从本地读取收藏列表，数量:', parsed.length)
             favorites.value = parsed
             return parsed
           }
         } catch (e) {
-          console.error('解析本地收藏列表失败:', e)
+          console.error('[FavoritesView] 解析本地收藏列表失败:', e)
         }
       }
     }
 
     // 从服务器同步（添加时间戳参数防止缓存）
     const fullUrl = `${apiConfig.BASE_URL}${apiConfig.USER_FAVORITES}?t=${Date.now()}`
+    console.log('[FavoritesView] fetchFavorites: 请求URL:', fullUrl)
     const response = await fetch(fullUrl, {
       headers: { 'Authorization': token }
     })
 
+    console.log('[FavoritesView] fetchFavorites: 响应状态:', response.status)
+    
     if (!response.ok) {
       throw new Error('获取收藏列表失败')
     }
 
     const result = await response.json()
-    if (result.success && result.data) {
-      console.log('fetchFavorites: 从服务器获取收藏列表成功，数量:', result.data.length)
+    console.log('[FavoritesView] fetchFavorites: 服务器响应:', result)
+    
+    if (result.success && result.favorites) {
+      console.log('[FavoritesView] fetchFavorites: 从服务器获取收藏列表成功，数量:', result.favorites.length)
       // 保存到本地存储
-      localStorage.setItem('favorites', JSON.stringify(result.data))
-      favorites.value = result.data
-      return result.data
+      localStorage.setItem('favorites', JSON.stringify(result.favorites))
+      favorites.value = result.favorites
+      return result.favorites
+    } else {
+      console.log('[FavoritesView] fetchFavorites: 服务器返回数据格式不正确，result =', result)
     }
     return []
   } catch (error) {
-    console.error('获取收藏列表失败:', error)
+    console.error('[FavoritesView] fetchFavorites: 获取收藏列表失败:', error)
     return []
   }
 }
@@ -268,13 +277,25 @@ function handleCoverError(e) {
 // 处理用户登录事件
 const handleUserLogin = async () => {
   console.log('[FavoritesView] 收到 user-login 事件，开始重新加载收藏列表')
-  musicList.value = await fetchFavorites(true)  // 强制从服务器刷新
+  // 清除本地缓存的收藏数据
+  localStorage.removeItem('favorites')
+  favorites.value = []
+  console.log('[FavoritesView] 已清除本地缓存，开始强制刷新')
+  const result = await fetchFavorites(true)  // 强制从服务器刷新
+  console.log('[FavoritesView] 收藏列表刷新完成，结果数量:', result.length)
+  musicList.value = result
 }
 
 // 处理刷新请求事件
 const handleRefreshNeeded = async () => {
   console.log('[FavoritesView] 收到 favorites-refresh-needed 事件，开始重新加载收藏列表')
-  musicList.value = await fetchFavorites(true)  // 强制从服务器刷新
+  // 清除本地缓存的收藏数据
+  localStorage.removeItem('favorites')
+  favorites.value = []
+  console.log('[FavoritesView] 已清除本地缓存，开始强制刷新')
+  const result = await fetchFavorites(true)  // 强制从服务器刷新
+  console.log('[FavoritesView] 收藏列表刷新完成，结果数量:', result.length)
+  musicList.value = result
 }
 
 // 处理用户登出事件
@@ -282,6 +303,8 @@ const handleUserLogout = () => {
   musicList.value = []
   favorites.value = []
   currentMusic.value = null
+  // 清除本地缓存的收藏数据
+  localStorage.removeItem('favorites')
 }
 
 onMounted(async () => {
@@ -298,18 +321,30 @@ onMounted(async () => {
 
   // 检查是否有 token
   const token = localStorage.getItem('token')
+  console.log('[FavoritesView] 检查 token:', token ? '已登录' : '未登录')
+  
   if (token) {
     // 检查是否需要刷新（通过 localStorage 标志）
     const loginTimestamp = localStorage.getItem('loginTimestamp')
     const componentMountedTime = Date.now()
     
+    console.log('[FavoritesView] 检查登录时间戳:', loginTimestamp)
+    
     // 如果登录时间与当前时间相差小于 5 秒，说明刚登录，需要刷新
     if (loginTimestamp && (componentMountedTime - parseInt(loginTimestamp)) < 5000) {
       console.log('[FavoritesView] 检测到刚登录，强制刷新收藏列表')
-      musicList.value = await fetchFavorites(true)
+      // 清除本地缓存的收藏数据
+      localStorage.removeItem('favorites')
+      favorites.value = []
+      const result = await fetchFavorites(true)
+      console.log('[FavoritesView] 刚登录刷新完成，结果数量:', result.length)
+      musicList.value = result
     } else {
+      console.log('[FavoritesView] 使用缓存或正常加载收藏列表')
       musicList.value = await fetchFavorites()
     }
+  } else {
+    console.log('[FavoritesView] 未登录，跳过加载收藏列表')
   }
 
   // 监听账号变更事件
