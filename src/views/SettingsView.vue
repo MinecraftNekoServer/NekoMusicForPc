@@ -4,24 +4,6 @@
       <h2>设置</h2>
       
       <div class="settings-section">
-        <h3>播放设置</h3>
-        <div class="setting-item">
-          <div class="setting-info">
-            <span class="setting-label">音乐缓存</span>
-            <span class="setting-desc">自动缓存听过的音乐到本地下载目录</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" v-model="musicCacheEnabled" @change="handleCacheToggle" />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="cache-path-info">
-          <span class="cache-path-label">缓存路径：</span>
-          <span class="cache-path-value">{{ cachePath }}</span>
-        </div>
-      </div>
-      
-      <div class="settings-section">
         <h3>账号信息</h3>
         <div v-if="currentUser" class="account-info">
           <div class="account-avatar">
@@ -51,6 +33,24 @@
         <div v-else class="no-login">
           <p>未登录</p>
           <button class="login-btn" @click="showLoginModal = true">去登录</button>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3>播放设置</h3>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">音乐缓存</span>
+            <span class="setting-desc">自动缓存听过的音乐到本地下载目录</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="musicCacheEnabled" @change="handleCacheToggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="cache-path-info">
+          <span class="cache-path-label">缓存路径：</span>
+          <span class="cache-path-value">{{ cachePath }}</span>
         </div>
       </div>
       
@@ -543,6 +543,7 @@ const startCountdown = () => {
 const handleLogout = () => {
   localStorage.removeItem('user')
   localStorage.removeItem('token')
+  localStorage.removeItem('loginTimestamp')
   currentUser.value = null
   window.dispatchEvent(new CustomEvent('user-logout'))
   showToast('已退出登录', 'success')
@@ -586,12 +587,19 @@ const handleSubmit = async () => {
         const user = result.data.user
         const token = result.data.token
         
+        console.log('[SettingsView] 登录成功，用户信息:', user)
         localStorage.setItem('user', JSON.stringify(user))
         localStorage.setItem('token', token)
+        // 设置登录时间戳，用于检测刚登录后需要刷新的组件
+        localStorage.setItem('loginTimestamp', Date.now().toString())
+        
         currentUser.value = user
         showLoginModal.value = false
         formData.value = { username: '', password: '', email: '' }
+        
+        console.log('[SettingsView] 派发 user-login 事件')
         window.dispatchEvent(new CustomEvent('user-login', { detail: user }))
+        
         showToast('登录成功，欢迎回来！', 'success')
       } else {
         throw new Error(result.message || '登录失败')

@@ -170,91 +170,6 @@
     </div>
 
     <Transition name="modal">
-      <div v-if="showLoginModal" class="modal-overlay" @click="showLoginModal = false">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <div class="modal-logo">
-              <img src="/icon.png" alt="Logo" />
-            </div>
-            <Transition name="title-fade" mode="out-in">
-              <h2 :key="authTab" class="modal-title">{{ authTab === 'login' ? '欢迎回来' : '创建账号' }}</h2>
-            </Transition>
-            <Transition name="subtitle-fade" mode="out-in">
-
-            </Transition>
-          </div>
-          
-          <div class="modal-tabs">
-            <button 
-              :class="['tab-btn', { active: authTab === 'login' }]"
-              @click="authTab = 'login'"
-            >
-              登录
-            </button>
-            <button 
-              :class="['tab-btn', { active: authTab === 'register' }]"
-              @click="authTab = 'register'"
-            >
-              注册
-            </button>
-          </div>
-          
-          <Transition name="form-slide" mode="out-in">
-            <div :key="authTab" class="auth-form">
-              <input 
-                v-model="formData.username"
-                type="text" 
-                placeholder="用户名（昵称）"
-                class="auth-input"
-              />
-              <input 
-                v-model="formData.password"
-                type="password" 
-                placeholder="密码"
-                class="auth-input"
-              />
-              <Transition name="field-fade">
-                <div v-if="authTab === 'register'" class="email-field">
-                  <input 
-                    v-model="formData.email"
-                    type="email" 
-                    placeholder="邮箱"
-                    class="auth-input"
-                  />
-                  <div class="verification-code">
-                    <input 
-                      v-model="formData.verificationCode"
-                      type="text" 
-                      placeholder="验证码"
-                      class="auth-input"
-                    />
-                    <button 
-                      class="send-code-btn"
-                      @click="sendVerificationCode"
-                      :disabled="codeSending || countdown > 0"
-                    >
-                      {{ codeBtnText }}
-                    </button>
-                  </div>
-                </div>
-              </Transition>
-            </div>
-          </Transition>
-
-          <Transition name="button-fade" mode="out-in">
-            <div :key="authTab" class="modal-buttons">
-              <button class="modal-btn modal-btn-primary" @click="handleSubmit">
-                {{ authTab === 'login' ? '立即登录' : '创建账号' }}
-              </button>
-            </div>
-          </Transition>
-          
-          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-        </div>
-      </div>
-    </Transition>
-
-    <Transition name="modal">
       <div v-if="showCreatePlaylistModal" class="modal-overlay" @click="showCreatePlaylistModal = false">
         <div class="modal-content modal-small" @click.stop>
           <h2 class="modal-title">创建歌单</h2>
@@ -361,11 +276,8 @@ const currentRoute = ref('home')
 const searchQuery = ref('')
 const username = ref('')
 const currentUser = ref(null)
-const showLoginModal = ref(false)
 const showCreatePlaylistModal = ref(false)
 const showEditPlaylistModal = ref(false)
-const authTab = ref('login')
-const errorMessage = ref('')
 const newPlaylistName = ref('')
 
 // 右键菜单
@@ -389,21 +301,8 @@ const confirmDialog = ref({
   onConfirm: null
 })
 
-const formData = ref({
-  username: '',
-  password: '',
-  email: '',
-  verificationCode: ''
-})
-const codeSending = ref(false)
-const countdown = ref(0)
-const countdownInterval = ref(null)
 const toasts = ref([])
 let toastId = 0
-
-const codeBtnText = computed(() => {
-  return countdown.value > 0 ? `${countdown.value}秒后重发` : '获取验证码'
-})
 
 const navItems = [
   { key: 'home', label: '首页', icon: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z' },
@@ -419,9 +318,15 @@ const currentPlaylistId = ref(null)
 
 const loadMyPlaylists = async () => {
 
+  console.log('[Layout] loadMyPlaylists 开始执行')
+
   const token = localStorage.getItem('token')
 
+
+
   if (!token) {
+
+    console.log('[Layout] 未登录，清空歌单列表')
 
     myPlaylists.value = []
 
@@ -429,10 +334,14 @@ const loadMyPlaylists = async () => {
 
   }
 
+
+
   try {
 
     // 添加时间戳参数禁用浏览器缓存
+
     const timestamp = Date.now()
+
     const response = await apiRequest(`${apiConfig.PLAYLISTS}?t=${timestamp}`, {
 
       method: 'GET',
@@ -441,17 +350,26 @@ const loadMyPlaylists = async () => {
 
     })
 
+
+
     const data = await response.json()
+
+    console.log('[Layout] 我的歌单数据:', data)
+
+
 
     if (data.success && data.playlists) {
 
       const playlistsWithCovers = []
+
+      
 
       for (const playlist of data.playlists) {
 
         try {
 
           // 添加时间戳参数禁用浏览器缓存
+
           const musicResponse = await apiRequest(`${apiConfig.PLAYLIST_MUSIC(playlist.id)}?t=${timestamp}`, {
 
             method: 'GET',
@@ -461,6 +379,8 @@ const loadMyPlaylists = async () => {
           })
 
           const musicData = await musicResponse.json()
+
+
 
           if (musicData.success && musicData.musicList && musicData.musicList.length > 0) {
 
@@ -486,21 +406,27 @@ const loadMyPlaylists = async () => {
 
       }
 
+      
+
       myPlaylists.value = playlistsWithCovers
+
+      console.log('[Layout] 我的歌单更新完成，数量:', myPlaylists.value.length)
 
     }
 
   } catch (error) {
 
-    console.error('加载我的歌单失败:', error)
+    console.error('[Layout] 加载我的歌单失败:', error)
 
   }
 
 }
 
 const loadFavoritePlaylists = async () => {
+  console.log('[Layout] loadFavoritePlaylists 开始执行')
   const token = localStorage.getItem('token')
   if (!token) {
+    console.log('[Layout] 未登录，清空收藏歌单列表')
     favoritePlaylists.value = []
     return
   }
@@ -512,6 +438,8 @@ const loadFavoritePlaylists = async () => {
       headers: { 'Authorization': token }
     })
     const data = await response.json()
+    console.log('[Layout] 收藏歌单数据:', data)
+    
     if (data.success && data.playlists) {
       const playlistsWithCovers = []
       for (const playlist of data.playlists) {
@@ -534,9 +462,10 @@ const loadFavoritePlaylists = async () => {
         }
       }
       favoritePlaylists.value = playlistsWithCovers
+      console.log('[Layout] 收藏歌单更新完成，数量:', favoritePlaylists.value.length)
     }
   } catch (error) {
-    console.error('加载收藏歌单失败:', error)
+    console.error('[Layout] 加载收藏歌单失败:', error)
   }
 }
 
@@ -579,7 +508,7 @@ const createPlaylist = async (name) => {
 
   if (!token) {
 
-    showLoginModal.value = true
+    navigateTo('settings')
 
     return
 
@@ -664,7 +593,7 @@ const handleSavePlaylistEdit = async () => {
 
   const token = localStorage.getItem('token')
   if (!token) {
-    showLoginModal.value = true
+    navigateTo('settings')
     return
   }
 
@@ -730,7 +659,7 @@ const handleDeletePlaylist = () => {
     onConfirm: async () => {
       const token = localStorage.getItem('token')
       if (!token) {
-        showLoginModal.value = true
+        navigateTo('settings')
         return
       }
 
@@ -810,52 +739,6 @@ const showToast = (message, type = 'info') => {
   }, 3000)
 }
 
-const sendVerificationCode = async () => {
-  if (!formData.value.email) {
-    showToast('请先输入邮箱地址', 'error')
-    return
-  }
-  
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(formData.value.email)) {
-    showToast('请输入有效的邮箱地址', 'error')
-    return
-  }
-  
-  codeSending.value = true
-  try {
-    const response = await apiRequest('/api/user/send-verification', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: formData.value.email
-      })
-    })
-    
-    const result = await response.json()
-    if (result.success) {
-      showToast('验证码已发送至您的邮箱', 'success')
-      startCountdown()
-    } else {
-      showToast(result.message || '发送验证码失败', 'error')
-    }
-  } catch (error) {
-    showToast('网络错误，请检查服务器连接', 'error')
-  } finally {
-    codeSending.value = false
-  }
-}
-
-const startCountdown = () => {
-  countdown.value = 60
-  countdownInterval.value = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(countdownInterval.value)
-    }
-  }, 1000)
-}
-
 const navigateTo = (route) => {
   currentRoute.value = route
   router.push(`/${route}`)
@@ -868,95 +751,8 @@ const handleSearch = () => {
 }
 
 const handleUserClick = () => {
-  if (isLoggedIn.value) {
-    navigateTo('settings')
-  } else {
-    showLoginModal.value = true
-  }
-}
-
-const handleSubmit = async () => {
-  errorMessage.value = ''
-  
-  if (!formData.value.username || !formData.value.password) {
-    errorMessage.value = '请填写用户名和密码'
-    return
-  }
-
-  if (authTab.value === 'register' && !formData.value.email) {
-    errorMessage.value = '请填写邮箱'
-    return
-  }
-
-  if (authTab.value === 'register' && !formData.value.verificationCode) {
-    errorMessage.value = '请填写验证码'
-    return
-  }
-
-  try {
-    if (authTab.value === 'login') {
-      const response = await apiRequest(apiConfig.USER_LOGIN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.value.username,
-          password: formData.value.password
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error('登录失败')
-      }
-      
-      const result = await response.json()
-      if (result.success && result.data && result.data.user) {
-        const user = result.data.user
-        const token = result.data.token
-        
-        localStorage.setItem('user', JSON.stringify(user))
-        localStorage.setItem('token', token)
-        currentUser.value = user
-        username.value = user.username
-        showLoginModal.value = false
-        formData.value = { username: '', password: '', email: '' }
-        showToast('登录成功，欢迎回来！', 'success')
-      } else {
-        throw new Error(result.message || '登录失败')
-      }
-    } else {
-      const response = await apiRequest(apiConfig.USER_REGISTER, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.value.username,
-          password: formData.value.password,
-          email: formData.value.email,
-          verificationCode: formData.value.verificationCode
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error('注册失败')
-      }
-      
-      const result = await response.json()
-      if (result.success) {
-        authTab.value = 'login'
-        errorMessage.value = ''
-        formData.value = { username: '', password: '', email: '', verificationCode: '' }
-        countdown.value = 0
-        if (countdownInterval.value) {
-          clearInterval(countdownInterval.value)
-        }
-        showToast('注册成功，请登录', 'success')
-      } else {
-        throw new Error(result.message || '注册失败')
-      }
-    }
-  } catch (error) {
-    errorMessage.value = error.message || `${authTab.value === 'login' ? '登录' : '注册'}失败，请重试`
-    showToast(errorMessage.value, 'error')
-  }
+  // 无论登录状态如何，都跳转到设置页面
+  navigateTo('settings')
 }
 
 const minimize = () => {
@@ -991,6 +787,8 @@ const close = () => {
 }
 
 onMounted(() => {
+  console.log('[Layout] 组件已挂载')
+  
   const userStr = localStorage.getItem('user')
   if (userStr) {
     try {
@@ -1002,14 +800,17 @@ onMounted(() => {
     }
   }
   
+  console.log('[Layout] 开始加载歌单数据')
   loadMyPlaylists()
-      loadFavoritePlaylists()
+  loadFavoritePlaylists()
   
+  console.log('[Layout] 注册事件监听器')
   window.addEventListener('user-logout', handleUserLogout)
   window.addEventListener('user-login', handleUserLogin)
   window.addEventListener('show-toast', handleShowToast)
   window.addEventListener('playlist-updated', handlePlaylistUpdated)
   window.addEventListener('favorite-playlist-updated', handleFavoritePlaylistUpdated)
+  console.log('[Layout] 事件监听器注册完成')
   
   // 点击其他地方关闭右键菜单
   document.addEventListener('click', () => {
@@ -1033,11 +834,23 @@ const handleUserLogout = () => {
 }
 
 const handleUserLogin = (event) => {
+  console.log('[Layout] 收到 user-login 事件，用户:', event.detail)
   const user = event.detail
   currentUser.value = user
   username.value = user.username
+  
+  console.log('[Layout] 开始加载我的歌单')
   loadMyPlaylists()
+  console.log('[Layout] 开始加载收藏歌单')
   loadFavoritePlaylists()
+  
+  // 派发全局刷新事件，通知其他组件刷新数据
+  console.log('[Layout] 派发 playlist-refresh-needed 事件')
+  window.dispatchEvent(new CustomEvent('playlist-refresh-needed'))
+  console.log('[Layout] 派发 favorites-refresh-needed 事件')
+  window.dispatchEvent(new CustomEvent('favorites-refresh-needed'))
+  console.log('[Layout] 派发 favorite-playlist-refresh-needed 事件')
+  window.dispatchEvent(new CustomEvent('favorite-playlist-refresh-needed'))
 }
 
 watch(() => route.path, (newPath) => {

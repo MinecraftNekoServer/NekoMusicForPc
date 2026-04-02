@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiConfig from '../config/apiConfig'
 
@@ -192,8 +192,57 @@ const unfavoritePlaylist = async (playlist) => {
   }
 }
 
-onMounted(() => {
+// 处理用户登录事件
+const handleUserLogin = () => {
+  console.log('[FavoritePlaylistsView] 收到 user-login 事件，开始重新加载收藏歌单')
   fetchFavoritePlaylists()
+}
+
+// 处理刷新请求事件
+const handleRefreshNeeded = () => {
+  console.log('[FavoritePlaylistsView] 收到 favorite-playlist-refresh-needed 事件，开始重新加载收藏歌单')
+  fetchFavoritePlaylists()
+}
+
+// 处理用户登出事件
+const handleUserLogout = () => {
+  playlists.value = []
+}
+
+onMounted(() => {
+  console.log('[FavoritePlaylistsView] 组件已挂载')
+  
+  // 检查是否有 token
+  const token = localStorage.getItem('token')
+  if (token) {
+    // 检查是否需要刷新（通过 localStorage 标志）
+    const loginTimestamp = localStorage.getItem('loginTimestamp')
+    const componentMountedTime = Date.now()
+    
+    // 如果登录时间与当前时间相差小于 5 秒，说明刚登录，需要刷新
+    if (loginTimestamp && (componentMountedTime - parseInt(loginTimestamp)) < 5000) {
+      console.log('[FavoritePlaylistsView] 检测到刚登录，强制刷新收藏歌单')
+      fetchFavoritePlaylists()
+    } else {
+      fetchFavoritePlaylists()
+    }
+  } else {
+    fetchFavoritePlaylists()
+  }
+  
+  // 监听账号变更事件
+  window.addEventListener('user-login', handleUserLogin)
+  window.addEventListener('user-logout', handleUserLogout)
+  // 监听全局刷新事件
+  window.addEventListener('favorite-playlist-refresh-needed', handleRefreshNeeded)
+  console.log('[FavoritePlaylistsView] 事件监听器已注册')
+})
+
+// 组件卸载时清理事件监听器
+onUnmounted(() => {
+  window.removeEventListener('user-login', handleUserLogin)
+  window.removeEventListener('user-logout', handleUserLogout)
+  window.removeEventListener('favorite-playlist-refresh-needed', handleRefreshNeeded)
 })
 </script>
 
