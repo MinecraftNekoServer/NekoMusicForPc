@@ -17,7 +17,7 @@
         </svg>
       </div>
       <div class="download-toast-content">
-        <span class="toast-message">下载更新中... {{ downloadProgress }}%</span>
+        <span class="toast-message">{{ t('update.downloading') }} {{ downloadProgress }}%</span>
         <div class="toast-progress-bar">
           <div class="toast-progress-fill" :style="{ width: downloadProgress + '%' }"></div>
         </div>
@@ -36,13 +36,13 @@
               <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
           </div>
-          <h3>更新下载完成</h3>
-          <p>版本 {{ latestVersion }} 已下载完成</p>
+          <h3>{{ t('update.downloadComplete') }}</h3>
+          <p>{{ t('update.versionDownloaded', { version: latestVersion }) }}</p>
           <p class="file-path">{{ downloadedFilePath }}</p>
         </div>
         <div class="download-actions">
-          <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">稍后安装</button>
-          <button class="download-action-btn btn-install" @click="handleInstallUpdate">立即安装</button>
+          <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">{{ t('update.installLater') }}</button>
+          <button class="download-action-btn btn-install" @click="handleInstallUpdate">{{ t('update.installNow') }}</button>
         </div>
       </div>
     </div>
@@ -51,11 +51,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Layout from './components/Layout.vue'
 import UpdateNotification from './components/UpdateNotification.vue'
 import apiConfig from './config/apiConfig'
 import { APP_VERSION } from './version'
 
+const { t } = useI18n()
 const updateAvailable = ref(false)
 const updateInfo = ref(null)
 const downloading = ref(false)

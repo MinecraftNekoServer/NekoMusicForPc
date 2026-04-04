@@ -8,13 +8,13 @@
           </svg>
         </div>
         <div class="notification-text">
-          <h3>发现新版本</h3>
-          <p>当前版本: {{ currentVersion }}</p>
-          <p class="new-version">新版本: {{ version }}</p>
+          <h3>{{ t('update.newVersionAvailable') }}</h3>
+          <p>{{ t('update.currentVersion') }}: {{ currentVersion }}</p>
+          <p class="new-version">{{ t('update.newVersion') }}: {{ version }}</p>
         </div>
         <div class="notification-actions">
-          <button class="btn-ignore" @click="handleIgnore">稍后提醒</button>
-          <button class="btn-update" @click="handleUpdate">立即更新</button>
+          <button class="btn-ignore" @click="handleIgnore">{{ t('update.remindLater') }}</button>
+          <button class="btn-update" @click="handleUpdate">{{ t('update.updateNow') }}</button>
         </div>
       </div>
     </div>
@@ -23,8 +23,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { APP_VERSION } from '../version'
 
+const { t } = useI18n()
 const props = defineProps({
   version: {
     type: String,

@@ -81,9 +81,10 @@ export default {
     settings: 'Settings',
     notLoggedIn: 'Not logged in',
     myPlaylistsTitle: 'My Playlists',
-    favoritePlaylistsTitle: 'Favorite Playlists'
+    favoritePlaylistsTitle: 'Favorite Playlists',
+    library: 'Library'
   },
-  player: {
+player: {
     playAll: 'Play All',
     playlist: 'Playlist',
     emptyPlaylist: 'Playlist is empty',
@@ -96,7 +97,7 @@ export default {
     unmuted: 'Unmute',
     close: 'Close',
     minimize: 'Minimize',
-    maximize: 'Fullscreen',
+    maximize: 'Maximize',
     closeWindow: 'Close Window',
     previous: 'Previous',
     play: 'Play',
@@ -110,17 +111,18 @@ export default {
     addToPlaylistTitle: 'Add to Playlist',
     selectPlaylist: 'Select Playlist',
     orCreateNewPlaylist: 'Or Create New Playlist',
-    songs: ' songs',
+    songs: 'songs',
     pleaseLoginFirst: 'Please login first',
     cancelFavoriteSuccess: 'Unfavorite successful',
     favoriteSuccess: 'Favorite successful',
-    noPlaylists: 'No playlists, please create one first',
+    noPlaylists: 'No playlists yet, please create one first',
     addToPlaylistSuccess: 'Added to playlist successfully',
     addToPlaylistFailed: 'Add failed',
     networkErrorRetry: 'Network error, please try again',
     inputPlaylistName: 'Please enter playlist name',
     createPlaylistSuccess: 'Playlist created successfully',
-    createPlaylistFailed: 'Create failed'
+    createPlaylistFailed: 'Create failed',
+    notPlaying: 'Not Playing'
   },
   home: {
     goodMorning: 'Good Morning',
@@ -250,6 +252,18 @@ export default {
     collectPlaylistFailed: 'Collect playlist failed',
     musicRemovedSuccess: 'Music removed from playlist',
     removeFailed: 'Remove failed'
+  },
+  update: {
+    newVersionAvailable: 'New Version Available',
+    currentVersion: 'Current Version',
+    newVersion: 'New Version',
+    remindLater: 'Remind Later',
+    updateNow: 'Update Now',
+    downloading: 'Downloading update...',
+    downloadComplete: 'Update Download Complete',
+    versionDownloaded: 'Version {version} has been downloaded',
+    installLater: 'Install Later',
+    installNow: 'Install Now'
   },
   settings: {
     settings: 'Settings',

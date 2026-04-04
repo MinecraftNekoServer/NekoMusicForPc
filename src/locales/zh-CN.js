@@ -67,7 +67,8 @@ export default {
     loginSuccess: '登录成功，欢迎回来！',
     registerSuccess: '注册成功，请登录',
     loginFailed: '登录失败',
-    registerFailed: '注册失败'
+    registerFailed: '注册失败',
+    cover: '封面'
   },
   sidebar: {
     home: '首页',
@@ -79,6 +80,7 @@ export default {
     latest: '最新音乐',
     search: '搜索',
     settings: '设置',
+    library: '音乐库',
     notLoggedIn: '未登录',
     myPlaylistsTitle: '我的歌单',
     favoritePlaylistsTitle: '收藏的歌单'
@@ -120,7 +122,8 @@ export default {
     networkErrorRetry: '网络错误，请重试',
     inputPlaylistName: '请输入歌单名称',
     createPlaylistSuccess: '歌单创建成功',
-    createPlaylistFailed: '创建失败'
+    createPlaylistFailed: '创建失败',
+    notPlaying: '未播放'
   },
   home: {
     goodMorning: '早上好',
@@ -250,6 +253,18 @@ export default {
     collectPlaylistFailed: '收藏失败',
     musicRemovedSuccess: '音乐已从歌单中移除',
     removeFailed: '移除失败'
+  },
+  update: {
+    newVersionAvailable: '发现新版本',
+    currentVersion: '当前版本',
+    newVersion: '新版本',
+    remindLater: '稍后提醒',
+    updateNow: '立即更新',
+    downloading: '下载更新中...',
+    downloadComplete: '更新下载完成',
+    versionDownloaded: '版本 {version} 已下载完成',
+    installLater: '稍后安装',
+    installNow: '立即安装'
   },
   settings: {
     settings: '设置',
