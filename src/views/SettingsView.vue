@@ -116,7 +116,7 @@
           <div class="modal-header">
             <img src="/icon.png" alt="Logo" class="modal-logo" />
             <h3 class="modal-title">{{ t('login.welcome') }}</h3>
-            <p class="modal-subtitle">{{ t('login.login') }} {{ t('settings.accountSettings') }}</p>
+<!--            <p class="modal-subtitle">{{ t('login.login') }} {{ t('settings.accountSettings') }}</p>-->
           </div>
           
           <div class="modal-tabs">
