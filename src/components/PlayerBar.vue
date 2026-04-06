@@ -220,7 +220,7 @@
                     <span class="playlist-option-name">{{ playlist.name }}</span>
                     <span class="playlist-option-count">{{ playlist.musicCount || 0 }}{{ t('key.songs') }}</span>
                   </div>
-                  <div v-if="userPlaylists.length === 0" class="playlists-empty">
+                  <div v-if="userkey.length === 0" class="playlists-empty">
                     <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1">
                       <path d="M9 18V5l12-2v13"/>
                       <circle cx="6" cy="18" r="3"/>
@@ -418,7 +418,7 @@ const toggleFavorite = async () => {
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: result.message || t('favoritePlaylists.cancelFavoriteFailed'), type: 'error' }
+          detail: { message: result.message || t('favoritekey.cancelFavoriteFailed'), type: 'error' }
         }))
       }
     } else {
@@ -839,7 +839,7 @@ const showAddToPlaylistModal = async () => {
   // 加载用户歌单列表
   await loadUserPlaylists()
 
-  if (userPlaylists.value.length === 0) {
+  if (userkey.value.length === 0) {
     window.dispatchEvent(new CustomEvent('show-toast', {
       detail: { message: t('key.noPlaylists'), type: 'info' }
     }))
@@ -853,7 +853,7 @@ const showAddToPlaylistModal = async () => {
 const loadUserPlaylists = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
-    userPlaylists.value = []
+    userkey.value = []
     return
   }
 
@@ -890,7 +890,7 @@ const loadUserPlaylists = async () => {
         }
       }
 
-      userPlaylists.value = playlistsWithCovers
+      userkey.value = playlistsWithCovers
     }
   } catch (error) {
     console.error('加载用户歌单列表失败:', error)

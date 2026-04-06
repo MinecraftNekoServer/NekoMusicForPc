@@ -21,7 +21,7 @@
           <div class="playlist-description">{{ playlist.description || t('key.description') }}</div>
           <div class="playlist-meta">
             <div class="creator-info" v-if="playlist.creator">
-              <img :src="getAvatarUrl(playlist.creator.id)" :alt="t('playlists.creator')" class="creator-avatar" @error="handleAvatarError" />
+              <img :src="getAvatarUrl(playlist.creator.id)" :alt="t('key.creator')" class="creator-avatar" @error="handleAvatarError" />
               <span class="creator-name">{{ playlist.creator.username }}</span>
             </div>
             <span class="playlist-count">{{ playlist.musicCount || musicList.length }} {{ t('playlistDetail.songs') }}</span>
@@ -272,7 +272,7 @@ const checkIfCollected = async (playlistId) => {
 
     const data = await response.json()
     if (data.success && data.playlists) {
-      isCollected.value = data.playlists.some(p => p.id === parseInt(playlistId))
+      isCollected.value = data.key.some(p => p.id === parseInt(playlistId))
     } else {
       isCollected.value = false
     }
