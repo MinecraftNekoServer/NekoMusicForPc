@@ -144,23 +144,23 @@
               />
               <input 
                 v-model="formData.password"
-                type="password" 
-                placeholder="t('settings.password')"
+                type="password"
+                :placeholder="t('settings.password')"
                 class="auth-input"
               />
               <Transition name="field-fade">
                 <div v-if="authTab === 'register'" class="email-field">
                   <input 
                     v-model="formData.email"
-                    type="email" 
-                    placeholder="t('settings.email')"
+                    type="email"
+                    :placeholder="t('settings.email')"
                     class="auth-input"
                   />
                   <div class="verification-code">
                     <input 
                       v-model="formData.verificationCode"
-                      type="text" 
-                      placeholder="t('settings.verificationCode')"
+                      type="text"
+                      :placeholder="t('settings.verificationCode')"
                       class="auth-input"
                     />
                     <button 
