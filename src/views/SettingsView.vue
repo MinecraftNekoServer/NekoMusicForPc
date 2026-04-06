@@ -235,8 +235,8 @@
                 <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
             </div>
-            <h3>更新下载完成</h3>
-            <p>版本 {{ latestVersion }} 已下载完成</p>
+            <h3>{{ t('settings.updateDownloadComplete') }}</h3>
+            <p>{{ t('settings.versionDownloaded', { version: latestVersion }) }}</p>
             <p class="file-path">{{ downloadedFilePath }}</p>
           </div>
           <div class="download-actions">
@@ -308,7 +308,7 @@ const handleCacheToggle = () => {
   window.dispatchEvent(new CustomEvent('cache-setting-changed', {
     detail: { enabled: musicCacheEnabled.value }
   }))
-  showToast(musicCacheEnabled.value ? '音乐缓存已开启' : '音乐缓存已关闭', 'success')
+  showToast(musicCacheEnabled.value ? t('common.cacheEnabled') : t('common.cacheDisabled'), 'success')
 }
 
 // 在外部浏览器中打开链接
