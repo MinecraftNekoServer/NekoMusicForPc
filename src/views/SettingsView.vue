@@ -124,13 +124,13 @@
               :class="['tab-btn', { active: authTab === 'login' }]"
               @click="authTab = 'login'"
             >
-              登录
+              {{ t('login.login') }}
             </button>
             <button 
               :class="['tab-btn', { active: authTab === 'register' }]"
               @click="authTab = 'register'"
             >
-              注册
+              {{ t('login.register') }}
             </button>
           </div>
           
