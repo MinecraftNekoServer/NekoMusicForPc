@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="player-details">
-        <span class="player-title">{{ currentMusic?.title || t('player.notPlaying') }}</span>
+        <span class="player-title">{{ currentMusic?.title || t('key.notPlaying') }}</span>
         <span class="player-artist">{{ currentMusic?.artist || '-' }}</span>
       </div>
     </div>
@@ -91,7 +91,7 @@
       </button>
 
       <div class="volume-wrapper">
-        <button class="control-btn" @click="toggleMute" :title="isMuted ? t('player.unmuted') : t('player.muted')">
+        <button class="control-btn" @click="toggleMute" :title="isMuted ? t('key.unmuted') : t('key.muted')">
           <svg v-if="!isMuted && volume > 50" viewBox="0 0 24 24" width="18" height="18">
             <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
           </svg>
@@ -116,7 +116,7 @@
         </div>
       </div>
 
-      <button class="control-btn" @click="togglePlaylist" :title="t('player.playlist')">
+      <button class="control-btn" @click="togglePlaylist" :title="t('key.playlist')">
         <svg viewBox="0 0 24 24" width="18" height="18">
           <path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
         </svg>
@@ -128,7 +128,7 @@
       <Transition name="playlist-panel">
       <div class="playlist-panel" v-if="showPlaylistPanel">
         <div class="playlist-header">
-                <h3>{{ t('player.playlist') }}</h3>
+                <h3>{{ t('key.playlist') }}</h3>
                 <div class="playlist-actions">
                   <span class="playlist-count">{{ playlist.length }} {{ t('key.songs') }}</span>
                 </div>
@@ -139,7 +139,7 @@
               <circle cx="6" cy="18" r="3"/>
               <circle cx="18" cy="16" r="3"/>
             </svg>
-            <p>{{ t('player.emptyPlaylist') }}</p>
+            <p>{{ t('key.emptyPlaylist') }}</p>
             <p class="hint">{{ t('modal.addSuccess') }}</p>
           </div>
           <div v-else class="playlist-actions-bar">
@@ -188,7 +188,7 @@
           <div v-if="showAddToPlaylistPanel" class="modal-overlay" @click="showAddToPlaylistPanel = false">
             <div class="modal-content modal-small" @click.stop>
               <div class="modal-header">
-                <h3 class="modal-title">{{ t('player.addToPlaylistTitle') }}</h3>
+                <h3 class="modal-title">{{ t('key.addToPlaylistTitle') }}</h3>
                 <button class="modal-close-btn" @click="showAddToPlaylistPanel = false">
                   <svg viewBox="0 0 24 24" width="20" height="20">
                     <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -207,7 +207,7 @@
 
               <div class="playlist-section">
                 <div class="section-header">
-                  <span class="section-title">{{ t('player.selectPlaylist') }}</span>
+                  <span class="section-title">{{ t('key.selectPlaylist') }}</span>
                 </div>
                 <div class="playlist-selector">
                   <div
@@ -218,7 +218,7 @@
                   >
                     <img :src="getPlaylistCover(playlist)" :alt="t('key.cover')" class="playlist-option-cover" />
                     <span class="playlist-option-name">{{ playlist.name }}</span>
-                    <span class="playlist-option-count">{{ playlist.musicCount || 0 }}{{ t('player.songs') }}</span>
+                    <span class="playlist-option-count">{{ playlist.musicCount || 0 }}{{ t('key.songs') }}</span>
                   </div>
                   <div v-if="userPlaylists.length === 0" class="playlists-empty">
                     <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1">
@@ -226,7 +226,7 @@
                       <circle cx="6" cy="18" r="3"/>
                       <circle cx="18" cy="16" r="3"/>
                     </svg>
-                    <p>{{ t('player.noPlaylists') }}</p>
+                    <p>{{ t('key.noPlaylists') }}</p>
                   </div>
                 </div>
               </div>
@@ -234,13 +234,13 @@
               <!-- 新建歌单区域 -->
               <div class="create-playlist-section">
                 <div class="section-header">
-                  <span class="section-title">{{ t('player.orCreateNewPlaylist') }}</span>
+                  <span class="section-title">{{ t('key.orCreateNewPlaylist') }}</span>
                 </div>
                 <div class="create-playlist-form">
                   <input
                     v-model="newPlaylistName"
                     type="text"
-                    :placeholder="t('player.inputPlaylistName')"
+                    :placeholder="t('key.inputPlaylistName')"
                     class="playlist-name-input"
                     @keyup.enter="handleCreateNewPlaylist"
                   />
@@ -315,11 +315,11 @@ const FADE_STEPS = 20 // 淡入淡出步数
 
 const playModeTitle = computed(() => {
   const titles = {
-    'list': t('player.playModeList'),
-    'single': t('player.playModeSingle'),
-    'shuffle': t('player.playModeRandom')
+    'list': t('key.playModeList'),
+    'single': t('key.playModeSingle'),
+    'shuffle': t('key.playModeRandom')
   }
-  return titles[playMode.value] || t('player.playModeList')
+  return titles[playMode.value] || t('key.playModeList')
 })
 
 const currentCover = computed(() => {
@@ -390,7 +390,7 @@ const toggleFavorite = async () => {
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
       detail: {
-        message: t('player.pleaseLoginFirst'),
+        message: t('key.pleaseLoginFirst'),
         type: 'error'
       }
     }))
@@ -412,7 +412,7 @@ const toggleFavorite = async () => {
         isFavorite.value = false
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: t('player.cancelFavoriteSuccess'), type: 'success' }
+          detail: { message: t('key.cancelFavoriteSuccess'), type: 'success' }
         }))
         window.dispatchEvent(new CustomEvent('favorite-changed'))
       } else {
@@ -841,7 +841,7 @@ const showAddToPlaylistModal = async () => {
 
   if (userPlaylists.value.length === 0) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.noPlaylists'), type: 'info' }
+      detail: { message: t('key.noPlaylists'), type: 'info' }
     }))
     return
   }
@@ -925,7 +925,7 @@ const addToUserPlaylist = async (playlistId) => {
     const data = await response.json()
     if (data.success) {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: t('player.addToPlaylistSuccess'), type: 'success' }
+        detail: { message: t('key.addToPlaylistSuccess'), type: 'success' }
       }))
       showAddToPlaylistPanel.value = false
 
@@ -938,13 +938,13 @@ const addToUserPlaylist = async (playlistId) => {
       }))
     } else {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: data.message || t('player.addToPlaylistFailed'), type: 'error' }
+        detail: { message: data.message || t('key.addToPlaylistFailed'), type: 'error' }
       }))
     }
   } catch (error) {
     console.error('添加到歌单失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.networkErrorRetry'), type: 'error' }
+      detail: { message: t('key.networkErrorRetry'), type: 'error' }
     }))
   }
 }
@@ -961,7 +961,7 @@ const getPlaylistCover = (playlist) => {
 const handleCreateNewPlaylist = async () => {
   if (!newPlaylistName.value.trim()) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.inputPlaylistName'), type: 'error' }
+      detail: { message: t('key.inputPlaylistName'), type: 'error' }
     }))
     return
   }
@@ -990,7 +990,7 @@ const handleCreateNewPlaylist = async () => {
     const data = await response.json()
     if (data.success) {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: t('player.createPlaylistSuccess'), type: 'success' }
+        detail: { message: t('key.createPlaylistSuccess'), type: 'success' }
       }))
 
       // 重新加载歌单列表

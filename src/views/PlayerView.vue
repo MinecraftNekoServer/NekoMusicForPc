@@ -315,11 +315,11 @@ const newPlaylistName = ref('')
 
 const playModeTitle = computed(() => {
   const titles = {
-    'list': t('player.playModeList'),
-    'single': t('player.playModeSingle'),
-    'shuffle': t('player.playModeRandom')
+    'list': t('key.playModeList'),
+    'single': t('key.playModeSingle'),
+    'shuffle': t('key.playModeRandom')
   }
-  return titles[playMode.value] || t('player.playModeList')
+  return titles[playMode.value] || t('key.playModeList')
 })
 
 const progress = computed(() => {
@@ -366,7 +366,7 @@ const toggleFavorite = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: t('player.pleaseLoginFirst'), type: 'error' } 
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' } 
     }))
     return
   }
@@ -382,7 +382,7 @@ const toggleFavorite = async () => {
         favorites.value = favorites.value.filter(f => f.id !== currentMusic.value.id)
         isFavorite.value = false
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('player.cancelFavoriteSuccess'), type: 'success' } 
+          detail: { message: t('key.cancelFavoriteSuccess'), type: 'success' } 
         }))
       }
     } else {
@@ -399,7 +399,7 @@ const toggleFavorite = async () => {
         favorites.value.push(currentMusic.value)
         isFavorite.value = true
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('player.favoriteSuccess'), type: 'success' } 
+          detail: { message: t('key.favoriteSuccess'), type: 'success' } 
         }))
       }
     }
@@ -661,7 +661,7 @@ const showAddToPlaylistModal = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.pleaseLoginFirst'), type: 'error' }
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -671,7 +671,7 @@ const showAddToPlaylistModal = async () => {
 
   if (userPlaylists.value.length === 0) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.noPlaylists'), type: 'info' }
+      detail: { message: t('key.noPlaylists'), type: 'info' }
     }))
     return
   }
@@ -734,7 +734,7 @@ const addToUserPlaylist = async (playlistId) => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.pleaseLoginFirst'), type: 'error' }
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -755,18 +755,18 @@ const addToUserPlaylist = async (playlistId) => {
     const data = await response.json()
     if (data.success) {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: t('player.addToPlaylistSuccess'), type: 'success' }
+        detail: { message: t('key.addToPlaylistSuccess'), type: 'success' }
       }))
       showAddToPlaylistPanel.value = false
     } else {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: data.message || t('player.addToPlaylistFailed'), type: 'error' }
+        detail: { message: data.message || t('key.addToPlaylistFailed'), type: 'error' }
       }))
     }
   } catch (error) {
     console.error('添加到歌单失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.networkErrorRetry'), type: 'error' }
+      detail: { message: t('key.networkErrorRetry'), type: 'error' }
     }))
   }
 }
@@ -783,7 +783,7 @@ const getPlaylistCover = (playlist) => {
 const handleCreateNewPlaylist = async () => {
   if (!newPlaylistName.value.trim()) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.inputPlaylistName'), type: 'error' }
+      detail: { message: t('key.inputPlaylistName'), type: 'error' }
     }))
     return
   }
@@ -791,7 +791,7 @@ const handleCreateNewPlaylist = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.pleaseLoginFirst'), type: 'error' }
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -812,7 +812,7 @@ const handleCreateNewPlaylist = async () => {
     const data = await response.json()
     if (data.success) {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: t('player.createPlaylistSuccess'), type: 'success' }
+        detail: { message: t('key.createPlaylistSuccess'), type: 'success' }
       }))
 
       // 重新加载歌单列表
@@ -826,13 +826,13 @@ const handleCreateNewPlaylist = async () => {
       newPlaylistName.value = ''
     } else {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: data.message || t('player.createPlaylistFailed'), type: 'error' }
+        detail: { message: data.message || t('key.createPlaylistFailed'), type: 'error' }
       }))
     }
   } catch (error) {
     console.error('创建歌单失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('player.networkErrorRetry'), type: 'error' }
+      detail: { message: t('key.networkErrorRetry'), type: 'error' }
     }))
   }
 }

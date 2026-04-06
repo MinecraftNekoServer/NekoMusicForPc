@@ -23,7 +23,7 @@
               <svg viewBox="0 0 24 24" width="18" height="18">
                 <path fill="currentColor" d="M8 5v14l11-7z"/>
               </svg>
-              {{ t('player.playAll') }}
+              {{ t('key.playAll') }}
             </button>
             <span class="result-count">{{ musicResults.length }} {{ t('search.songs') }}</span>
             </div>
