@@ -12,7 +12,7 @@
     
     <div v-if="loading" class="loading">
       <div class="loading-spinner"></div>
-      <p>{{ t('common.loading') }}</p>
+      <p>{{ t('key.loading') }}</p>
     </div>
     
     <div v-else-if="playlists.length === 0" class="empty">
@@ -49,7 +49,7 @@
         
         <div class="playlist-info">
           <h3 class="playlist-name">{{ playlist.name }}</h3>
-          <p class="playlist-description">{{ playlist.description || t('common.description') }}</p>
+          <p class="playlist-description">{{ playlist.description || t('key.description') }}</p>
           
           <!-- 调试信息 -->
           <div style="font-size: 10px; color: #999; margin: 5px 0;">
@@ -66,12 +66,12 @@
         </div>
         
         <div class="playlist-actions">
-          <button class="action-btn" @click.stop="showEditDialog(playlist)" :title="t('common.edit')">
+          <button class="action-btn" @click.stop="showEditDialog(playlist)" :title="t('key.edit')">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
             </svg>
           </button>
-          <button class="action-btn delete" @click.stop="showDeleteDialog(playlist)" :title="t('common.delete')">
+          <button class="action-btn delete" @click.stop="showDeleteDialog(playlist)" :title="t('key.delete')">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
             </svg>
@@ -94,8 +94,8 @@
             <textarea v-model="newPlaylist.description" :placeholder="t('playlists.playlistDescPlaceholder')" maxlength="500"></textarea>
           </div>
           <div class="dialog-actions">
-            <button type="button" class="btn cancel" @click="showCreateDialog = false">{{ t('common.cancel') }}</button>
-            <button type="submit" class="btn primary">{{ t('common.create') }}</button>
+            <button type="button" class="btn cancel" @click="showCreateDialog = false">{{ t('key.cancel') }}</button>
+            <button type="submit" class="btn primary">{{ t('key.create') }}</button>
           </div>
         </form>
       </div>
@@ -115,8 +115,8 @@
             <textarea v-model="editingPlaylist.description" :placeholder="t('playlists.playlistDescPlaceholder')" maxlength="500"></textarea>
           </div>
           <div class="dialog-actions">
-            <button type="button" class="btn cancel" @click="showEditDialogFlag = false">{{ t('common.cancel') }}</button>
-            <button type="submit" class="btn primary">{{ t('common.save') }}</button>
+            <button type="button" class="btn cancel" @click="showEditDialogFlag = false">{{ t('key.cancel') }}</button>
+            <button type="submit" class="btn primary">{{ t('key.save') }}</button>
           </div>
         </form>
       </div>
@@ -128,8 +128,8 @@
         <h2 class="dialog-title">{{ t('playlists.deletePlaylist') }}</h2>
         <p class="delete-message">{{ t('playlists.deleteConfirm') }}</p>
         <div class="dialog-actions">
-          <button type="button" class="btn cancel" @click="showDeleteDialogFlag = false">{{ t('common.cancel') }}</button>
-          <button type="button" class="btn danger" @click="deletePlaylist">{{ t('common.delete') }}</button>
+          <button type="button" class="btn cancel" @click="showDeleteDialogFlag = false">{{ t('key.cancel') }}</button>
+          <button type="button" class="btn danger" @click="deletePlaylist">{{ t('key.delete') }}</button>
         </div>
       </div>
     </div>

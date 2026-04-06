@@ -2,7 +2,7 @@
   <div class="playlist-detail-view">
     <div v-if="loading" class="loading">
       <div class="loading-spinner"></div>
-      <p>{{ t('common.loading') }}</p>
+      <p>{{ t('key.loading') }}</p>
     </div>
 
     <div v-else-if="playlist" class="playlist-content">
@@ -16,9 +16,9 @@
           />
         </div>
         <div class="playlist-info">
-          <div class="playlist-type">{{ t('common.playlists') }}</div>
+          <div class="playlist-type">{{ t('key.playlists') }}</div>
           <h1 class="playlist-name">{{ playlist.name }}</h1>
-          <div class="playlist-description">{{ playlist.description || t('common.description') }}</div>
+          <div class="playlist-description">{{ playlist.description || t('key.description') }}</div>
           <div class="playlist-meta">
             <div class="creator-info" v-if="playlist.creator">
               <img :src="getAvatarUrl(playlist.creator.id)" :alt="t('playlists.creator')" class="creator-avatar" @error="handleAvatarError" />
@@ -51,7 +51,7 @@
       <div class="music-list-section">
         <div class="list-header">
           <span class="list-title">{{ t('playlistDetail.songList') }}</span>
-          <span class="list-count">{{ musicList.length }} {{ t('common.songs') }}</span>
+          <span class="list-count">{{ musicList.length }} {{ t('key.songs') }}</span>
         </div>
 
         <div v-if="musicList.length === 0" class="empty">

@@ -30,7 +30,7 @@
             
             <div v-if="loadingMusic" class="loading">
             <div class="loading-spinner"></div>
-            <p>{{ t('common.loading') }}</p>
+            <p>{{ t('key.loading') }}</p>
           </div>
           
           <div v-else-if="musicResults.length === 0" class="empty">
@@ -97,7 +97,7 @@
         <div v-else-if="activeTab === 'playlist'" class="playlist-results" :key="'playlist'">
           <div v-if="loadingPlaylists" class="loading">
             <div class="loading-spinner"></div>
-            <p>{{ t('common.loading') }}</p>
+            <p>{{ t('key.loading') }}</p>
           </div>
           <div v-else-if="playlistResults.length === 0" class="empty">
             <p>{{ t('search.noResults') }}</p>
@@ -119,9 +119,9 @@
               </div>
               <div class="playlist-info">
                 <div class="playlist-name">{{ playlist.name }}</div>
-                <div class="playlist-description">{{ playlist.description || t('common.description') }}</div>
+                <div class="playlist-description">{{ playlist.description || t('key.description') }}</div>
                 <div class="playlist-meta">
-                  <span class="playlist-count">{{ playlist.musicCount }} {{ t('common.songs') }}</span>
+                  <span class="playlist-count">{{ playlist.musicCount }} {{ t('key.songs') }}</span>
                 </div>
               </div>
             </div>

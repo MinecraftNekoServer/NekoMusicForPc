@@ -3,13 +3,13 @@
     <!-- 顶部封面区域 -->
     <div class="playlist-header" v-if="musicList.length > 0">
       <div class="cover-wrapper">
-        <img :src="getCoverUrl(musicList[0].id)" :alt="t('common.album')" class="playlist-cover" @error="handleCoverError" />
+        <img :src="getCoverUrl(musicList[0].id)" :alt="t('key.album')" class="playlist-cover" @error="handleCoverError" />
       </div>
       <div class="playlist-info">
-        <div class="playlist-type">{{ t('common.playlists') }}</div>
+        <div class="playlist-type">{{ t('key.playlists') }}</div>
         <h1 class="playlist-title">{{ t('favorites.myFavorites') }}</h1>
         <div class="playlist-meta">
-          <span class="music-count">{{ t('common.songs') }} {{ musicList.length }}</span>
+          <span class="music-count">{{ t('key.songs') }} {{ musicList.length }}</span>
         </div>
         <div class="action-buttons">
           <button class="btn-play" @click="playAll">
@@ -36,7 +36,7 @@
     <div v-else class="music-list-container">
       <!-- 列表头部标签 -->
       <div class="list-tabs">
-        <div class="tab active">{{ t('common.songs') }} {{ musicList.length }}</div>
+        <div class="tab active">{{ t('key.songs') }} {{ musicList.length }}</div>
         <div class="search-wrapper">
           <svg class="search-icon" viewBox="0 0 20 20">
             <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
@@ -44,7 +44,7 @@
           <input 
             v-model="searchQuery" 
             type="text" 
-            :placeholder="t('common.searchPlaceholder')" 
+            :placeholder="t('key.searchPlaceholder')" 
             class="search-input"
             @input="handleSearch"
           />
@@ -59,10 +59,10 @@
       <!-- 歌曲列表 -->
       <div class="list-header-row">
         <span class="col-index">#</span>
-        <span class="col-info">{{ t('common.title') }}</span>
-        <span class="col-album">{{ t('common.album') }}</span>
-        <span class="col-duration">{{ t('common.duration') }}</span>
-        <span class="col-actions">{{ t('common.actions') }}</span>
+        <span class="col-info">{{ t('key.title') }}</span>
+        <span class="col-album">{{ t('key.album') }}</span>
+        <span class="col-duration">{{ t('key.duration') }}</span>
+        <span class="col-actions">{{ t('key.actions') }}</span>
       </div>
       <div 
         v-for="(music, index) in filteredList" 

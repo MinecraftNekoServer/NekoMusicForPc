@@ -1,5 +1,5 @@
 export default {
-  common: {
+  key: {
     search: '搜索',
     searchPlaceholder: '搜索音乐...',
     loading: '加载中...',

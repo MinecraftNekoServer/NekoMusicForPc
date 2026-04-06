@@ -10,7 +10,7 @@
     <!-- 推荐歌单 -->
     <div class="recommendation-section">
       <h2 class="section-title">{{ t('home.recommendPlaylists') }}</h2>
-      <div v-if="playlistsLoading" class="loading">{{ t('common.loading') }}</div>
+      <div v-if="playlistsLoading" class="loading">{{ t('key.loading') }}</div>
       <div v-else class="playlist-scroll">
         <!-- 热门音乐整体卡片 -->
         <div
@@ -28,7 +28,7 @@
                 @error="handleImageError"
               />
             </div>
-            <div class="playlist-count hot-music-count">{{ hotMusicCount || 0 }}{{ t('common.count') }}</div>
+            <div class="playlist-count hot-music-count">{{ hotMusicCount || 0 }}{{ t('key.count') }}</div>
           </div>
           <div class="playlist-info">
             <h3 class="playlist-name">{{ t('home.hotMusic') }}</h3>
@@ -52,7 +52,7 @@
                 @error="handleImageError"
               />
             </div>
-            <div class="playlist-count latest-music-count">{{ latestMusicCount || 0 }}{{ t('common.count') }}</div>
+            <div class="playlist-count latest-music-count">{{ latestMusicCount || 0 }}{{ t('key.count') }}</div>
           </div>
           <div class="playlist-info">
             <h3 class="playlist-name">{{ t('home.latestMusic') }}</h3>
@@ -74,11 +74,11 @@
               class="playlist-cover-img"
               @error="handlePlaylistCoverError"
             />
-            <div class="playlist-count">{{ playlist.musicCount }}{{ t('common.songs') }}</div>
+            <div class="playlist-count">{{ playlist.musicCount }}{{ t('key.songs') }}</div>
           </div>
           <div class="playlist-info">
             <h3 class="playlist-name">{{ playlist.name }}</h3>
-            <p class="playlist-description">{{ playlist.description || t('common.description') }}</p>
+            <p class="playlist-description">{{ playlist.description || t('key.description') }}</p>
           </div>
         </div>
       </div>

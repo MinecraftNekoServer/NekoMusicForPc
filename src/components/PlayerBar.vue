@@ -28,12 +28,12 @@
             <path fill="currentColor" d="M753.564731 337.471035c-45.8697 0-160.259984 113.849978-243.789399 194.548928C383.134027 654.383848 263.508509 773.284865 167.764911 773.284865l-58.892295 0c-24.068162 0-43.581588-19.526729-43.581588-43.581588s19.513426-43.581588 43.581588-43.581588l58.892295 0c60.504002 0 183.002964-121.68134 281.432741-216.784348 119.79641-115.744117 223.254713-219.029482 304.368102-219.029482l56.209186 0-59.641355-57.828057c-17.033955-16.993023-17.060561-42.902112-0.057305-59.927881 17.002232-17.030885 44.596707-17.064654 61.631686-0.065492l134.207631 133.874033c8.192589 8.172123 12.794397 19.238157 12.794397 30.803563 0 11.564383-4.601808 22.604834-12.794397 30.776957L811.706943 461.72599c-8.505721 8.486278-19.646456 12.522198-30.78719 12.522198-11.166317 0-22.333658-4.676509-30.844495-13.199627-17.003256-17.025769-16.975627-45.432749 0.057305-62.425771l59.641355-61.151755L753.564731 337.471035zM811.706943 561.66105c-17.034978-16.999163-44.629453-16.972557-61.631686 0.058328-17.003256 17.024745-16.975627 46.257533 0.057305 63.250556l59.641355 61.150732-56.209186 0c-35.793204 0-95.590102-52.946886-154.87637-108.373243-17.576307-16.435321-45.161572-16.3422-61.594847 1.226944-16.444531 17.568121-15.523555 46.393633 2.053776 62.823837 90.322122 84.458577 151.246703 131.484613 214.417441 131.484613l56.209186 0-59.641355 57.824987c-17.033955 16.993023-17.060561 43.736107-0.057305 60.761875 8.511861 8.523117 19.678178 12.369725 30.844495 12.369725 11.140735 0 22.281469-4.453429 30.78719-12.939707L945.914574 757.311055c8.192589-8.173147 12.794397-19.315928 12.794397-30.881334 0-11.564383-4.601808-22.682605-12.794397-30.855752L811.706943 561.66105zM108.871593 337.471035l58.892295 0c45.932122 0 114.40154 58.455343 168.915108 107.942431 8.352225 7.576559 18.832927 12.140505 29.29214 12.140505 11.852956 0 23.673166-4.394077 32.270984-13.857613 16.182564-17.807574 14.859429-46.823422-2.958378-62.998823-85.247546-77.381391-156.561755-130.388652-227.519854-130.388652l-58.892295 0c-24.068162 0-43.581588 19.526729-43.581588 43.581588S84.804455 337.471035 108.871593 337.471035z"/>
           </svg>
         </button>
-        <button class="control-btn" @click="previous" :title="t('common.previous')">
+        <button class="control-btn" @click="previous" :title="t('key.previous')">
           <svg viewBox="0 0 24 24" width="20" height="20">
             <path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
           </svg>
         </button>
-        <button class="control-btn play-btn" @click="togglePlay" :title="isPlaying ? t('common.pause') : t('common.play')" :disabled="!audioLoaded && currentMusic">
+        <button class="control-btn play-btn" @click="togglePlay" :title="isPlaying ? t('key.pause') : t('key.play')" :disabled="!audioLoaded && currentMusic">
           <svg v-if="!audioLoaded && currentMusic" viewBox="0 0 24 24" width="24" height="24" class="loading-icon">
             <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
             <path d="M12 2 A10 10 0 0 1 22 12" fill="none" stroke="currentColor" stroke-width="2">
@@ -47,12 +47,12 @@
             <path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           </svg>
         </button>
-        <button class="control-btn" @click="next" :title="t('common.next')">
+        <button class="control-btn" @click="next" :title="t('key.next')">
           <svg viewBox="0 0 24 24" width="20" height="20">
             <path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
           </svg>
         </button>
-        <button class="control-btn favorite-btn" @click="toggleFavorite" :class="{ 'is-favorite': isFavorite }" :disabled="!currentMusic" :title="isFavorite ? t('common.unfavorite') : t('common.favorite')">
+        <button class="control-btn favorite-btn" @click="toggleFavorite" :class="{ 'is-favorite': isFavorite }" :disabled="!currentMusic" :title="isFavorite ? t('key.unfavorite') : t('key.favorite')">
           <svg viewBox="0 0 24 24" width="20" height="20">
             <path :fill="isFavorite ? '#ff4545' : 'currentColor'" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
@@ -79,7 +79,7 @@
     </div>
 
     <div class="player-controls-right">
-      <button class="control-btn" @click="showAddToPlaylistModal" :title="t('common.addToPlaylist')" :disabled="!currentMusic">
+      <button class="control-btn" @click="showAddToPlaylistModal" :title="t('key.addToPlaylist')" :disabled="!currentMusic">
         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
           <path fill="currentColor" d="M384 640m-85.333333 0a85.333333 85.333333 0 1 0 170.666666 0 85.333333 85.333333 0 1 0-170.666666 0Z"/>
           <path fill="currentColor" d="M597.333333 597.333333m-85.333333 0a85.333333 85.333333 0 1 0 170.666667 0 85.333333 85.333333 0 1 0-170.666667 0Z"/>
@@ -130,7 +130,7 @@
         <div class="playlist-header">
                 <h3>{{ t('player.playlist') }}</h3>
                 <div class="playlist-actions">
-                  <span class="playlist-count">{{ playlist.length }} {{ t('common.songs') }}</span>
+                  <span class="playlist-count">{{ playlist.length }} {{ t('key.songs') }}</span>
                 </div>
               </div>        <div class="playlist-content">
           <div v-if="playlist.length === 0" class="playlist-empty">
@@ -147,7 +147,7 @@
               <svg viewBox="0 0 24 24" width="16" height="16">
                 <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
               </svg>
-              <span>{{ t('common.clear') }}</span>
+              <span>{{ t('key.clear') }}</span>
             </button>
           </div>
           <TransitionGroup name="playlist-item" tag="div" class="playlist-items">
@@ -198,7 +198,7 @@
 
               <!-- 当前音乐信息 -->
               <div class="current-music-info">
-                <img :src="currentCover" :alt="t('common.cover')" class="current-music-cover" />
+                <img :src="currentCover" :alt="t('key.cover')" class="current-music-cover" />
                 <div class="current-music-details">
                   <span class="current-music-title">{{ currentMusic?.title || '-' }}</span>
                   <span class="current-music-artist">{{ currentMusic?.artist || '-' }}</span>
@@ -216,7 +216,7 @@
                     class="playlist-option"
                     @click="addToUserPlaylist(playlist.id)"
                   >
-                    <img :src="getPlaylistCover(playlist)" :alt="t('common.cover')" class="playlist-option-cover" />
+                    <img :src="getPlaylistCover(playlist)" :alt="t('key.cover')" class="playlist-option-cover" />
                     <span class="playlist-option-name">{{ playlist.name }}</span>
                     <span class="playlist-option-count">{{ playlist.musicCount || 0 }}{{ t('player.songs') }}</span>
                   </div>
@@ -252,13 +252,13 @@
                     <svg viewBox="0 0 24 24" width="16" height="16">
                       <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                     </svg>
-                    <span>{{ t('common.create') }}</span>
+                    <span>{{ t('key.create') }}</span>
                   </button>
                 </div>
               </div>
 
               <div class="modal-buttons">
-                <button class="modal-btn modal-btn-secondary" @click="showAddToPlaylistPanel = false">{{ t('common.cancel') }}</button>
+                <button class="modal-btn modal-btn-secondary" @click="showAddToPlaylistPanel = false">{{ t('key.cancel') }}</button>
               </div>
             </div>
           </div>
@@ -1004,13 +1004,13 @@ const handleCreateNewPlaylist = async () => {
       newPlaylistName.value = ''
     } else {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: data.message || t('common.createFailed'), type: 'error' }
+        detail: { message: data.message || t('key.createFailed'), type: 'error' }
       }))
     }
   } catch (error) {
     console.error('创建歌单失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('common.networkErrorRetry'), type: 'error' }
+      detail: { message: t('key.networkErrorRetry'), type: 'error' }
     }))
   }
 }

@@ -1,5 +1,5 @@
 export default {
-  common: {
+  key: {
     search: 'Search',
     searchPlaceholder: 'Search music...',
     loading: 'Loading...',

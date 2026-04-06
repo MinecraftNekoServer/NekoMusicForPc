@@ -7,16 +7,16 @@
         <h3>{{ t('settings.accountInfo') }}</h3>
         <div v-if="currentUser" class="account-info">
           <div class="account-avatar">
-            <img :src="userAvatar" :alt="t('common.username')" />
+            <img :src="userAvatar" :alt="t('key.username')" />
           </div>
           <div class="account-details">
             <div class="account-item">
-              <span class="label">{{ t('common.username') }}</span>
+              <span class="label">{{ t('key.username') }}</span>
               <span class="value">{{ currentUser.username }}</span>
             </div>
             <div class="account-item">
-              <span class="label">{{ t('common.email') }}</span>
-              <span class="value">{{ currentUser.email || t('common.noData') }}</span>
+              <span class="label">{{ t('key.email') }}</span>
+              <span class="value">{{ currentUser.email || t('key.noData') }}</span>
             </div>
             <div class="account-item">
               <span class="label">{{ t('settings.registerTime') }}</span>
@@ -139,7 +139,7 @@
               <input 
                 v-model="formData.username"
                 type="text" 
-                :placeholder="authTab === 'login' ? t('settings.email') : t('common.nickname')"
+                :placeholder="authTab === 'login' ? t('settings.email') : t('key.nickname')"
                 class="auth-input"
               />
               <input 
@@ -174,7 +174,7 @@
                 </div>
               </Transition>
               <button class="submit-btn" @click="handleSubmit">
-                {{ authTab === 'login' ? t('common.login') : t('common.register') }}
+                {{ authTab === 'login' ? t('key.login') : t('key.register') }}
               </button>
             </div>
           </Transition>
@@ -273,10 +273,10 @@ const handleLanguageChange = async (newLanguage) => {
   try {
     await setLanguage(newLanguage)
     currentLanguage.value = newLanguage
-    showToast(t('common.switchLanguageSuccess'))
+    showToast(t('key.switchLanguageSuccess'))
   } catch (error) {
     console.error('切换语言失败:', error)
-    showToast(t('common.switchLanguageFailed'), 'error')
+    showToast(t('key.switchLanguageFailed'), 'error')
   }
 }
 
@@ -308,7 +308,7 @@ const handleCacheToggle = () => {
   window.dispatchEvent(new CustomEvent('cache-setting-changed', {
     detail: { enabled: musicCacheEnabled.value }
   }))
-  showToast(musicCacheEnabled.value ? t('common.cacheEnabled') : t('common.cacheDisabled'), 'success')
+  showToast(musicCacheEnabled.value ? t('key.cacheEnabled') : t('key.cacheDisabled'), 'success')
 }
 
 // 在外部浏览器中打开链接
@@ -477,7 +477,7 @@ const checkForUpdates = async () => {
       }
     }
   } catch (error) {
-    showToast(t('common.checkUpdateFailed'), 'error')
+    showToast(t('key.checkUpdateFailed'), 'error')
   } finally {
     checkingUpdate.value = false
   }
@@ -537,7 +537,7 @@ const handleDownload = async () => {
         downloadedFilePath.value = filePath
         showUpdateConfirm.value = true
       } else {
-        showToast(t('common.downloadCancelled'), 'info')
+        showToast(t('key.downloadCancelled'), 'info')
       }
     } else {
       const link = document.createElement('a')
@@ -545,10 +545,10 @@ const handleDownload = async () => {
       link.download = downloadUrl.value.split('/').pop()
       link.click()
       URL.revokeObjectURL(link.href)
-      showToast(t('common.downloadComplete'), 'success')
+      showToast(t('key.downloadComplete'), 'success')
     }
   } catch (error) {
-    showToast(t('common.downloadFailed') + ': ' + error.message, 'error')
+    showToast(t('key.downloadFailed') + ': ' + error.message, 'error')
   } finally {
     downloading.value = false
     downloadProgress.value = 0
@@ -570,13 +570,13 @@ const handleCancelUpdate = () => {
 
 const sendVerificationCode = async () => {
   if (!formData.value.email) {
-    showToast(t('common.inputEmail'), 'error')
+    showToast(t('key.inputEmail'), 'error')
     return
   }
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(formData.value.email)) {
-    showToast(t('common.inputValidEmail'), 'error')
+    showToast(t('key.inputValidEmail'), 'error')
     return
   }
   
@@ -592,13 +592,13 @@ const sendVerificationCode = async () => {
     
     const result = await response.json()
     if (result.success) {
-      showToast(t('common.verifyCodeSent'), 'success')
+      showToast(t('key.verifyCodeSent'), 'success')
       startCountdown()
     } else {
-      showToast(result.message || t('common.sendVerifyCodeFailed'), 'error')
+      showToast(result.message || t('key.sendVerifyCodeFailed'), 'error')
     }
   } catch (error) {
-    showToast(t('common.networkError'), 'error')
+    showToast(t('key.networkError'), 'error')
   } finally {
     codeSending.value = false
   }
@@ -620,7 +620,7 @@ const handleLogout = () => {
   localStorage.removeItem('loginTimestamp')
   currentUser.value = null
   window.dispatchEvent(new CustomEvent('user-logout'))
-  showToast(t('common.logoutSuccess'), 'success')
+  showToast(t('key.logoutSuccess'), 'success')
 }
 
 const handleSubmit = async () => {
@@ -653,7 +653,7 @@ const handleSubmit = async () => {
       })
       
       if (!response.ok) {
-        throw new Error(t('common.loginFailed'))
+        throw new Error(t('key.loginFailed'))
       }
       
       const result = await response.json()
@@ -674,9 +674,9 @@ const handleSubmit = async () => {
         console.log('[SettingsView] 派发 user-login 事件')
         window.dispatchEvent(new CustomEvent('user-login', { detail: user }))
         
-        showToast(t('common.loginSuccess'), 'success')
+        showToast(t('key.loginSuccess'), 'success')
       } else {
-        throw new Error(result.message || t('common.loginFailed'))
+        throw new Error(result.message || t('key.loginFailed'))
       }
     } else {
       const response = await apiRequest(apiConfig.USER_REGISTER, {
@@ -691,7 +691,7 @@ const handleSubmit = async () => {
       })
       
       if (!response.ok) {
-        throw new Error(t('common.registerFailed'))
+        throw new Error(t('key.registerFailed'))
       }
       
       const result = await response.json()
@@ -703,13 +703,13 @@ const handleSubmit = async () => {
         if (countdownInterval.value) {
           clearInterval(countdownInterval.value)
         }
-        showToast(t('common.registerSuccess'), 'success')
+        showToast(t('key.registerSuccess'), 'success')
       } else {
-        throw new Error(result.message || t('common.registerFailed'))
+        throw new Error(result.message || t('key.registerFailed'))
       }
     }
   } catch (error) {
-    errorMessage.value = error.message || `${authTab.value === 'login' ? t('common.loginFailed') : t('common.registerFailed')}`
+    errorMessage.value = error.message || `${authTab.value === 'login' ? t('key.loginFailed') : t('key.registerFailed')}`
     showToast(errorMessage.value, 'error')
   }
 }
