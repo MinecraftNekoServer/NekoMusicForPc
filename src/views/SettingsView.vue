@@ -266,6 +266,7 @@ const currentLanguage = ref(locale.value)
 
 const languageOptions = [
   { value: 'zh-CN', label: t('key.languageChinese') },
+  { value: 'Nya', label: t('key.languageNya') },
   { value: 'en-US', label: t('key.languageEnglish') }
 ]
 

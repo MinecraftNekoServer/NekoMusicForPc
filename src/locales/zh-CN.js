@@ -118,7 +118,7 @@ export default {
     // --- 歌单特定操作 ---
     createPlaylist: '创建歌单',
     createFirstPlaylist: '创建第一个歌单',
-    noPlaylists: '暂无歌单，请先创建歌单',
+    noPlaylists: '暂无歌单，请先创建歌单', // 修复 Layout.vue 报错
     playlistName: '歌单名称',
     playlistDescription: '歌单描述',
     playlistNamePlaceholder: '输入歌单名称',
@@ -135,7 +135,7 @@ export default {
     collectedPlaylist: '已收藏歌单',
     uncollectPlaylist: '取消收藏',
     removeFromPlaylist: '从歌单中移除',
-    addToPlaylist: '添加到歌单',
+    addToPlaylist: '添加到歌单', // 修复 PlayerBar.vue 报错
     addToPlaylistTitle: '添加到歌单',
     selectPlaylist: '选择歌单',
     orCreateNewPlaylist: '或创建新歌单',
@@ -143,8 +143,10 @@ export default {
 
     // --- 系统设置 & 缓存 & 更新 ---
     settings: '设置',
+    playSettings: '播放设置',
     language: '语言',
     languageSettings: '语言设置',
+    languageNya: '喵语中文',
     languageChinese: '简体中文',
     languageEnglish: 'English',
     musicCache: '音乐缓存',
@@ -249,5 +251,25 @@ export default {
     writeToFileFailedSkipCache: '写入文件失败，跳过缓存',
     parseRecentPlayListFailed: '解析最近播放列表失败',
     parseMusicFailed: '解析音乐失败'
+  },
+
+  // 这里的层级是为了兼容旧代码里的 t('playlists.xxx') 这种写法喵
+  playlists: {
+    createPlaylist: '创建歌单',
+    noPlaylists: '暂无歌单，请先创建歌单'
+  },
+
+  settings: {
+    playSettings: '播放设置',
+    musicCache: '音乐缓存',
+    musicCacheDesc: '自动缓存听过的音乐到本地下载目录',
+    cachePath: '缓存路径',
+    about: '关于',
+    appVersion: '版本号',
+    checkUpdate: '检查更新',
+    language: '语言',
+    languageSettings: '语言设置',
+    githubRepo: 'GitHub 仓库',
+    apiDocs: 'API 文档'
   }
 }
