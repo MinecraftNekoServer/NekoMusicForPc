@@ -115,8 +115,8 @@
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <img src="/icon.png" alt="Logo" class="modal-logo" />
-            <h3 class="modal-title">{{ t('login.welcome') }}</h3>
-<!--            <p class="modal-subtitle">{{ t('login.login') }} {{ t('key.accountSettings') }}</p>-->
+            <h3 class="modal-title">{{ t('key.welcome') }}</h3>
+<!--            <p class="modal-subtitle">{{ t('key.login') }} {{ t('key.accountSettings') }}</p>-->
           </div>
           
           <div class="modal-tabs">
@@ -124,13 +124,13 @@
               :class="['tab-btn', { active: authTab === 'login' }]"
               @click="authTab = 'login'"
             >
-              {{ t('login.login') }}
+              {{ t('key.login') }}
             </button>
             <button 
               :class="['tab-btn', { active: authTab === 'register' }]"
               @click="authTab = 'register'"
             >
-              {{ t('login.register') }}
+              {{ t('key.register') }}
             </button>
           </div>
           

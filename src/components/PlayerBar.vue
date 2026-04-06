@@ -140,7 +140,7 @@
               <circle cx="18" cy="16" r="3"/>
             </svg>
             <p>{{ t('key.emptyPlaylist') }}</p>
-            <p class="hint">{{ t('modal.addSuccess') }}</p>
+            <p class="hint">{{ t('key.addSuccess') }}</p>
           </div>
           <div v-else class="playlist-actions-bar">
             <button class="playlist-action-button" @click="clearPlaylist">
