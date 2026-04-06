@@ -11,7 +11,7 @@ const i18n = createI18n({
   locale: savedLanguage,
   fallbackLocale: 'zh-CN',
   messages: {
-    'Nua':Nya,
+    'Nya': Nya,
     'zh-CN': zhCN,
     'en-US': enUS
   }
