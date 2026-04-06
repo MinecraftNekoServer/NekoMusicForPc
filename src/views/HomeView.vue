@@ -4,12 +4,12 @@
       <h1 class="welcome-title">
         <span class="greeting">{{ greeting }}</span>
       </h1>
-      <p class="welcome-subtitle">{{ t('home.welcomeSubtitle') }}</p>
+      <p class="welcome-subtitle">{{ t('key.welcomeSubtitle') }}</p>
     </div>
 
     <!-- 推荐歌单 -->
     <div class="recommendation-section">
-      <h2 class="section-title">{{ t('home.recommendPlaylists') }}</h2>
+      <h2 class="section-title">{{ t('key.recommendPlaylists') }}</h2>
       <div v-if="playlistsLoading" class="loading">{{ t('key.loading') }}</div>
       <div v-else class="playlist-scroll">
         <!-- 热门音乐整体卡片 -->
@@ -31,8 +31,8 @@
             <div class="playlist-count hot-music-count">{{ hotMusicCount || 0 }}{{ t('key.count') }}</div>
           </div>
           <div class="playlist-info">
-            <h3 class="playlist-name">{{ t('home.hotMusic') }}</h3>
-            <p class="playlist-description">{{ t('home.hotMusicDesc') }}</p>
+            <h3 class="playlist-name">{{ t('key.hotMusic') }}</h3>
+            <p class="playlist-description">{{ t('key.hotMusicDesc') }}</p>
           </div>
         </div>
 
@@ -55,8 +55,8 @@
             <div class="playlist-count latest-music-count">{{ latestMusicCount || 0 }}{{ t('key.count') }}</div>
           </div>
           <div class="playlist-info">
-            <h3 class="playlist-name">{{ t('home.latestMusic') }}</h3>
-            <p class="playlist-description">{{ t('home.latestMusicDesc') }}</p>
+            <h3 class="playlist-name">{{ t('key.latestMusic') }}</h3>
+            <p class="playlist-description">{{ t('key.latestMusicDesc') }}</p>
           </div>
         </div>
 
@@ -97,10 +97,10 @@ const { t } = useI18n()
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
-  if (hour < 6) return t('home.lateNight')
-  if (hour < 12) return t('home.goodMorning')
-  if (hour < 18) return t('home.goodAfternoon')
-  return t('home.goodEvening')
+  if (hour < 6) return t('key.lateNight')
+  if (hour < 12) return t('key.goodMorning')
+  if (hour < 18) return t('key.goodAfternoon')
+  return t('key.goodEvening')
 })
 
 const playlistList = ref([])

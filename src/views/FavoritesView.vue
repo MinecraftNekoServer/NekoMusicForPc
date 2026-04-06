@@ -30,7 +30,7 @@
         </svg>
       </div>
       <p>{{ t('favorites.noFavorites') }}</p>
-      <button class="btn-explore" @click="$router.push('/')">{{ t('home.discoverMusic') }}</button>
+      <button class="btn-explore" @click="$router.push('/')">{{ t('key.discoverMusic') }}</button>
     </div>
 
     <div v-else class="music-list-container">
