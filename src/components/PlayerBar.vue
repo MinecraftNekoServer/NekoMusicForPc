@@ -389,7 +389,10 @@ const toggleFavorite = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '请先登录', type: 'error' }
+      detail: {
+        message: t('player.pleaseLoginFirst'),
+        type: 'error'
+      }
     }))
     return
   }
@@ -409,13 +412,13 @@ const toggleFavorite = async () => {
         isFavorite.value = false
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: '已取消收藏', type: 'success' }
+          detail: { message: t('player.cancelFavoriteSuccess'), type: 'success' }
         }))
         window.dispatchEvent(new CustomEvent('favorite-changed'))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: result.message || '取消收藏失败', type: 'error' }
+          detail: { message: result.message || t('favoritePlaylists.cancelFavoriteFailed'), type: 'error' }
         }))
       }
     } else {
@@ -444,20 +447,20 @@ const toggleFavorite = async () => {
         isFavorite.value = true
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: '收藏成功', type: 'success' }
+          detail: { message: t('search.favoriteSuccess'), type: 'success' }
         }))
         window.dispatchEvent(new CustomEvent('favorite-changed'))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: result.message || '收藏失败', type: 'error' }
+          detail: { message: result.message || t('search.favoriteFailed'), type: 'error' }
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '网络错误，请稍后重试', type: 'error' }
+      detail: { message: t('search.networkErrorRetry'), type: 'error' }
     }))
   }
 }
@@ -654,6 +657,7 @@ const togglePlayMode = () => {
 const toggleDesktopLyrics = (enabled) => {
   desktopLyricsEnabled.value = enabled
   // 这里可以添加桌面歌词窗口的显示/隐藏逻辑
+  // TODO: 待实现
   console.log('桌面歌词:', enabled ? '开启' : '关闭')
 }
 
@@ -827,7 +831,7 @@ const showAddToPlaylistModal = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '请先登录', type: 'error' }
+      detail: { message: t('playlistDetail.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -837,7 +841,7 @@ const showAddToPlaylistModal = async () => {
 
   if (userPlaylists.value.length === 0) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '暂无歌单，请先创建歌单', type: 'info' }
+      detail: { message: t('player.noPlaylists'), type: 'info' }
     }))
     return
   }
@@ -900,7 +904,7 @@ const addToUserPlaylist = async (playlistId) => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '请先登录', type: 'error' }
+      detail: { message: t('playlistDetail.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -921,7 +925,7 @@ const addToUserPlaylist = async (playlistId) => {
     const data = await response.json()
     if (data.success) {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: '添加到歌单成功', type: 'success' }
+        detail: { message: t('player.addToPlaylistSuccess'), type: 'success' }
       }))
       showAddToPlaylistPanel.value = false
 
@@ -934,13 +938,13 @@ const addToUserPlaylist = async (playlistId) => {
       }))
     } else {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: data.message || '添加失败', type: 'error' }
+        detail: { message: data.message || t('player.addToPlaylistFailed'), type: 'error' }
       }))
     }
   } catch (error) {
     console.error('添加到歌单失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '网络错误，请重试', type: 'error' }
+      detail: { message: t('player.networkErrorRetry'), type: 'error' }
     }))
   }
 }
@@ -957,7 +961,7 @@ const getPlaylistCover = (playlist) => {
 const handleCreateNewPlaylist = async () => {
   if (!newPlaylistName.value.trim()) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '请输入歌单名称', type: 'error' }
+      detail: { message: t('player.inputPlaylistName'), type: 'error' }
     }))
     return
   }
@@ -965,7 +969,7 @@ const handleCreateNewPlaylist = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '请先登录', type: 'error' }
+      detail: { message: t('search.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -986,7 +990,7 @@ const handleCreateNewPlaylist = async () => {
     const data = await response.json()
     if (data.success) {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: '歌单创建成功', type: 'success' }
+        detail: { message: t('player.createPlaylistSuccess'), type: 'success' }
       }))
 
       // 重新加载歌单列表
@@ -1000,13 +1004,13 @@ const handleCreateNewPlaylist = async () => {
       newPlaylistName.value = ''
     } else {
       window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { message: data.message || '创建失败', type: 'error' }
+        detail: { message: data.message || t('common.createFailed'), type: 'error' }
       }))
     }
   } catch (error) {
     console.error('创建歌单失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: '网络错误，请重试', type: 'error' }
+      detail: { message: t('common.networkErrorRetry'), type: 'error' }
     }))
   }
 }
@@ -1352,8 +1356,6 @@ const loadMusic = async (music) => {
       }
     }
   }
-
-  // 通知主进程 (已移除)
 }
 const handleTimeUpdate = () => {
   if (audioElement.value && audioLoaded.value) {
