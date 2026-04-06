@@ -25,7 +25,7 @@
               </svg>
               {{ t('key.playAll') }}
             </button>
-            <span class="result-count">{{ musicResults.length }} {{ t('search.songs') }}</span>
+            <span class="result-count">{{ musicResults.length }} {{ t('key.songs') }}</span>
             </div>
             
             <div v-if="loadingMusic" class="loading">
@@ -34,7 +34,7 @@
           </div>
           
           <div v-else-if="musicResults.length === 0" class="empty">
-            <p>{{ t('search.noResults') }}</p>
+            <p>{{ t('key.noResults') }}</p>
           </div>
           
           <div v-else class="music-list">
@@ -100,7 +100,7 @@
             <p>{{ t('key.loading') }}</p>
           </div>
           <div v-else-if="playlistResults.length === 0" class="empty">
-            <p>{{ t('search.noResults') }}</p>
+            <p>{{ t('key.noResults') }}</p>
           </div>
           <div v-else class="playlist-grid">
             <div 
@@ -188,7 +188,7 @@
       <svg class="empty-icon" viewBox="0 0 24 24" width="80" height="80">
         <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
       </svg>
-      <p class="empty-text">{{ t('search.inputKeywordToSearch') }}</p>
+      <p class="empty-text">{{ t('key.inputKeywordToSearch') }}</p>
     </div>
   </div>
 </template>
@@ -221,9 +221,9 @@ const currentMusic = ref(null)
 const favorites = ref([])
 
 const tabs = computed(() => [
-  { key: 'music', label: t('search.searchMusic') },
-  { key: 'playlist', label: t('search.searchPlaylist') },
-  { key: 'artist', label: t('search.searchMusic') }
+  { key: 'music', label: t('key.searchMusic') },
+  { key: 'playlist', label: t('key.searchPlaylist') },
+  { key: 'artist', label: t('key.searchMusic') }
 ])
 
 // 加载收藏列表
@@ -424,7 +424,7 @@ const toggleFavorite = async (music) => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: t('search.pleaseLoginFirst'), type: 'error' } 
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' } 
     }))
     return
   }
@@ -443,12 +443,12 @@ const toggleFavorite = async (music) => {
         favorites.value = favorites.value.filter(f => f.id !== music.id)
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('search.cancelFavoriteSuccess'), type: 'success' } 
+          detail: { message: t('key.cancelFavoriteSuccess'), type: 'success' } 
         }))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || t('search.cancelFavoriteFailed'), type: 'error' } 
+          detail: { message: result.message || t('key.cancelFavoriteFailed'), type: 'error' } 
         }))
       }
     } else {
@@ -468,19 +468,19 @@ const toggleFavorite = async (music) => {
         favorites.value.push(music)
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('search.favoriteSuccess'), type: 'success' } 
+          detail: { message: t('key.favoriteSuccess'), type: 'success' } 
         }))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || t('search.favoriteFailed'), type: 'error' } 
+          detail: { message: result.message || t('key.favoriteFailed'), type: 'error' } 
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: t('search.networkErrorRetry'), type: 'error' } 
+      detail: { message: t('key.networkErrorRetry'), type: 'error' } 
     }))
   }
 }

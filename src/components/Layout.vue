@@ -96,7 +96,7 @@
         <div class="title-bar-right">
           <div class="user-info" @click="handleUserClick">
             <img :src="userAvatar" alt="用户头像" class="user-avatar" />
-            <span class="username">{{ username || t('settings.notLoggedIn') }}</span>
+            <span class="username">{{ username || t('key.notLoggedIn') }}</span>
           </div>
           <button class="action-btn" @click="navigateTo('settings')" :title="t('key.settings')">
             <svg viewBox="0 0 24 24" width="20" height="20">

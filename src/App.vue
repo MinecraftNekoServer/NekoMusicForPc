@@ -17,7 +17,7 @@
         </svg>
       </div>
       <div class="download-toast-content">
-        <span class="toast-message">{{ t('update.downloading') }} {{ downloadProgress }}%</span>
+        <span class="toast-message">{{ t('key.downloading') }} {{ downloadProgress }}%</span>
         <div class="toast-progress-bar">
           <div class="toast-progress-fill" :style="{ width: downloadProgress + '%' }"></div>
         </div>
@@ -36,13 +36,13 @@
               <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
           </div>
-          <h3>{{ t('update.downloadComplete') }}</h3>
-          <p>{{ t('update.versionDownloaded', { version: latestVersion }) }}</p>
+          <h3>{{ t('key.downloadComplete') }}</h3>
+          <p>{{ t('key.versionDownloaded', { version: latestVersion }) }}</p>
           <p class="file-path">{{ downloadedFilePath }}</p>
         </div>
         <div class="download-actions">
-          <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">{{ t('update.installLater') }}</button>
-          <button class="download-action-btn btn-install" @click="handleInstallUpdate">{{ t('update.installNow') }}</button>
+          <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">{{ t('key.installLater') }}</button>
+          <button class="download-action-btn btn-install" @click="handleInstallUpdate">{{ t('key.installNow') }}</button>
         </div>
       </div>
     </div>

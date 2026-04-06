@@ -8,13 +8,13 @@
           </svg>
         </div>
         <div class="notification-text">
-          <h3>{{ t('update.newVersionAvailable') }}</h3>
-          <p>{{ t('update.currentVersion') }}: {{ currentVersion }}</p>
-          <p class="new-version">{{ t('update.newVersion') }}: {{ version }}</p>
+          <h3>{{ t('key.newVersionAvailable') }}</h3>
+          <p>{{ t('key.currentVersion') }}: {{ currentVersion }}</p>
+          <p class="new-version">{{ t('key.newVersion') }}: {{ version }}</p>
         </div>
         <div class="notification-actions">
-          <button class="btn-ignore" @click="handleIgnore">{{ t('update.remindLater') }}</button>
-          <button class="btn-update" @click="handleUpdate">{{ t('update.updateNow') }}</button>
+          <button class="btn-ignore" @click="handleIgnore">{{ t('key.remindLater') }}</button>
+          <button class="btn-update" @click="handleUpdate">{{ t('key.updateNow') }}</button>
         </div>
       </div>
     </div>

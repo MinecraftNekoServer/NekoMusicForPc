@@ -7,7 +7,7 @@
       </div>
       <div class="playlist-info">
         <div class="playlist-type">{{ t('key.playlists') }}</div>
-        <h1 class="playlist-title">{{ t('recentPlay.recentPlay') }}</h1>
+        <h1 class="playlist-title">{{ t('key.recentPlay') }}</h1>
         <div class="playlist-meta">
           <span class="music-count">{{ t('key.songs') }} {{ recentList.length }}</span>
         </div>
@@ -29,7 +29,7 @@
           <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       </div>
-      <p>{{ t('recentPlay.noRecentPlay') }}</p>
+      <p>{{ t('key.noRecentPlay') }}</p>
       <button class="btn-explore" @click="$router.push('/')">{{ t('key.discoverMusic') }}</button>
     </div>
 

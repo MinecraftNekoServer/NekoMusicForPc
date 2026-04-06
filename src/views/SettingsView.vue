@@ -1,10 +1,10 @@
 <template>
   <div class="settings-view">
     <div class="settings-container">
-      <h2>{{ t('settings.settings') }}</h2>
+      <h2>{{ t('key.settings') }}</h2>
       
       <div class="settings-section">
-        <h3>{{ t('settings.accountInfo') }}</h3>
+        <h3>{{ t('key.accountInfo') }}</h3>
         <div v-if="currentUser" class="account-info">
           <div class="account-avatar">
             <img :src="userAvatar" :alt="t('key.username')" />
@@ -19,7 +19,7 @@
               <span class="value">{{ currentUser.email || t('key.noData') }}</span>
             </div>
             <div class="account-item">
-              <span class="label">{{ t('settings.registerTime') }}</span>
+              <span class="label">{{ t('key.registerTime') }}</span>
               <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
             </div>
           </div>
@@ -27,21 +27,21 @@
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
             </svg>
-            {{ t('settings.logout') }}
+            {{ t('key.logout') }}
           </button>
         </div>
         <div v-else class="no-login">
-          <p>{{ t('settings.notLoggedIn') }}</p>
-          <button class="login-btn" @click="showLoginModal = true">{{ t('settings.goToLogin') }}</button>
+          <p>{{ t('key.notLoggedIn') }}</p>
+          <button class="login-btn" @click="showLoginModal = true">{{ t('key.goToLogin') }}</button>
         </div>
       </div>
       
       <div class="settings-section">
-        <h3>{{ t('settings.playSettings') }}</h3>
+        <h3>{{ t('key.playSettings') }}</h3>
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">{{ t('settings.musicCache') }}</span>
-            <span class="setting-desc">{{ t('settings.musicCacheDesc') }}</span>
+            <span class="setting-label">{{ t('key.musicCache') }}</span>
+            <span class="setting-desc">{{ t('key.musicCacheDesc') }}</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" v-model="musicCacheEnabled" @change="handleCacheToggle" />
@@ -49,17 +49,17 @@
           </label>
         </div>
         <div class="cache-path-info">
-          <span class="cache-path-label">{{ t('settings.cachePath') }}：</span>
+          <span class="cache-path-label">{{ t('key.cachePath') }}：</span>
           <span class="cache-path-value">{{ cachePath }}</span>
         </div>
       </div>
       
       <div class="settings-section">
-        <h3>{{ t('settings.languageSettings') }}</h3>
+        <h3>{{ t('key.languageSettings') }}</h3>
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">{{ t('settings.language') }}</span>
-<!--            <span class="setting-desc">{{ t('settings.language') }}</span>-->
+            <span class="setting-label">{{ t('key.language') }}</span>
+<!--            <span class="setting-desc">{{ t('key.language') }}</span>-->
           </div>
           <select 
             class="language-select" 
@@ -78,34 +78,34 @@
       </div>
       
       <div class="settings-section">
-        <h3>{{ t('settings.about') }}</h3>
-        <p>NekoMusic {{ getDisplayOSType() }} {{ t('settings.appVersion') }}</p>
-        <p>{{ t('settings.appVersion') }}: {{ APP_VERSION }}</p>
+        <h3>{{ t('key.about') }}</h3>
+        <p>NekoMusic {{ getDisplayOSType() }} {{ t('key.appVersion') }}</p>
+        <p>{{ t('key.appVersion') }}: {{ APP_VERSION }}</p>
         <div class="links-section">
           <a href="#" @click.prevent="openExternalLink('https://github.com/FantasyNetworkCN/NekoMusicForPc')" class="link-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
             </svg>
-            {{ t('settings.githubRepo') }}
+            {{ t('key.githubRepo') }}
           </a>
           <a href="#" @click.prevent="openExternalLink('https://github.com/NyaNyagulugulu/NekoMusicDocs')" class="link-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M1 2.5A1.5 1.5 0 012.5 1h3A1.5 1.5 0 017 2.5v3A1.5 1.5 0 015.5 7h-3A1.5 1.5 0 011 5.5v-3zM2.5 2a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3zm6.5.5A1.5 1.5 0 0110.5 1h3A1.5 1.5 0 0115 2.5v3A1.5 1.5 0 0113.5 7h-3A1.5 1.5 0 019 5.5v-3zm1.5-.5a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3zM1 10.5A1.5 1.5 0 012.5 9h3A1.5 1.5 0 017 10.5v3A1.5 1.5 0 015.5 15h-3A1.5 1.5 0 011 13.5v-3zm1.5-.5a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3zm6.5.5A1.5 1.5 0 0110.5 9h3a1.5 1.5 0 011.5 1.5v3a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 13.5v-3zm1.5-.5a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5h-3z"/>
             </svg>
-            {{ t('settings.apiDocs') }}
+            {{ t('key.apiDocs') }}
           </a>
         </div>
         <div class="update-section">
           <button class="check-update-btn" @click="checkForUpdates" :disabled="checkingUpdate">
-            {{ checkingUpdate ? t('settings.checking') : t('settings.checkUpdate') }}
+            {{ checkingUpdate ? t('key.checking') : t('key.checkUpdate') }}
           </button>
           <div v-if="updateAvailable" class="update-available">
-            <p class="update-message">{{ t('settings.updateAvailable') }}: {{ latestVersion }}</p>
+            <p class="update-message">{{ t('key.updateAvailable') }}: {{ latestVersion }}</p>
             <button class="download-btn" @click="handleDownload" :disabled="downloading">
-              {{ downloading ? t('settings.downloading') : t('settings.downloadUpdate') }}
+              {{ downloading ? t('key.downloading') : t('key.downloadUpdate') }}
             </button>
           </div>
-          <p v-if="noUpdate" class="no-update">{{ t('settings.isLatest') }}</p>
+          <p v-if="noUpdate" class="no-update">{{ t('key.isLatest') }}</p>
         </div>
       </div>
     </div>
@@ -116,7 +116,7 @@
           <div class="modal-header">
             <img src="/icon.png" alt="Logo" class="modal-logo" />
             <h3 class="modal-title">{{ t('login.welcome') }}</h3>
-<!--            <p class="modal-subtitle">{{ t('login.login') }} {{ t('settings.accountSettings') }}</p>-->
+<!--            <p class="modal-subtitle">{{ t('login.login') }} {{ t('key.accountSettings') }}</p>-->
           </div>
           
           <div class="modal-tabs">
@@ -139,13 +139,13 @@
               <input 
                 v-model="formData.username"
                 type="text" 
-                :placeholder="authTab === 'login' ? t('settings.email') : t('key.nickname')"
+                :placeholder="authTab === 'login' ? t('key.email') : t('key.nickname')"
                 class="auth-input"
               />
               <input 
                 v-model="formData.password"
                 type="password"
-                :placeholder="t('settings.password')"
+                :placeholder="t('key.password')"
                 class="auth-input"
               />
               <Transition name="field-fade">
@@ -153,14 +153,14 @@
                   <input 
                     v-model="formData.email"
                     type="email"
-                    :placeholder="t('settings.email')"
+                    :placeholder="t('key.email')"
                     class="auth-input"
                   />
                   <div class="verification-code">
                     <input 
                       v-model="formData.verificationCode"
                       type="text"
-                      :placeholder="t('settings.verificationCode')"
+                      :placeholder="t('key.verificationCode')"
                       class="auth-input"
                     />
                     <button 
@@ -216,7 +216,7 @@
             </svg>
           </div>
           <div class="download-toast-content">
-            <span class="toast-message">{{ t('settings.downloadProgress') }} {{ downloadProgress }}%</span>
+            <span class="toast-message">{{ t('key.downloadProgress') }} {{ downloadProgress }}%</span>
             <div class="toast-progress-bar">
               <div class="toast-progress-fill" :style="{ width: downloadProgress + '%' }"></div>
             </div>
@@ -235,13 +235,13 @@
                 <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
             </div>
-            <h3>{{ t('settings.updateDownloadComplete') }}</h3>
-            <p>{{ t('settings.versionDownloaded', { version: latestVersion }) }}</p>
+            <h3>{{ t('key.updateDownloadComplete') }}</h3>
+            <p>{{ t('key.versionDownloaded', { version: latestVersion }) }}</p>
             <p class="file-path">{{ downloadedFilePath }}</p>
           </div>
           <div class="download-actions">
-            <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">{{ t('settings.installLater') }}</button>
-            <button class="download-action-btn btn-install" @click="handleInstallUpdate">{{ t('settings.installNow') }}</button>
+            <button class="download-action-btn btn-cancel" @click="handleCancelUpdate">{{ t('key.installLater') }}</button>
+            <button class="download-action-btn btn-install" @click="handleInstallUpdate">{{ t('key.installNow') }}</button>
           </div>
         </div>
       </div>
@@ -265,8 +265,8 @@ const musicCacheEnabled = ref(localStorage.getItem('musicCacheEnabled') !== 'fal
 const currentLanguage = ref(locale.value)
 
 const languageOptions = [
-  { value: 'zh-CN', label: t('settings.languageChinese') },
-  { value: 'en-US', label: t('settings.languageEnglish') }
+  { value: 'zh-CN', label: t('key.languageChinese') },
+  { value: 'en-US', label: t('key.languageEnglish') }
 ]
 
 const handleLanguageChange = async (newLanguage) => {
@@ -416,7 +416,7 @@ const toasts = ref([])
 let toastId = 0
 
 const codeBtnText = computed(() => {
-  return countdown.value > 0 ? `${countdown.value}${t('settings.sendCodeAfter')}` : t('settings.getCode')
+  return countdown.value > 0 ? `${countdown.value}${t('key.sendCodeAfter')}` : t('key.getCode')
 })
 
 const userAvatar = computed(() => {
@@ -427,7 +427,7 @@ const userAvatar = computed(() => {
 })
 
 const formatDate = (dateStr) => {
-  if (!dateStr) return t('settings.unknown')
+  if (!dateStr) return t('key.unknown')
   const date = new Date(dateStr)
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -492,7 +492,7 @@ const handleDownload = async () => {
   
   try {
     const response = await fetch(downloadUrl.value)
-    if (!response.ok) throw new Error(t('settings.downloadFailed'))
+    if (!response.ok) throw new Error(t('key.downloadFailed'))
     
     const contentLength = response.headers.get('content-length')
     const total = parseInt(contentLength, 10)
@@ -627,17 +627,17 @@ const handleSubmit = async () => {
   errorMessage.value = ''
   
   if (!formData.value.username || !formData.value.password) {
-    errorMessage.value = t('settings.fillUsernameAndPassword')
+    errorMessage.value = t('key.fillUsernameAndPassword')
     return
   }
 
   if (authTab.value === 'register' && !formData.value.email) {
-    errorMessage.value = t('settings.fillEmail')
+    errorMessage.value = t('key.fillEmail')
     return
   }
 
   if (authTab.value === 'register' && !formData.value.verificationCode) {
-    errorMessage.value = t('settings.fillVerificationCode')
+    errorMessage.value = t('key.fillVerificationCode')
     return
   }
 

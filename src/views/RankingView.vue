@@ -1,16 +1,16 @@
 <template>
   <div class="ranking-view">
     <div class="ranking-header">
-      <h1 class="ranking-title">{{ t('ranking.hotMusic') }}</h1>
+      <h1 class="ranking-title">{{ t('key.hotMusic') }}</h1>
       <button @click="playAll" class="play-all-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z"/>
         </svg>
-        {{ t('ranking.playAll') }}
+        {{ t('key.playAll') }}
       </button>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('ranking.loading') }}</div>
+    <div v-if="loading" class="loading">{{ t('key.loading') }}</div>
     <div v-else-if="rankingList && rankingList.length > 0" class="ranking-list">
       <div
         v-for="(item, index) in rankingList"

@@ -447,20 +447,20 @@ const toggleFavorite = async () => {
         isFavorite.value = true
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: t('search.favoriteSuccess'), type: 'success' }
+          detail: { message: t('key.favoriteSuccess'), type: 'success' }
         }))
         window.dispatchEvent(new CustomEvent('favorite-changed'))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { message: result.message || t('search.favoriteFailed'), type: 'error' }
+          detail: { message: result.message || t('key.favoriteFailed'), type: 'error' }
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('search.networkErrorRetry'), type: 'error' }
+      detail: { message: t('key.networkErrorRetry'), type: 'error' }
     }))
   }
 }
@@ -831,7 +831,7 @@ const showAddToPlaylistModal = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('playlistDetail.pleaseLoginFirst'), type: 'error' }
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -904,7 +904,7 @@ const addToUserPlaylist = async (playlistId) => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('playlistDetail.pleaseLoginFirst'), type: 'error' }
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }
@@ -969,7 +969,7 @@ const handleCreateNewPlaylist = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', {
-      detail: { message: t('search.pleaseLoginFirst'), type: 'error' }
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' }
     }))
     return
   }

@@ -24,7 +24,7 @@
               <img :src="getAvatarUrl(playlist.creator.id)" :alt="t('key.creator')" class="creator-avatar" @error="handleAvatarError" />
               <span class="creator-name">{{ playlist.creator.username }}</span>
             </div>
-            <span class="playlist-count">{{ playlist.musicCount || musicList.length }} {{ t('playlistDetail.songs') }}</span>
+            <span class="playlist-count">{{ playlist.musicCount || musicList.length }} {{ t('key.songs') }}</span>
           </div>
           <div class="playlist-actions">
             <button class="action-btn play-all" @click="playAll">
@@ -42,7 +42,7 @@
               <svg viewBox="0 0 24 24" width="20" height="20">
                 <path :fill="isCollected ? '#ff4545' : 'currentColor'" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
               </svg>
-              {{ isCollected ? t('playlistDetail.collectedPlaylist') : t('playlistDetail.collectPlaylist') }}
+              {{ isCollected ? t('key.collectedPlaylist') : t('key.collectPlaylist') }}
             </button>
           </div>
         </div>
@@ -50,12 +50,12 @@
 
       <div class="music-list-section">
         <div class="list-header">
-          <span class="list-title">{{ t('playlistDetail.songList') }}</span>
+          <span class="list-title">{{ t('key.songList') }}</span>
           <span class="list-count">{{ musicList.length }} {{ t('key.songs') }}</span>
         </div>
 
         <div v-if="musicList.length === 0" class="empty">
-          <p>{{ t('playlistDetail.noSongs') }}</p>
+          <p>{{ t('key.noSongs') }}</p>
         </div>
 
         <div v-else class="music-list">
@@ -149,11 +149,11 @@
               <path fill="#ef4444" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
           </div>
-          <h3 class="modal-title">{{ t('playlistDetail.confirmRemove') }}</h3>
-          <p class="modal-message">{{ t('playlistDetail.confirmRemoveMessage') }}</p>
+          <h3 class="modal-title">{{ t('key.confirmRemove') }}</h3>
+          <p class="modal-message">{{ t('key.confirmRemoveMessage') }}</p>
           <div class="modal-actions">
-            <button class="modal-btn cancel" @click="handleCancel">{{ t('playlistDetail.cancel') }}</button>
-            <button class="modal-btn confirm" @click="handleConfirm">{{ t('playlistDetail.confirmRemove') }}</button>
+            <button class="modal-btn cancel" @click="handleCancel">{{ t('key.cancel') }}</button>
+            <button class="modal-btn confirm" @click="handleConfirm">{{ t('key.confirmRemove') }}</button>
           </div>
         </div>
       </div>
@@ -405,12 +405,12 @@ const toggleFavorite = async (music) => {
         favorites.value = favorites.value.filter(f => f.id !== music.id)
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('playlistDetail.cancelFavoriteSuccess'), type: 'success' } 
+          detail: { message: t('key.cancelFavoriteSuccess'), type: 'success' } 
         }))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || t('playlistDetail.cancelFavoriteFailed'), type: 'error' } 
+          detail: { message: result.message || t('key.cancelFavoriteFailed'), type: 'error' } 
         }))
       }
     } else {
@@ -429,19 +429,19 @@ const toggleFavorite = async (music) => {
         favorites.value.push(music)
         localStorage.setItem('favorites', JSON.stringify(favorites.value))
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('playlistDetail.favoriteSuccess'), type: 'success' } 
+          detail: { message: t('key.favoriteSuccess'), type: 'success' } 
         }))
       } else {
         const result = await response.json()
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || t('playlistDetail.favoriteFailed'), type: 'error' } 
+          detail: { message: result.message || t('key.favoriteFailed'), type: 'error' } 
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: t('playlistDetail.networkErrorRetry'), type: 'error' } 
+      detail: { message: t('key.networkErrorRetry'), type: 'error' } 
     }))
   }
 }
@@ -450,7 +450,7 @@ const toggleCollect = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: t('playlistDetail.pleaseLoginFirst'), type: 'error' } 
+      detail: { message: t('key.pleaseLoginFirst'), type: 'error' } 
     }))
     return
   }
@@ -467,13 +467,13 @@ const toggleCollect = async () => {
       if (data.success) {
         isCollected.value = false
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('playlistDetail.cancelFavoritePlaylistSuccess'), type: 'success' } 
+          detail: { message: t('key.cancelFavoritePlaylistSuccess'), type: 'success' } 
         }))
         // 触发收藏歌单更新事件
         window.dispatchEvent(new CustomEvent('favorite-playlist-updated'))
       } else {
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: data.message || t('playlistDetail.cancelFavoritePlaylistFailed'), type: 'error' } 
+          detail: { message: data.message || t('key.cancelFavoritePlaylistFailed'), type: 'error' } 
         }))
       }
     } else {
@@ -491,20 +491,20 @@ const toggleCollect = async () => {
       if (data.success) {
         isCollected.value = true
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('playlistDetail.collectPlaylistSuccess'), type: 'success' } 
+          detail: { message: t('key.collectPlaylistSuccess'), type: 'success' } 
         }))
         // 触发收藏歌单更新事件
         window.dispatchEvent(new CustomEvent('favorite-playlist-updated'))
       } else {
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: data.message || t('playlistDetail.collectPlaylistFailed'), type: 'error' } 
+          detail: { message: data.message || t('key.collectPlaylistFailed'), type: 'error' } 
         }))
       }
     }
   } catch (error) {
     console.error('收藏操作失败:', error)
     window.dispatchEvent(new CustomEvent('show-toast', { 
-      detail: { message: t('playlistDetail.networkErrorRetry'), type: 'error' } 
+      detail: { message: t('key.networkErrorRetry'), type: 'error' } 
     }))
   }
 }
@@ -607,7 +607,7 @@ const removeMusic = async (musicId) => {
 
       if (result.success) {
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: t('playlistDetail.musicRemovedSuccess'), type: 'success' } 
+          detail: { message: t('key.musicRemovedSuccess'), type: 'success' } 
         }))
         
         // 重新加载歌单详情
@@ -622,13 +622,13 @@ const removeMusic = async (musicId) => {
         }))
       } else {
         window.dispatchEvent(new CustomEvent('show-toast', { 
-          detail: { message: result.message || t('playlistDetail.removeFailed'), type: 'error' } 
+          detail: { message: result.message || t('key.removeFailed'), type: 'error' } 
         }))
       }
     } catch (error) {
       console.error('移除音乐失败:', error)
       window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { message: t('playlistDetail.networkErrorRetry'), type: 'error' } 
+        detail: { message: t('key.networkErrorRetry'), type: 'error' } 
       }))
     }
   }
