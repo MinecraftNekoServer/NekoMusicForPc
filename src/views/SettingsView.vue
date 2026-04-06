@@ -59,7 +59,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <span class="setting-label">{{ t('settings.language') }}</span>
-            <span class="setting-desc">{{ t('settings.language') }}</span>
+<!--            <span class="setting-desc">{{ t('settings.language') }}</span>-->
           </div>
           <select 
             class="language-select" 
@@ -273,7 +273,7 @@ const handleLanguageChange = async (newLanguage) => {
   try {
     await setLanguage(newLanguage)
     currentLanguage.value = newLanguage
-    showToast(t('settings.language') + ' ' + t('settings.languageSettings') + ' ' + t('common.save'), 'success')
+    showToast(t('common.switchLanguageSuccess'))
   } catch (error) {
     console.error('切换语言失败:', error)
     showToast(t('common.switchLanguageFailed'), 'error')
