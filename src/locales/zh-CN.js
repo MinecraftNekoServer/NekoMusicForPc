@@ -309,7 +309,9 @@ export default {
     installLater: '稍后安装',
     installNow: '立即安装',
     githubRepo: 'GitHub 仓库',
-    apiDocs: 'API 文档'
+    apiDocs: 'API 文档',
+    updateDownloadComplete: '更新下载完成',
+    versionDownloaded: '版本 {version} 已下载完成'
   },
   login: {
     welcome: '欢迎回来',

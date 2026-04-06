@@ -308,7 +308,9 @@ player: {
     installLater: 'Install Later',
     installNow: 'Install Now',
     githubRepo: 'GitHub Repository',
-    apiDocs: 'API Documentation'
+    apiDocs: 'API Documentation',
+    updateDownloadComplete: 'Update Download Complete',
+    versionDownloaded: 'Version {version} has been downloaded'
   },
   login: {
     welcome: 'Welcome Back',
