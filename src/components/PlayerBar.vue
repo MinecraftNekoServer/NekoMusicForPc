@@ -1509,6 +1509,16 @@ onMounted(() => {
   const savedDesktopLyrics = localStorage.getItem('desktopLyricsEnabled')
   if (savedDesktopLyrics !== null) {
     desktopLyricsEnabled.value = savedDesktopLyrics === 'true'
+    console.log('PlayerBar: 从localStorage加载桌面歌词状态', desktopLyricsEnabled.value)
+    // 如果状态是开启的，自动触发显示歌词窗口
+    if (desktopLyricsEnabled.value) {
+      console.log('PlayerBar: 自动触发显示歌词窗口')
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('desktop-lyrics-toggle', {
+          detail: { enabled: true }
+        }))
+      }, 1000) // 延迟1秒，确保所有组件都已挂载
+    }
   }
 
   audioElement.value.addEventListener('timeupdate', handleTimeUpdate)

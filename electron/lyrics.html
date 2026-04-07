@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desktop Lyrics</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    #lyrics-container {
+      text-align: center;
+      padding: 20px 40px;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(102, 126, 234, 0.3);
+      cursor: move;
+      user-select: none;
+      max-width: 90vw;
+      transition: all 0.3s ease;
+      min-width: 300px;
+      min-height: 100px;
+    }
+
+    #lyrics-container.minimized {
+      padding: 12px 20px;
+      min-width: 150px;
+    }
+
+    .lyric-controls {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    #lyrics-container:hover .lyric-controls,
+    #lyrics-container.minimized .lyric-controls {
+      opacity: 1;
+    }
+
+    .control-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .control-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s ease;
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .control-btn svg {
+      flex-shrink: 0;
+    }
+
+    .font-size-display {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      min-width: 40px;
+      text-align: center;
+    }
+
+    #lyric-text {
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 30px rgba(102, 126, 234, 0.8);
+      margin-bottom: 8px;
+      line-height: 1.5;
+      transition: all 0.3s ease;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      font-size: 28px;
+    }
+
+    #lyric-translation {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+      line-height: 1.5;
+      transition: all 0.3s ease;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      font-size: 20px;
+    }
+
+    .no-lyric-playing,
+    .no-lyrics {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .minimized-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: white;
+    }
+
+    .minimized-icon {
+      font-size: 18px;
+    }
+
+    .minimized-text {
+      color: rgba(255, 255, 255, 0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="lyrics-container">
+    <div class="lyric-controls">
+      <div class="control-buttons">
+        <button class="control-btn" id="toggle-minimize" title="最小化/展开">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+          </svg>
+        </button>
+        <button class="control-btn" id="reset-position" title="重置位置">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+          </svg>
+        </button>
+        <button class="control-btn" id="decrease-font" title="减小字体">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M19 13H5v-2h14v2z"/>
+          </svg>
+        </button>
+        <span class="font-size-display" id="font-size-display">28px</span>
+        <button class="control-btn" id="increase-font" title="增大字体">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+        </button>
+        <button class="control-btn" id="hide-lyrics" title="隐藏">
+          <svg viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="lyric-content">
+      <div id="lyric-text"></div>
+      <div id="lyric-translation"></div>
+    </div>
+
+    <div id="minimized-content" class="minimized-content hidden">
+      <span class="minimized-icon">♪</span>
+      <span class="minimized-text" id="minimized-text">歌词</span>
+    </div>
+  </div>
+
+  <script>
+    try {
+      const { ipcRenderer } = require('electron')
+
+      console.log('歌词窗口脚本已加载')
+
+      const container = document.getElementById('lyrics-container')
+      const lyricText = document.getElementById('lyric-text')
+      const lyricTranslation = document.getElementById('lyric-translation')
+      const lyricContent = document.getElementById('lyric-content')
+      const minimizedContent = document.getElementById('minimized-content')
+      const minimizedText = document.getElementById('minimized-text')
+      const fontSizeDisplay = document.getElementById('font-size-display')
+
+      let fontSize = 28
+      let isMinimized = false
+      let isDragging = false
+      let dragOffset = { x: 0, y: 0 }
+
+    // 更新歌词
+    ipcRenderer.on('update-lyrics', (event, { lyric, translation }) => {
+      console.log('歌词窗口: 收到更新歌词请求', { lyric, translation })
+      if (lyric) {
+        lyricText.textContent = lyric
+        lyricText.classList.remove('hidden')
+      } else {
+        lyricText.textContent = ''
+        lyricText.classList.add('hidden')
+      }
+
+      if (translation && !isMinimized) {
+        lyricTranslation.textContent = translation
+        lyricTranslation.classList.remove('hidden')
+      } else {
+        lyricTranslation.textContent = ''
+        lyricTranslation.classList.add('hidden')
+      }
+    })
+
+    // 更新字体大小
+    ipcRenderer.on('update-font-size', (event, size) => {
+      fontSize = size
+      lyricText.style.fontSize = `${fontSize}px`
+      lyricTranslation.style.fontSize = `${fontSize * 0.7}px`
+      fontSizeDisplay.textContent = `${fontSize}px`
+    })
+
+    // 最小化/展开
+    ipcRenderer.on('toggle-minimize', () => {
+      isMinimized = !isMinimized
+      container.classList.toggle('minimized', isMinimized)
+      lyricContent.classList.toggle('hidden', isMinimized)
+      minimizedContent.classList.toggle('hidden', !isMinimized)
+
+      if (isMinimized) {
+        const text = lyricText.textContent || '歌词'
+        minimizedText.textContent = text.length > 10 ? text.substring(0, 10) + '...' : text
+      }
+    })
+
+    // 重置位置
+    ipcRenderer.on('reset-position', () => {
+      ipcRenderer.send('lyrics-window-reset-position')
+    })
+
+    // 隐藏窗口
+    ipcRenderer.on('hide-lyrics', () => {
+      ipcRenderer.send('lyrics-window-hide')
+    })
+
+    // 按钮事件
+    document.getElementById('toggle-minimize').addEventListener('click', () => {
+      ipcRenderer.send('lyrics-window-toggle-minimize')
+    })
+
+    document.getElementById('reset-position').addEventListener('click', () => {
+      ipcRenderer.send('lyrics-window-reset-position')
+    })
+
+    document.getElementById('increase-font').addEventListener('click', () => {
+      if (fontSize < 48) {
+        fontSize += 2
+        ipcRenderer.send('lyrics-window-update-font-size', fontSize)
+      }
+    })
+
+    document.getElementById('decrease-font').addEventListener('click', () => {
+      if (fontSize > 16) {
+        fontSize -= 2
+        ipcRenderer.send('lyrics-window-update-font-size', fontSize)
+      }
+    })
+
+    document.getElementById('hide-lyrics').addEventListener('click', () => {
+      ipcRenderer.send('lyrics-window-hide')
+    })
+
+    // 拖拽功能
+    container.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.control-buttons')) return
+
+      isDragging = true
+      dragOffset = {
+        x: e.screenX - container.getBoundingClientRect().left,
+        y: e.screenY - container.getBoundingClientRect().top
+      }
+    })
+
+    let lastMoveTime = 0
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return
+
+      // 节流：每50ms最多发送一次
+      const now = Date.now()
+      if (now - lastMoveTime < 50) return
+      lastMoveTime = now
+
+      try {
+        const x = e.screenX - dragOffset.x
+        const y = e.screenY - dragOffset.y
+
+        ipcRenderer.send('lyrics-window-move', { x, y })
+      } catch (error) {
+        console.error('拖动失败:', error)
+      }
+    })
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false
+      // 拖动结束后发送最终位置
+      if (lastMoveTime > 0) {
+        lastMoveTime = 0
+      }
+    })
+
+    // 双击最小化
+    container.addEventListener('dblclick', () => {
+      ipcRenderer.send('lyrics-window-toggle-minimize')
+    })
+
+    // 监听窗口移动完成
+    ipcRenderer.on('window-moved', () => {
+      isDragging = false
+    })
+
+    // 右键菜单
+    container.addEventListener('contextmenu', (e) => {
+      e.preventDefault()
+      // 打开DevTools
+      if (ipcRenderer) {
+        ipcRenderer.send('lyrics-window-open-devtools')
+      }
+    })
+
+    // 初始化字体大小
+    lyricText.style.fontSize = `${fontSize}px`
+    lyricTranslation.style.fontSize = `${fontSize * 0.7}px`
+    fontSizeDisplay.textContent = `${fontSize}px`
+
+    // 显示测试歌词，让用户知道窗口已加载
+    lyricText.textContent = '歌词窗口已就绪'
+    lyricText.classList.remove('hidden')
+    lyricTranslation.textContent = '右键打开DevTools'
+    lyricTranslation.classList.remove('hidden')
+
+    console.log('歌词窗口初始化完成')
+    } catch (error) {
+      console.error('歌词窗口初始化失败:', error)
+      document.body.innerHTML = `<div style="padding: 20px; color: white; text-align: center;">
+        <h3>歌词窗口加载失败</h3>
+        <p>${error.message}</p>
+      </div>`
+    }
+  </script>
+</body>
+</html>

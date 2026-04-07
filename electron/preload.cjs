@@ -30,7 +30,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // 在外部浏览器中打开链接
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
-  
+
+  // 歌词窗口控制
+  showLyricsWindow: () => ipcRenderer.send('show-lyrics-window'),
+  hideLyricsWindow: () => ipcRenderer.send('hide-lyrics-window'),
+  toggleLyricsWindow: () => ipcRenderer.send('toggle-lyrics-window'),
+  updateLyrics: (data) => ipcRenderer.send('update-lyrics', data),
+
   // 其他可以暴露的 API
   platform: process.platform,
   arch: process.arch
@@ -63,6 +69,11 @@ ipcRenderer.on('tray-toggle-desktop-lyrics', (event, enabled) => {
 
 ipcRenderer.on('navigate-to-settings', () => {
   window.dispatchEvent(new CustomEvent('navigate-to-settings'))
+})
+
+// 监听歌词窗口隐藏事件
+ipcRenderer.on('lyrics-window-hidden', () => {
+  window.dispatchEvent(new CustomEvent('lyrics-window-hidden'))
 })
 
 // 监听主进程事件

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, screen } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
@@ -17,6 +17,7 @@ if (process.platform === 'linux') {
 
 
 let win
+let lyricsWindow
 let tray
 app.isQuitting = false  // 声明退出标志
 
@@ -121,7 +122,6 @@ function createWindow() {
 
   // 拦截所有新窗口的打开，强制在系统浏览器中打开
   win.webContents.setWindowOpenHandler(({ url }) => {
-    const { shell } = require('electron')
     shell.openExternal(url).catch(err => {
       console.error('Failed to open external URL:', err)
     })
@@ -140,8 +140,10 @@ function createWindow() {
     win.loadFile(prodPath)
   }
 
-  // 打开开发者工具（开发和生产模式都打开）
-  win.webContents.openDevTools()
+  // 只在开发环境打开开发者工具
+  if (isDev || !app.isPackaged) {
+    win.webContents.openDevTools()
+  }
 
   win.on('close', (event) => {
     if (!app.isQuitting) {
@@ -153,6 +155,185 @@ function createWindow() {
   win.on('closed', () => {
     win = null
   })
+}
+
+// 创建桌面歌词窗口
+function createLyricsWindow() {
+  if (lyricsWindow) {
+    console.log('歌词窗口已存在，显示窗口')
+    lyricsWindow.show()
+    lyricsWindow.focus()
+    return
+  }
+
+  console.log('createLyricsWindow: 开始创建歌词窗口')
+
+  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
+  let lyricsHtmlPath = path.join(__dirname, './lyrics.html')
+  console.log('歌词HTML路径:', lyricsHtmlPath)
+
+  // 检查文件是否存在
+  if (!fs.existsSync(lyricsHtmlPath)) {
+    console.error('歌词HTML文件不存在:', lyricsHtmlPath)
+    // 尝试从 dist-electron 目录加载
+    const altPath = path.join(__dirname, '../../dist-electron/lyrics.html')
+    if (fs.existsSync(altPath)) {
+      console.log('使用备用路径:', altPath)
+      lyricsHtmlPath = altPath
+    } else {
+      console.error('无法找到歌词HTML文件')
+      return
+    }
+  }
+
+  try {
+    lyricsWindow = new BrowserWindow({
+      width: 500,
+      height: 200,
+      frame: false,
+      transparent: true,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      resizable: false,
+      movable: false,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        devTools: isDev // 只在开发环境开启DevTools
+      },
+      show: false,
+      backgroundColor: '#00000000'
+    })
+  } catch (error) {
+    console.error('创建歌词窗口失败:', error)
+    lyricsWindow = null
+    return
+  }
+
+  // 设置窗口位置到屏幕中央
+  const { width, height } = lyricsWindow.getBounds()
+  const { workAreaSize } = screen.getPrimaryDisplay()
+  const x = Math.floor((workAreaSize.width - width) / 2)
+  const y = Math.floor((workAreaSize.height - height) / 2)
+  lyricsWindow.setPosition(x, y)
+  console.log('歌词窗口位置:', { x, y })
+
+  lyricsWindow.loadFile(lyricsHtmlPath)
+
+  // 监听加载失败
+  lyricsWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('歌词窗口加载失败:', errorCode, errorDescription)
+    if (lyricsWindow) {
+      lyricsWindow.close()
+      lyricsWindow = null
+    }
+  })
+
+  // 监听窗口无响应
+  lyricsWindow.on('unresponsive', () => {
+    console.warn('歌词窗口无响应，尝试恢复')
+    if (lyricsWindow) {
+      lyricsWindow.reload()
+    }
+  })
+
+  // 监听窗口恢复响应
+  lyricsWindow.on('responsive', () => {
+    console.log('歌词窗口已恢复响应')
+  })
+
+  // 等待窗口加载完成后再显示
+  lyricsWindow.webContents.on('did-finish-load', () => {
+    console.log('歌词窗口加载完成，准备显示')
+    // 加载保存的字体大小
+    const lyricsDataPath = path.join(app.getPath('userData'), 'lyrics-window-data.json')
+    if (fs.existsSync(lyricsDataPath)) {
+      try {
+        const lyricsData = JSON.parse(fs.readFileSync(lyricsDataPath, 'utf-8'))
+        if (lyricsData.fontSize) {
+          lyricsWindow.webContents.send('update-font-size', lyricsData.fontSize)
+        }
+        // 加载保存的位置（如果有）
+        if (lyricsData.position) {
+          lyricsWindow.setPosition(lyricsData.position.x, lyricsData.position.y)
+        }
+      } catch (e) {
+        console.error('解析歌词窗口数据失败:', e)
+      }
+    }
+    // 延迟显示，确保窗口完全准备好
+    setTimeout(() => {
+      if (lyricsWindow && !lyricsWindow.isDestroyed()) {
+        lyricsWindow.show()
+        lyricsWindow.focus()
+        console.log('歌词窗口已显示')
+      }
+    }, 100)
+  })
+
+  lyricsWindow.on('closed', () => {
+    console.log('歌词窗口已关闭')
+    lyricsWindow = null
+  })
+
+  // 添加节流，避免频繁保存位置
+  let savePositionTimeout = null
+  lyricsWindow.on('moved', () => {
+    if (savePositionTimeout) {
+      clearTimeout(savePositionTimeout)
+    }
+    // 延迟500ms保存，等待拖动结束
+    savePositionTimeout = setTimeout(() => {
+      try {
+        if (lyricsWindow && !lyricsWindow.isDestroyed()) {
+          const [x, y] = lyricsWindow.getPosition()
+          saveLyricsWindowData({ position: { x, y } })
+          console.log('歌词窗口移动到:', { x, y })
+        }
+      } catch (error) {
+        console.error('保存歌词窗口位置失败:', error)
+      }
+    }, 500)
+  })
+
+  console.log('歌词窗口创建成功')
+}
+
+// 保存歌词窗口数据
+function saveLyricsWindowData(data) {
+  const lyricsDataPath = path.join(app.getPath('userData'), 'lyrics-window-data.json')
+  try {
+    let existingData = {}
+    if (fs.existsSync(lyricsDataPath)) {
+      existingData = JSON.parse(fs.readFileSync(lyricsDataPath, 'utf-8'))
+    }
+    const updatedData = { ...existingData, ...data }
+    fs.writeFileSync(lyricsDataPath, JSON.stringify(updatedData))
+  } catch (e) {
+    console.error('保存歌词窗口数据失败:', e)
+  }
+}
+
+// 显示歌词窗口
+function showLyricsWindow() {
+  console.log('showLyricsWindow: 被调用')
+  if (!lyricsWindow) {
+    console.log('showLyricsWindow: 创建新窗口')
+    createLyricsWindow()
+    // 等待窗口创建完成
+    return
+  }
+  console.log('showLyricsWindow: 显示窗口')
+  lyricsWindow.show()
+  lyricsWindow.focus()
+  console.log('showLyricsWindow: 窗口已显示')
+}
+
+// 隐藏歌词窗口
+function hideLyricsWindow() {
+  if (lyricsWindow) {
+    lyricsWindow.hide()
+  }
 }
 
 // 全局状态
@@ -435,6 +616,84 @@ ipcMain.on('window-close', () => {
   if (win) win.hide()
 })
 
+// 歌词窗口控制 IPC 处理
+ipcMain.on('show-lyrics-window', () => {
+  console.log('IPC: 收到 show-lyrics-window 请求')
+  showLyricsWindow()
+})
+
+ipcMain.on('hide-lyrics-window', () => {
+  hideLyricsWindow()
+})
+
+ipcMain.on('toggle-lyrics-window', () => {
+  if (lyricsWindow && lyricsWindow.isVisible()) {
+    hideLyricsWindow()
+  } else {
+    showLyricsWindow()
+  }
+})
+
+ipcMain.on('update-lyrics', (event, { lyric, translation }) => {
+  try {
+    if (lyricsWindow && !lyricsWindow.isDestroyed()) {
+      lyricsWindow.webContents.send('update-lyrics', { lyric, translation })
+    }
+  } catch (error) {
+    console.error('更新歌词失败:', error)
+  }
+})
+
+ipcMain.on('lyrics-window-move', (event, { x, y }) => {
+  try {
+    if (lyricsWindow && !lyricsWindow.isDestroyed()) {
+      // 确保坐标是有效的数字
+      const posX = Math.round(Number(x))
+      const posY = Math.round(Number(y))
+      if (!isNaN(posX) && !isNaN(posY)) {
+        lyricsWindow.setPosition(posX, posY)
+      }
+    }
+  } catch (error) {
+    console.error('移动歌词窗口失败:', error)
+  }
+})
+
+ipcMain.on('lyrics-window-reset-position', () => {
+  if (lyricsWindow) {
+    const defaultPosition = { x: 500, y: 100 }
+    lyricsWindow.setPosition(defaultPosition.x, defaultPosition.y)
+    saveLyricsWindowData({ position: defaultPosition })
+  }
+})
+
+ipcMain.on('lyrics-window-toggle-minimize', () => {
+  if (lyricsWindow) {
+    lyricsWindow.webContents.send('toggle-minimize')
+  }
+})
+
+ipcMain.on('lyrics-window-update-font-size', (event, size) => {
+  if (lyricsWindow) {
+    lyricsWindow.webContents.send('update-font-size', size)
+    saveLyricsWindowData({ fontSize: size })
+  }
+})
+
+ipcMain.on('lyrics-window-hide', () => {
+  hideLyricsWindow()
+  // 通知主窗口更新状态
+  if (win) {
+    win.webContents.send('lyrics-window-hidden')
+  }
+})
+
+ipcMain.on('lyrics-window-open-devtools', () => {
+  if (lyricsWindow) {
+    lyricsWindow.webContents.openDevTools()
+  }
+})
+
 // 文件保存 IPC 处理
 ipcMain.handle('get-path', async (event, name) => {
   return app.getPath(name)
@@ -632,6 +891,9 @@ app.on('ready', () => {
 
 app.on('will-quit', () => {
   // 清理资源
+  if (lyricsWindow) {
+    lyricsWindow.close()
+  }
 })
 
 app.on('window-all-closed', () => {
