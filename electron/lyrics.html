@@ -261,8 +261,14 @@
       minimizedContent.classList.toggle('hidden', !isMinimized)
 
       if (isMinimized) {
-        const text = lyricText.textContent || '歌词'
-        minimizedText.textContent = text.length > 10 ? text.substring(0, 10) + '...' : text
+        const i18nTexts = {
+          'zh-CN': { lyrics: '歌词' },
+          'en-US': { lyrics: 'Lyrics' }
+        }
+        const currentLanguage = localStorage.getItem('app-language') || 'zh-CN'
+        const text = i18nTexts[currentLanguage] || i18nTexts['zh-CN']
+        const currentLyric = lyricText.textContent || text.lyrics
+        minimizedText.textContent = currentLyric.length > 10 ? currentLyric.substring(0, 10) + '...' : currentLyric
       }
     })
 
@@ -308,7 +314,6 @@
       if (e.target.closest('.control-buttons')) return
 
       isDragging = true
-      dragStartMouse = { x: e.screenX, y: e.screenY }  // 记录鼠标屏幕位置
 
       // 获取当前容器在屏幕上的位置
       const rect = container.getBoundingClientRect()
@@ -317,13 +322,7 @@
         y: e.clientY - rect.top
       }
 
-      // 计算窗口左上角的屏幕位置
-      dragStartWindow = {
-        x: e.screenX - dragOffset.x,
-        y: e.screenY - dragOffset.y
-      }
-
-      console.log('拖动开始 - 窗口位置:', dragStartWindow, '偏移量:', dragOffset, '鼠标屏幕:', { x: e.screenX, y: e.screenY })
+      console.log('拖动开始 - 偏移量:', dragOffset)
     })
 
     let lastMoveTime = 0
@@ -336,16 +335,10 @@
       lastMoveTime = now
 
       try {
-        // 重新计算偏移量（防止容器尺寸变化）
-        const rect = container.getBoundingClientRect()
-        const currentOffset = {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        }
-
-        // 计算窗口左上角应该在的屏幕位置
-        const windowX = e.screenX - currentOffset.x
-        const windowY = e.screenY - currentOffset.y
+        // 使用固定的初始偏移量
+        // 窗口位置 = 鼠标屏幕位置 - 初始偏移量
+        const windowX = e.screenX - dragOffset.x
+        const windowY = e.screenY - dragOffset.y
 
         ipcRenderer.send('lyrics-window-move', { x: windowX, y: windowY })
       } catch (error) {
@@ -384,13 +377,28 @@
     lyricTranslation.style.fontSize = `${fontSize * 0.7}px`
     fontSizeDisplay.textContent = `${fontSize}px`
 
-    // 显示测试歌词，让用户知道窗口已加载
-    lyricText.textContent = '歌词窗口已就绪'
-    lyricText.classList.remove('hidden')
-    lyricTranslation.textContent = '右键打开DevTools'
-    lyricTranslation.classList.remove('hidden')
+    // i18n 文本
+    const i18nTexts = {
+      'zh-CN': { waiting: '等待播放...' },
+      'en-US': { waiting: 'Waiting for playback...' }
+    }
 
-    console.log('歌词窗口初始化完成')
+    // 获取当前语言设置
+    let currentLanguage = 'zh-CN'
+    try {
+      currentLanguage = localStorage.getItem('app-language') || 'zh-CN'
+    } catch (e) {
+      console.warn('无法读取语言设置:', e)
+    }
+
+    // 显示等待播放提示
+    const text = i18nTexts[currentLanguage] || i18nTexts['zh-CN']
+    lyricText.textContent = text.waiting
+    lyricText.classList.remove('hidden')
+    lyricTranslation.textContent = ''
+    lyricTranslation.classList.add('hidden')
+
+    console.log('歌词窗口初始化完成，语言:', currentLanguage)
     } catch (error) {
       console.error('歌词窗口初始化失败:', error)
       document.body.innerHTML = `<div style="padding: 20px; color: white; text-align: center;">
