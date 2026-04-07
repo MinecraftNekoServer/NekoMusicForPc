@@ -309,7 +309,7 @@ const duration = ref(0)
 const lyrics = ref([])
 const currentLyricIndex = ref(0)
 const lyricsContainer = ref(null)
-const volume = ref(100)
+const volume = ref(parseInt(localStorage.getItem('volume')) || 100)
 const isMuted = ref(false)
 const isVolumeDragging = ref(false)
 const isFavorite = ref(false)
@@ -632,6 +632,8 @@ const handleVolumeMouseMove = (event) => {
       const y = rect.bottom - event.clientY
       const percentage = Math.max(0, Math.min(100, (y / rect.height) * 100))
       volume.value = Math.round(percentage)
+      // 保存到本地存储
+      localStorage.setItem('volume', volume.value.toString())
       // 通知 PlayerBar 更新音量
       window.dispatchEvent(new CustomEvent('set-volume', { detail: volume.value }))
     }
@@ -647,6 +649,8 @@ const handleVolumeClick = (event) => {
   const y = rect.bottom - event.clientY
   const percentage = Math.min(100, Math.max(0, (y / rect.height) * 100))
   volume.value = Math.round(percentage)
+  // 保存到本地存储
+  localStorage.setItem('volume', volume.value.toString())
   // 通知 PlayerBar 更新音量
   window.dispatchEvent(new CustomEvent('set-volume', { detail: volume.value }))
 }
@@ -1482,10 +1486,10 @@ watch(() => router.currentRoute.value, () => {
   transform: translateX(-50%);
   width: 60px;
   padding: 16px 12px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 30, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1493,6 +1497,7 @@ watch(() => router.currentRoute.value, () => {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .volume-wrapper:hover .volume-panel {
@@ -1511,7 +1516,7 @@ watch(() => router.currentRoute.value, () => {
 .volume-track {
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   position: relative;
   overflow: hidden;
@@ -1543,7 +1548,7 @@ watch(() => router.currentRoute.value, () => {
   margin-top: 8px;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  color: white;
 }
 
 /* 滚动条样式 */

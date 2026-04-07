@@ -831,6 +831,11 @@ const handleVolumeChange = () => {
 
   // 保存音量设置到本地存储
   localStorage.setItem('volume', volume.value.toString())
+  
+  // 通知 PlayerView 音量变化
+  window.dispatchEvent(new CustomEvent('player-state-change', {
+    detail: { volume: volume.value }
+  }))
 }
 
 const togglePlaylist = () => {
@@ -1590,6 +1595,8 @@ onMounted(() => {
     if (audioElement.value) {
       audioElement.value.volume = volume.value / 100
     }
+    // 保存到本地存储并通知其他组件
+    handleVolumeChange()
   })
 
   window.addEventListener('toggle-playlist-panel', () => {
