@@ -185,6 +185,13 @@
           </div>
         </div>
         
+        <button class="control-btn" @click="toggleDesktopLyrics" :title="t('key.desktopLyrics')" :class="{ active: desktopLyricsEnabled }">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          <span class="lyrics-label">词</span>
+        </button>
+
         <button class="control-btn" @click="togglePlaylist" title="播放列表">
           <svg viewBox="0 0 24 24" width="18" height="18">
             <path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
@@ -312,6 +319,7 @@ const favorites = ref([])
 const showAddToPlaylistPanel = ref(false)
 const userPlaylists = ref([])
 const newPlaylistName = ref('')
+const desktopLyricsEnabled = ref(false)
 
 const playModeTitle = computed(() => {
   const titles = {
@@ -648,6 +656,11 @@ const togglePlaylist = () => {
   window.dispatchEvent(new CustomEvent('toggle-playlist-panel'))
 }
 
+const toggleDesktopLyrics = () => {
+  // 通知 PlayerBar 切换桌面歌词状态
+  window.dispatchEvent(new CustomEvent('toggle-desktop-lyrics'))
+}
+
 // 统一的 API 请求函数
 async function apiRequest(url, options = {}) {
   const fullUrl = url.startsWith('http') ? url : `${apiConfig.BASE_URL}${url}`
@@ -899,6 +912,10 @@ const handlePlayerStateChange = (event) => {
   if (event.detail?.volume !== undefined) {
     volume.value = event.detail.volume
   }
+  if (event.detail?.desktopLyricsEnabled !== undefined) {
+    // 桌面歌词状态变化，可以在这里添加相应的处理逻辑
+    console.log('PlayerView 收到桌面歌词状态变化:', event.detail.desktopLyricsEnabled)
+  }
 }
 
 // 处理音乐切换事件
@@ -952,6 +969,12 @@ onMounted(() => {
   loadPlayerState()
   loadFavorites()
   
+  // 从 localStorage 加载桌面歌词状态
+  const savedDesktopLyrics = localStorage.getItem('desktopLyricsEnabled')
+  if (savedDesktopLyrics !== null) {
+    desktopLyricsEnabled.value = savedDesktopLyrics === 'true'
+  }
+  
   // 监听 PlayerBar 的播放状态变化
   window.addEventListener('player-state-change', handlePlayerStateChange)
   window.addEventListener('music-play', handlePlayerStateChange)
@@ -961,6 +984,13 @@ onMounted(() => {
   
   // 监听音频时间更新（用于歌词同步）
   window.addEventListener('audio-time-update', handleTimeUpdate)
+  
+  // 监听桌面歌词切换事件
+  window.addEventListener('desktop-lyrics-toggle', (event) => {
+    if (event.detail?.enabled !== undefined) {
+      desktopLyricsEnabled.value = event.detail.enabled
+    }
+  })
   
   // 全局鼠标事件，处理音量拖动和进度条拖动
   window.addEventListener('mouseup', handleGlobalMouseUp)
@@ -1325,6 +1355,16 @@ watch(() => router.currentRoute.value, () => {
 .control-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.lyrics-label {
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.control-btn.active .lyrics-label {
+  color: #667eea;
 }
 
 .play-btn {

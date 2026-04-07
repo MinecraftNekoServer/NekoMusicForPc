@@ -116,6 +116,13 @@
         </div>
       </div>
 
+      <button class="control-btn" @click="toggleDesktopLyrics" :title="t('key.desktopLyrics')" :class="{ active: desktopLyricsEnabled }">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <span class="lyrics-label">词</span>
+      </button>
+
       <button class="control-btn" @click="togglePlaylist" :title="t('key.playlist')">
         <svg viewBox="0 0 24 24" width="18" height="18">
           <path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
@@ -265,6 +272,9 @@
         </Transition>
       </Teleport>
     </div>
+
+    <!-- 桌面歌词 -->
+    <DesktopLyrics />
   </div>
 </template>
 
@@ -273,6 +283,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
+import DesktopLyrics from './DesktopLyrics.vue'
 
 const { t } = useI18n()
 
@@ -654,11 +665,26 @@ const togglePlayMode = () => {
   }))
 }
 
-const toggleDesktopLyrics = (enabled) => {
-  desktopLyricsEnabled.value = enabled
-  // 这里可以添加桌面歌词窗口的显示/隐藏逻辑
-  // TODO: 待实现
-  console.log('桌面歌词:', enabled ? '开启' : '关闭')
+const toggleDesktopLyrics = () => {
+  desktopLyricsEnabled.value = !desktopLyricsEnabled.value
+  // 保存到 localStorage
+  localStorage.setItem('desktopLyricsEnabled', desktopLyricsEnabled.value.toString())
+  // 通知其他组件状态变化
+  window.dispatchEvent(new CustomEvent('desktop-lyrics-toggle', {
+    detail: { enabled: desktopLyricsEnabled.value }
+  }))
+  // 通知 PlayerView 播放状态变化
+  window.dispatchEvent(new CustomEvent('player-state-change', {
+    detail: { desktopLyricsEnabled: desktopLyricsEnabled.value }
+  }))
+  // 显示提示
+  window.dispatchEvent(new CustomEvent('show-toast', {
+    detail: {
+      message: desktopLyricsEnabled.value ? t('key.desktopLyricsEnabled') : t('key.desktopLyricsDisabled'),
+      type: 'success'
+    }
+  }))
+  console.log('桌面歌词:', desktopLyricsEnabled.value ? '开启' : '关闭')
 }
 
 // 通知主进程播放状态变化
@@ -1474,6 +1500,12 @@ onMounted(() => {
   audioElement.value = new Audio()
   audioElement.value.volume = volume.value / 100
 
+  // 从 localStorage 加载桌面歌词状态
+  const savedDesktopLyrics = localStorage.getItem('desktopLyricsEnabled')
+  if (savedDesktopLyrics !== null) {
+    desktopLyricsEnabled.value = savedDesktopLyrics === 'true'
+  }
+
   audioElement.value.addEventListener('timeupdate', handleTimeUpdate)
   audioElement.value.addEventListener('loadedmetadata', handleLoadedMetadata)
   audioElement.value.addEventListener('canplay', handleCanPlay)
@@ -1498,7 +1530,8 @@ onMounted(() => {
         isPlaying: isPlaying.value,
         currentTime: currentTime.value,
         duration: duration.value,
-        playMode: playMode.value
+        playMode: playMode.value,
+        desktopLyricsEnabled: desktopLyricsEnabled.value
       }
     }))
   })
@@ -1520,6 +1553,21 @@ onMounted(() => {
     if (event.detail?.playMode !== undefined) {
       playMode.value = event.detail.playMode
     }
+    if (event.detail?.desktopLyricsEnabled !== undefined) {
+      desktopLyricsEnabled.value = event.detail.desktopLyricsEnabled
+    }
+  })
+
+  // 监听桌面歌词切换事件
+  window.addEventListener('desktop-lyrics-toggle', (event) => {
+    if (event.detail?.enabled !== undefined) {
+      desktopLyricsEnabled.value = event.detail.enabled
+    }
+  })
+
+  // 监听播放页面的桌面歌词切换请求
+  window.addEventListener('toggle-desktop-lyrics', () => {
+    toggleDesktopLyrics()
   })
 
   // 监听播放页面的控制请求
@@ -1927,6 +1975,16 @@ const handleNavigateToSettings = () => {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+.lyrics-label {
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.control-btn.active .lyrics-label {
+  color: #6366f1;
 }
 
 .volume-wrapper:hover .volume-panel {
