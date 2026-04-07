@@ -659,6 +659,46 @@ ipcMain.on('lyrics-window-move', (event, { x, y }) => {
   }
 })
 
+// 拖动状态管理
+let dragState = {
+  isDragging: false
+}
+
+ipcMain.on('lyrics-window-drag-start', (event, { clientX, clientY }) => {
+  if (lyricsWindow && !lyricsWindow.isDestroyed()) {
+    dragState.isDragging = true
+    const [x, y] = lyricsWindow.getPosition()
+
+    // 获取屏幕信息
+    const { workAreaSize } = screen.getPrimaryDisplay()
+
+    console.log('=== 主进程：拖动开始 ===')
+    console.log('当前窗口位置:', { x, y })
+    console.log('鼠标客户端位置:', { clientX, clientY })
+    console.log('屏幕工作区尺寸:', workAreaSize)
+    console.log('=======================')
+
+    // 返回当前窗口位置给渲染进程
+    event.reply('lyrics-window-position-response', { x, y })
+  }
+})
+
+ipcMain.on('lyrics-window-drag-move', (event, { x, y }) => {
+  if (!dragState.isDragging || !lyricsWindow || lyricsWindow.isDestroyed()) return
+
+  try {
+    console.log('主进程设置窗口位置:', { x, y })
+    lyricsWindow.setPosition(x, y)
+  } catch (error) {
+    console.error('拖动移动失败:', error)
+  }
+})
+
+ipcMain.on('lyrics-window-drag-end', () => {
+  dragState.isDragging = false
+  console.log('=== 主进程：拖动结束 ===')
+})
+
 ipcMain.on('lyrics-window-reset-position', () => {
   if (lyricsWindow) {
     const defaultPosition = { x: 500, y: 100 }

@@ -294,41 +294,52 @@
       ipcRenderer.send('lyrics-window-hide')
     })
 
-    // 拖拽功能
+    // 拖拽功能 - 使用相对移动
+    let dragStartPos = { x: 0, y: 0 }  // 鼠标初始位置
+    let windowStartPos = { x: 0, y: 0 }  // 窗口初始位置
+
     container.addEventListener('mousedown', (e) => {
       if (e.target.closest('.control-buttons')) return
 
       isDragging = true
-      dragOffset = {
-        x: e.screenX - container.getBoundingClientRect().left,
-        y: e.screenY - container.getBoundingClientRect().top
-      }
+      dragStartPos = { x: e.clientX, y: e.clientY }
+
+      // 通知主进程开始拖动，获取当前窗口位置
+      ipcRenderer.send('lyrics-window-drag-start', { clientX: e.clientX, clientY: e.clientY })
+      ipcRenderer.on('lyrics-window-position-response', (event, position) => {
+        windowStartPos = position
+        console.log('拖动开始 - 窗口位置:', windowStartPos, '鼠标位置:', dragStartPos)
+      })
     })
 
     let lastMoveTime = 0
     document.addEventListener('mousemove', (e) => {
       if (!isDragging) return
 
-      // 节流：每50ms最多发送一次
+      // 节流：每16ms最多发送一次（约60fps）
       const now = Date.now()
-      if (now - lastMoveTime < 50) return
+      if (now - lastMoveTime < 16) return
       lastMoveTime = now
 
       try {
-        const x = e.screenX - dragOffset.x
-        const y = e.screenY - dragOffset.y
+        // 计算鼠标移动的增量
+        const deltaX = e.clientX - dragStartPos.x
+        const deltaY = e.clientY - dragStartPos.y
 
-        ipcRenderer.send('lyrics-window-move', { x, y })
+        // 计算新窗口位置
+        const newX = Math.round(windowStartPos.x + deltaX)
+        const newY = Math.round(windowStartPos.y + deltaY)
+
+        ipcRenderer.send('lyrics-window-drag-move', { x: newX, y: newY })
       } catch (error) {
         console.error('拖动失败:', error)
       }
     })
 
     document.addEventListener('mouseup', () => {
-      isDragging = false
-      // 拖动结束后发送最终位置
-      if (lastMoveTime > 0) {
-        lastMoveTime = 0
+      if (isDragging) {
+        isDragging = false
+        ipcRenderer.send('lyrics-window-drag-end')
       }
     })
 
