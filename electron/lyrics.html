@@ -377,28 +377,13 @@
     lyricTranslation.style.fontSize = `${fontSize * 0.7}px`
     fontSizeDisplay.textContent = `${fontSize}px`
 
-    // i18n 文本
-    const i18nTexts = {
-      'zh-CN': { waiting: '等待播放...' },
-      'en-US': { waiting: 'Waiting for playback...' }
-    }
-
-    // 获取当前语言设置
-    let currentLanguage = 'zh-CN'
-    try {
-      currentLanguage = localStorage.getItem('app-language') || 'zh-CN'
-    } catch (e) {
-      console.warn('无法读取语言设置:', e)
-    }
-
     // 显示等待播放提示
-    const text = i18nTexts[currentLanguage] || i18nTexts['zh-CN']
-    lyricText.textContent = text.waiting
+    lyricText.textContent = 'waiting to play...'
     lyricText.classList.remove('hidden')
     lyricTranslation.textContent = ''
     lyricTranslation.classList.add('hidden')
 
-    console.log('歌词窗口初始化完成，语言:', currentLanguage)
+    console.log('歌词窗口初始化完成')
     } catch (error) {
       console.error('歌词窗口初始化失败:', error)
       document.body.innerHTML = `<div style="padding: 20px; color: white; text-align: center;">
