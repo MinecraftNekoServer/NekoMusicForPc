@@ -24,7 +24,7 @@
 
     #lyrics-container {
       text-align: center;
-      padding: 20px 40px;
+      padding: 65px 40px 20px 40px;  /* 顶部留出控件空间 */
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(12px);
       border-radius: 16px;
@@ -36,6 +36,7 @@
       transition: all 0.3s ease;
       min-width: 300px;
       min-height: 100px;
+      position: relative;
     }
 
     #lyrics-container.minimized {
@@ -45,13 +46,19 @@
 
     .lyric-controls {
       position: absolute;
-      top: -50px;
+      top: -65px;
       left: 0;
       right: 0;
       display: flex;
       justify-content: center;
       opacity: 0;
       transition: opacity 0.2s ease;
+      z-index: 1000;
+      pointer-events: none; /* 让鼠标事件穿透 */
+    }
+
+    .control-buttons {
+      pointer-events: auto; /* 恢复按钮的鼠标事件 */
     }
 
     #lyrics-container:hover .lyric-controls,
@@ -215,6 +222,8 @@
       let isMinimized = false
       let isDragging = false
       let dragOffset = { x: 0, y: 0 }
+      let dragStartMouse = { x: 0, y: 0 }  // 鼠标起始屏幕位置
+      let dragStartWindow = { x: 0, y: 0 }  // 窗口起始位置
 
     // 更新歌词
     ipcRenderer.on('update-lyrics', (event, { lyric, translation }) => {
@@ -294,22 +303,27 @@
       ipcRenderer.send('lyrics-window-hide')
     })
 
-    // 拖拽功能 - 使用相对移动
-    let dragStartPos = { x: 0, y: 0 }  // 鼠标初始位置
-    let windowStartPos = { x: 0, y: 0 }  // 窗口初始位置
-
+    // 拖拽功能 - 在渲染进程直接计算坐标
     container.addEventListener('mousedown', (e) => {
       if (e.target.closest('.control-buttons')) return
 
       isDragging = true
-      dragStartPos = { x: e.clientX, y: e.clientY }
+      dragStartMouse = { x: e.screenX, y: e.screenY }  // 记录鼠标屏幕位置
 
-      // 通知主进程开始拖动，获取当前窗口位置
-      ipcRenderer.send('lyrics-window-drag-start', { clientX: e.clientX, clientY: e.clientY })
-      ipcRenderer.on('lyrics-window-position-response', (event, position) => {
-        windowStartPos = position
-        console.log('拖动开始 - 窗口位置:', windowStartPos, '鼠标位置:', dragStartPos)
-      })
+      // 获取当前容器在屏幕上的位置
+      const rect = container.getBoundingClientRect()
+      dragOffset = {
+        x: e.clientX - rect.left,  // 鼠标在容器内的偏移
+        y: e.clientY - rect.top
+      }
+
+      // 计算窗口左上角的屏幕位置
+      dragStartWindow = {
+        x: e.screenX - dragOffset.x,
+        y: e.screenY - dragOffset.y
+      }
+
+      console.log('拖动开始 - 窗口位置:', dragStartWindow, '偏移量:', dragOffset, '鼠标屏幕:', { x: e.screenX, y: e.screenY })
     })
 
     let lastMoveTime = 0
@@ -322,15 +336,18 @@
       lastMoveTime = now
 
       try {
-        // 计算鼠标移动的增量
-        const deltaX = e.clientX - dragStartPos.x
-        const deltaY = e.clientY - dragStartPos.y
+        // 重新计算偏移量（防止容器尺寸变化）
+        const rect = container.getBoundingClientRect()
+        const currentOffset = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        }
 
-        // 计算新窗口位置
-        const newX = Math.round(windowStartPos.x + deltaX)
-        const newY = Math.round(windowStartPos.y + deltaY)
+        // 计算窗口左上角应该在的屏幕位置
+        const windowX = e.screenX - currentOffset.x
+        const windowY = e.screenY - currentOffset.y
 
-        ipcRenderer.send('lyrics-window-drag-move', { x: newX, y: newY })
+        ipcRenderer.send('lyrics-window-move', { x: windowX, y: windowY })
       } catch (error) {
         console.error('拖动失败:', error)
       }
@@ -339,7 +356,7 @@
     document.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false
-        ipcRenderer.send('lyrics-window-drag-end')
+        console.log('拖动结束')
       }
     })
 
