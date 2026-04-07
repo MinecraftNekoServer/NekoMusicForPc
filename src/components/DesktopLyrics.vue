@@ -11,7 +11,7 @@
         <div class="lyrics-content" :class="{ 'minimized': isMinimized }">
           <div class="lyric-header" v-if="isHovered || isMinimized">
             <div class="lyric-controls">
-              <button @click.stop="toggleMinimize" class="control-btn" :title="isMinimized ? '展开' : '最小化'">
+              <button @click.stop="toggleMinimize" class="control-btn" :title="isMinimized ? t('key.maximize') : t('key.minimize')">
                 <svg v-if="isMinimized" viewBox="0 0 24 24" width="16" height="16">
                   <path fill="currentColor" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
                 </svg>
@@ -19,7 +19,7 @@
                   <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
                 </svg>
               </button>
-              <button @click.stop="resetPosition" class="control-btn" title="重置位置">
+              <button @click.stop="resetPosition" class="control-btn" :title="t('key.refresh')">
                 <svg viewBox="0 0 24 24" width="16" height="16">
                   <path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
                 </svg>
@@ -72,7 +72,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
+
+const { t } = useI18n()
 
 const show = ref(false)
 const lyrics = ref([])

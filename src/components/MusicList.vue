@@ -6,10 +6,10 @@
         <svg class="search-icon" viewBox="0 0 20 20">
           <path fill="currentColor" d="M8 3a5 5 0 100 10A5 5 0 008 3zM0 8a8 8 0 1114.32 4.906l5.387 5.387a1 1 0 01-1.414 1.414l-5.387-5.387A8 8 0 010 8z"/>
         </svg>
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="搜索音乐..." 
+        <input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="t('key.searchPlaceholder')"
           @input="handleSearch"
         />
       </div>
@@ -17,7 +17,7 @@
     
     <div v-if="loading" class="loading">
       <div class="loading-spinner"></div>
-      <p>加载中...</p>
+      <p>{{ t('key.loading') }}</p>
     </div>
     
     <div v-else-if="musicList.length === 0" class="empty">
@@ -26,22 +26,22 @@
           <path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
         </svg>
       </div>
-      <p>暂无音乐</p>
+      <p>{{ t('key.noData') }}</p>
     </div>
     
     <div v-else class="list-container">
       <div class="list-header-row">
         <span class="col-index">#</span>
-        <span class="col-title">标题</span>
-        <span class="col-artist">艺术家</span>
-        <span class="col-album">专辑</span>
-        <span class="col-duration">时长</span>
+        <span class="col-title">{{ t('key.title') }}</span>
+        <span class="col-artist">{{ t('key.artist') }}</span>
+        <span class="col-album">{{ t('key.album') }}</span>
+        <span class="col-duration">{{ t('key.duration') }}</span>
         <span class="col-actions">
-          <button class="header-action-btn" @click="addAllToPlaylist" title="全部添加到播放列表">
+          <button class="header-action-btn" @click="addAllToPlaylist" :title="t('key.playAll')">
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path fill="currentColor" d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
             </svg>
-            <span>全部添加</span>
+            <span>{{ t('key.playAll') }}</span>
           </button>
         </span>
       </div>
@@ -62,7 +62,7 @@
           </span>
           <span class="col-title">
             <div class="cover-wrapper">
-              <img :src="getCoverUrl(music.id)" alt="封面" class="cover" @error="handleCoverError" />
+              <img :src="getCoverUrl(music.id)" :alt="t('key.cover')" class="cover" @error="handleCoverError" />
               <div class="cover-overlay">
                 <svg class="play-overlay-icon" viewBox="0 0 24 24" width="24" height="24">
                   <path fill="currentColor" d="M8 5v14l11-7z"/>
@@ -75,17 +75,17 @@
           <span class="col-album">{{ music.album || '-' }}</span>
           <span class="col-duration">{{ formatDuration(music.duration) }}</span>
           <span class="col-actions">
-            <button class="action-btn" @click.stop="playMusic(music)" title="播放">
+            <button class="action-btn" @click.stop="playMusic(music)" :title="t('key.play')">
               <svg viewBox="0 0 24 24" width="16" height="16">
                 <path fill="currentColor" d="M8 5v14l11-7z"/>
               </svg>
             </button>
-            <button class="action-btn" @click.stop="addToPlaylist(music)" title="添加到播放列表">
+            <button class="action-btn" @click.stop="addToPlaylist(music)" :title="t('key.addToPlaylist')">
               <svg viewBox="0 0 24 24" width="16" height="16">
                 <path fill="currentColor" d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
               </svg>
             </button>
-            <button v-if="showFavorite" class="action-btn" @click.stop="toggleFavorite(music)" title="收藏">
+            <button v-if="showFavorite" class="action-btn" @click.stop="toggleFavorite(music)" :title="isFavorite(music.id) ? t('key.unfavorite') : t('key.favorite')">
               <svg viewBox="0 0 24 24" width="16" height="16">
                 <path :fill="isFavorite(music.id) ? '#e91e63' : 'currentColor'" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
               </svg>
@@ -100,7 +100,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import apiConfig from '../config/apiConfig'
+
+const { t } = useI18n()
 
 // 统一的 API 请求函数
 async function apiRequest(url, options = {}) {
