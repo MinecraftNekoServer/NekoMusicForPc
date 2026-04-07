@@ -84,14 +84,22 @@ const findCurrentLyric = (time) => {
 // 更新歌词窗口显示
 const updateLyricsWindow = () => {
   try {
-    if (!window.electronAPI) return
+    if (!window.electronAPI) {
+      console.log('DesktopLyrics: electronAPI 不存在，无法更新歌词')
+      return
+    }
 
     const lyric = findCurrentLyric(currentTime.value)
+    console.log('DesktopLyrics: 当前时间', currentTime.value, '找到歌词:', lyric)
+    
     if (lyric) {
+      console.log('DesktopLyrics: 发送歌词更新', { lyric: lyric.text, translation: lyric.translation })
       window.electronAPI.updateLyrics({
         lyric: lyric.text,
         translation: lyric.translation
       })
+    } else {
+      console.log('DesktopLyrics: 没有找到对应歌词')
     }
   } catch (error) {
     console.error('DesktopLyrics: 更新歌词窗口失败:', error)
@@ -99,13 +107,16 @@ const updateLyricsWindow = () => {
 }
 
 // 监听时间更新，更新当前歌词
+let lastUpdateTime = 0
 const handleTimeUpdate = (event) => {
   currentTime.value = event.detail.currentTime
-  // 添加节流，每秒最多更新5次
-  if (!DesktopLyrics.lastUpdateTime || Date.now() - DesktopLyrics.lastUpdateTime > 200) {
-    DesktopLyrics.lastUpdateTime = Date.now()
-    updateLyricsWindow()
-  }
+  
+  // 节流：每100ms最多更新一次（即10fps）
+  const now = Date.now()
+  if (now - lastUpdateTime < 100) return
+  lastUpdateTime = now
+  
+  updateLyricsWindow()
 }
 
 // 监听音乐切换

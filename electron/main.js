@@ -636,8 +636,12 @@ ipcMain.on('toggle-lyrics-window', () => {
 
 ipcMain.on('update-lyrics', (event, { lyric, translation }) => {
   try {
+    console.log('主进程: 收到歌词更新请求', { lyric, translation, lyricsWindowExists: !!lyricsWindow })
     if (lyricsWindow && !lyricsWindow.isDestroyed()) {
+      console.log('主进程: 发送歌词到窗口')
       lyricsWindow.webContents.send('update-lyrics', { lyric, translation })
+    } else {
+      console.log('主进程: 歌词窗口不存在或已销毁')
     }
   } catch (error) {
     console.error('更新歌词失败:', error)

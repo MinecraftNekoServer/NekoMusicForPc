@@ -227,10 +227,11 @@
 
     // 更新歌词
     ipcRenderer.on('update-lyrics', (event, { lyric, translation }) => {
-      console.log('歌词窗口: 收到更新歌词请求', { lyric, translation })
+      console.log('歌词窗口: 收到更新歌词请求', { lyric, translation, isMinimized })
       if (lyric) {
         lyricText.textContent = lyric
         lyricText.classList.remove('hidden')
+        console.log('歌词窗口: 更新主歌词:', lyric)
       } else {
         lyricText.textContent = ''
         lyricText.classList.add('hidden')
@@ -239,6 +240,7 @@
       if (translation && !isMinimized) {
         lyricTranslation.textContent = translation
         lyricTranslation.classList.remove('hidden')
+        console.log('歌词窗口: 更新翻译:', translation)
       } else {
         lyricTranslation.textContent = ''
         lyricTranslation.classList.add('hidden')
