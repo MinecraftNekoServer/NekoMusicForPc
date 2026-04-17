@@ -1,6 +1,6 @@
 {
   "name": "NekoMusic",
-  "version": "2026.408.11",
+  "version": "2026.417.12",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
