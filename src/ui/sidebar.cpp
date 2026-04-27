@@ -45,24 +45,22 @@ void Sidebar::setupUi()
     container->setObjectName("sbContainer");
     auto *lay = new QVBoxLayout(container);
     lay->setContentsMargins(10, 12, 10, 12);
-    lay->setSpacing(2);
+    lay->setSpacing(8);
 
     // 主导航（带 SVG 图标）— 当前仅首页可用
     lay->addWidget(createNavItem("home", I18n::instance().tr("home"),
                                  Icons::icon(Icons::kHome, 20, navIconColor(false), navIconColor(true))));
 
-    auto *favBtn = new QPushButton(I18n::instance().tr("favorites"), this);
+    // 我喜欢的（和首页相同样式，暂不响应点击）
+    auto *favBtn = createNavPlaceholder(I18n::instance().tr("favorites"),
+                                        Icons::icon(Icons::kHeart, 20, navIconColor(false), navIconColor(true)));
     favBtn->setObjectName("sbFavBtn");
-    favBtn->setFixedHeight(42);
-    favBtn->setIcon(Icons::render(Icons::kHeart, 20, navIconColor(false)));
-    favBtn->setEnabled(false);
     lay->addWidget(favBtn);
 
-    auto *recBtn = new QPushButton(I18n::instance().tr("recentPlay"), this);
+    // 最近播放（和首页相同样式，暂不响应点击）
+    auto *recBtn = createNavPlaceholder(I18n::instance().tr("recentPlay"),
+                                        Icons::icon(Icons::kClock, 20, navIconColor(false), navIconColor(true)));
     recBtn->setObjectName("sbRecBtn");
-    recBtn->setFixedHeight(42);
-    recBtn->setIcon(Icons::render(Icons::kClock, 20, navIconColor(false)));
-    recBtn->setEnabled(false);
     lay->addWidget(recBtn);
 
     // 分隔线
@@ -104,6 +102,17 @@ QPushButton *Sidebar::createNavItem(const QString &key, const QString &label, co
         emit navigationRequested(key);
     });
     m_navBtns[key] = btn;
+    return btn;
+}
+
+QPushButton *Sidebar::createNavPlaceholder(const QString &label, const QIcon &icon)
+{
+    auto *btn = new QPushButton(label, this);
+    btn->setObjectName("sbNavItem");
+    btn->setFixedHeight(42);
+    btn->setIcon(icon);
+    btn->setCursor(Qt::PointingHandCursor);
+    btn->setEnabled(false);
     return btn;
 }
 
