@@ -1,40 +1,97 @@
+/**
+ * @file mainwindow.cpp
+ * @brief 主窗口实现 — 日系动漫风
+ *
+ * 无边框 + 自定义标题栏拖拽。
+ * 深夜紫黑渐变背景，全层级毛玻璃。
+ */
+
 #include "mainwindow.h"
+#include "ui/titlebar.h"
+#include "ui/sidebar.h"
+#include "ui/homepage.h"
+#include "ui/playerbar.h"
+#include "core/playerengine.h"
+#include "theme/theme.h"
 
-#include <QMenuBar>
-#include <QStatusBar>
-#include <QToolBar>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPainter>
+#include <QFile>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setWindowTitle(tr("NekoMusic"));
-    resize(1000, 680);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, false);
 
-    // Menu bar
-    auto *menuBar = this->menuBar();
-    auto *fileMenu = menuBar->addMenu(tr("&File"));
-    fileMenu->addAction(tr("&Open"), QKeySequence::Open, this, [this]() {
-        // TODO: open file dialog
-    });
-    fileMenu->addSeparator();
-    fileMenu->addAction(tr("&Quit"), QKeySequence::Quit, this, &QWidget::close);
+    m_engine = new PlayerEngine(this);
+    setupUi();
+    loadStyleSheet();
 
-    auto *helpMenu = menuBar->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), this, [this]() {
-        // TODO: about dialog
-    });
-
-    // Toolbar
-    auto *toolbar = addToolBar(tr("Playback"));
-    toolbar->addAction(tr("Play"), [this]() {
-        // TODO: play
-    });
-    toolbar->addAction(tr("Pause"), [this]() {
-        // TODO: pause
-    });
-
-    // Status bar
-    statusBar()->showMessage(tr("Ready"));
+    setWindowTitle(QStringLiteral("NekoMusic"));
+    resize(1200, 800);
+    setMinimumSize(960, 640);
 }
 
 MainWindow::~MainWindow() = default;
+
+void MainWindow::setupUi()
+{
+    auto *central = new QWidget(this);
+    central->setObjectName("centralWidget");
+    setCentralWidget(central);
+
+    auto *mainH = new QHBoxLayout(central);
+    mainH->setContentsMargins(0, 0, 0, 0);
+    mainH->setSpacing(0);
+
+    // 侧边栏
+    m_sidebar = new Sidebar(this);
+    mainH->addWidget(m_sidebar);
+
+    // 右侧
+    auto *right = new QWidget(this);
+    right->setObjectName("rightArea");
+    auto *rightV = new QVBoxLayout(right);
+    rightV->setContentsMargins(0, 0, 0, 0);
+    rightV->setSpacing(0);
+
+    // 标题栏
+    m_titleBar = new TitleBar(this);
+    rightV->addWidget(m_titleBar);
+
+    // 页面容器
+    m_stack = new QStackedWidget(this);
+    m_stack->setObjectName("pageStack");
+    m_homePage = new HomePage(this);
+    m_stack->addWidget(m_homePage);
+    rightV->addWidget(m_stack, 1);
+
+    // 播放栏
+    m_playerBar = new PlayerBar(m_engine, this);
+    rightV->addWidget(m_playerBar);
+
+    mainH->addWidget(right, 1);
+
+    // 连接导航
+    connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
+        if (key == "home") m_stack->setCurrentWidget(m_homePage);
+    });
+}
+
+void MainWindow::loadStyleSheet()
+{
+    QFile f(":/style.qss");
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+        setStyleSheet(QString::fromUtf8(f.readAll()));
+}
+
+void MainWindow::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    QLinearGradient bg(rect().topLeft(), QPoint(rect().width() * 0.3, rect().height()));
+    bg.setColorAt(0.0, QColor(26, 22, 37));   // #1A1625
+    bg.setColorAt(1.0, QColor(36, 31, 49));   // #241F31
+    p.fillRect(rect(), bg);
+}

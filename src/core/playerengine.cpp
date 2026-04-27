@@ -48,6 +48,16 @@ PlayerEngine::PlaybackState PlayerEngine::playbackState() const
     return m_state;
 }
 
+qint64 PlayerEngine::duration() const
+{
+    return m_player->duration();
+}
+
+qint64 PlayerEngine::position() const
+{
+    return m_player->position();
+}
+
 void PlayerEngine::onMediaStateChanged(QMediaPlayer::PlaybackState state)
 {
     switch (state) {

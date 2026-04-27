@@ -14,7 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Multimedia Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Multimedia Network SvgWidgets)
 
 # Platform-specific settings
 if(WIN32)
@@ -32,12 +32,31 @@ endif()
 set(SOURCES
     src/main.cpp
     src/ui/mainwindow.cpp
+    src/ui/glasswidget.cpp
+    src/ui/titlebar.cpp
+    src/ui/sidebar.cpp
+    src/ui/carousel.cpp
+    src/ui/homepage.cpp
+    src/ui/playlistcard.cpp
+    src/ui/playerbar.cpp
+    src/ui/svgicon.cpp
     src/core/playerengine.cpp
+    src/core/apiclient.cpp
 )
 
 set(HEADERS
     src/ui/mainwindow.h
+    src/ui/glasswidget.h
+    src/ui/titlebar.h
+    src/ui/sidebar.h
+    src/ui/carousel.h
+    src/ui/homepage.h
+    src/ui/playlistcard.h
+    src/ui/playerbar.h
+    src/ui/svgicon.h
     src/core/playerengine.h
+    src/core/apiclient.h
+    src/theme/theme.h
 )
 
 # Resources
@@ -60,6 +79,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Widgets
     Qt6::Multimedia
     Qt6::Network
+    Qt6::SvgWidgets
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
