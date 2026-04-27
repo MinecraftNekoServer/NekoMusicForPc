@@ -16,23 +16,12 @@
 | Qt 6 | ≥ 6.2 |
 | C++17 编译器 | GCC ≥ 9 / MSVC 2019 / Clang ≥ 10 |
 
-**Linux (Debian/Ubuntu) 安装依赖：**
+**安装依赖：**
 
 ```bash
 sudo apt install cmake qt6-base-dev qt6-multimedia-dev
 ```
 
-**Windows (vcpkg)：**
-
-```bash
-vcpkg install qtbase qtmultimedia
-```
-
-**macOS (Homebrew)：**
-
-```bash
-brew install cmake qt
-```
 
 ### 配置
 
