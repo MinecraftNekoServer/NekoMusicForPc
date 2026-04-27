@@ -9,6 +9,7 @@
 #include "sidebar.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
+#include "core/i18n.h"
 
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -47,17 +48,17 @@ void Sidebar::setupUi()
     lay->setSpacing(2);
 
     // 主导航（带 SVG 图标）— 当前仅首页可用
-    lay->addWidget(createNavItem("home", QStringLiteral("首页"),
+    lay->addWidget(createNavItem("home", I18n::instance().tr("home"),
                                  Icons::icon(Icons::kHome, 20, navIconColor(false), navIconColor(true))));
 
-    auto *favBtn = new QPushButton(QStringLiteral("收藏"), this);
+    auto *favBtn = new QPushButton(I18n::instance().tr("favorites"), this);
     favBtn->setObjectName("sbNavItem");
     favBtn->setFixedHeight(42);
     favBtn->setIcon(Icons::render(Icons::kHeart, 20, navIconColor(false)));
     favBtn->setEnabled(false);
     lay->addWidget(favBtn);
 
-    auto *recBtn = new QPushButton(QStringLiteral("最近播放"), this);
+    auto *recBtn = new QPushButton(I18n::instance().tr("recentPlay"), this);
     recBtn->setObjectName("sbNavItem");
     recBtn->setFixedHeight(42);
     recBtn->setIcon(Icons::render(Icons::kClock, 20, navIconColor(false)));
@@ -71,17 +72,18 @@ void Sidebar::setupUi()
     lay->addWidget(div);
 
     // 歌单区域标题
-    auto *plHeader = new QLabel(QStringLiteral("我的歌单"), container);
+    auto *plHeader = new QLabel(I18n::instance().tr("myPlaylistsTitle"), container);
     plHeader->setObjectName("sbPlaylistTitle");
     lay->addWidget(plHeader);
 
     // 占位
-    auto *empty = new QLabel(QStringLiteral("登录后查看"), container);
+    auto *empty = new QLabel(I18n::instance().tr("goToLogin"), container);
     empty->setObjectName("sbEmpty");
     empty->setAlignment(Qt::AlignCenter);
     lay->addWidget(empty);
 
     lay->addStretch();
+
     scroll->setWidget(container);
 
     auto *outer = new QVBoxLayout(this);
@@ -116,6 +118,8 @@ void Sidebar::setActiveNav(const QString &key)
         // 更新图标颜色
         if (it.key() == "home") {
             it.value()->setIcon(Icons::render(Icons::kHome, 20, navIconColor(active)));
+        } else if (it.key() == "settings") {
+            it.value()->setIcon(Icons::render(Icons::kSettings, 20, navIconColor(active)));
         }
     }
 }

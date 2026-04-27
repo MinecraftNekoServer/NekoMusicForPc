@@ -10,6 +10,7 @@
 #include "carousel.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
+#include "core/i18n.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -87,7 +88,7 @@ void Carousel::setupUi()
     m_playBtn = new QPushButton(this);
     m_playBtn->setObjectName("carouselPlayBtn");
     m_playBtn->setFixedSize(100, 40);
-    m_playBtn->setText(QStringLiteral("\u25B6 \u64AD\u653E"));  // ▶ 播放
+    m_playBtn->setText(I18n::instance().tr("play"));
     m_playBtn->setCursor(Qt::PointingHandCursor);
     connect(m_playBtn, &QPushButton::clicked, this, [this]() {
         if (m_currentIndex >= 0 && m_currentIndex < m_items.size())

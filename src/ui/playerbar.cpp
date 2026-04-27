@@ -10,6 +10,7 @@
 #include "core/playerengine.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
+#include "core/i18n.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -65,10 +66,10 @@ void PlayerBar::setupUi()
 
     auto *infoL = new QVBoxLayout();
     infoL->setSpacing(2);
-    m_songName = new QLabel(QStringLiteral("未在播放"), this);
+    m_songName = new QLabel(I18n::instance().tr("notPlaying"), this);
     m_songName->setObjectName("pbSong");
     infoL->addWidget(m_songName);
-    m_artist = new QLabel(QStringLiteral("--"), this);
+    m_artist = new QLabel(I18n::instance().tr("unknown"), this);
     m_artist->setObjectName("pbArtist");
     infoL->addWidget(m_artist);
     ll->addLayout(infoL);
@@ -89,7 +90,7 @@ void PlayerBar::setupUi()
     prevBtn->setFixedSize(32, 32);
     prevBtn->setIcon(Icons::icon(Icons::kPrev, 20, kCtrlNormal, kCtrlActive));
     prevBtn->setCursor(Qt::PointingHandCursor);
-    prevBtn->setToolTip(QStringLiteral("上一曲"));
+    prevBtn->setToolTip(I18n::instance().tr("previous"));
     ctrlL->addWidget(prevBtn);
 
     m_playBtn = new QPushButton(this);
@@ -97,7 +98,7 @@ void PlayerBar::setupUi()
     m_playBtn->setFixedSize(40, 40);
     m_playBtn->setIcon(Icons::icon(Icons::kPlay, 24, kCtrlNormal, kCtrlActive));
     m_playBtn->setCursor(Qt::PointingHandCursor);
-    m_playBtn->setToolTip(QStringLiteral("播放"));
+    m_playBtn->setToolTip(I18n::instance().tr("play"));
     ctrlL->addWidget(m_playBtn);
 
     auto *nextBtn = new QPushButton(this);
@@ -105,7 +106,7 @@ void PlayerBar::setupUi()
     nextBtn->setFixedSize(32, 32);
     nextBtn->setIcon(Icons::icon(Icons::kNext, 20, kCtrlNormal, kCtrlActive));
     nextBtn->setCursor(Qt::PointingHandCursor);
-    nextBtn->setToolTip(QStringLiteral("下一曲"));
+    nextBtn->setToolTip(I18n::instance().tr("next"));
     ctrlL->addWidget(nextBtn);
 
     cl->addLayout(ctrlL);
@@ -144,7 +145,7 @@ void PlayerBar::setupUi()
     modeBtn->setFixedSize(28, 28);
     modeBtn->setIcon(Icons::icon(Icons::kShuffle, 18, kCtrlNormal, kCtrlActive));
     modeBtn->setCursor(Qt::PointingHandCursor);
-    modeBtn->setToolTip(QStringLiteral("播放模式"));
+    modeBtn->setToolTip(I18n::instance().tr("playModeList"));
     rl->addWidget(modeBtn);
 
     m_volume = new QSlider(Qt::Horizontal, this);
@@ -182,7 +183,7 @@ void PlayerBar::updateState()
     if (!m_engine) return;
     bool playing = m_engine->playbackState() == PlayerEngine::Playing;
     m_playBtn->setIcon(Icons::render(playing ? Icons::kPause : Icons::kPlay, 24, kCtrlNormal));
-    m_playBtn->setToolTip(playing ? QStringLiteral("暂停") : QStringLiteral("播放"));
+    m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
 }
 
 void PlayerBar::paintEvent(QPaintEvent *)

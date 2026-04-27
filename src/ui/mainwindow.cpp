@@ -10,6 +10,7 @@
 #include "ui/titlebar.h"
 #include "ui/sidebar.h"
 #include "ui/homepage.h"
+#include "ui/settingspage.h"
 #include "ui/playerbar.h"
 #include "core/playerengine.h"
 #include "theme/theme.h"
@@ -64,7 +65,9 @@ void MainWindow::setupUi()
     m_stack = new QStackedWidget(this);
     m_stack->setObjectName("pageStack");
     m_homePage = new HomePage(this);
+    m_settingsPage = new SettingsPage(this);
     m_stack->addWidget(m_homePage);
+    m_stack->addWidget(m_settingsPage);
     rightV->addWidget(m_stack, 1);
 
     // 播放栏
@@ -77,6 +80,10 @@ void MainWindow::setupUi()
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
         if (key == "home") m_stack->setCurrentWidget(m_homePage);
     });
+    connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
+        m_stack->setCurrentWidget(m_settingsPage);
+    });
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_homePage, &HomePage::retranslate);
 }
 
 void MainWindow::loadStyleSheet()

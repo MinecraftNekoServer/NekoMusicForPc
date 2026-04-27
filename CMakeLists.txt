@@ -40,8 +40,10 @@ set(SOURCES
     src/ui/playlistcard.cpp
     src/ui/playerbar.cpp
     src/ui/svgicon.cpp
+    src/ui/settingspage.cpp
     src/core/playerengine.cpp
     src/core/apiclient.cpp
+    src/core/i18n.cpp
 )
 
 set(HEADERS
@@ -54,8 +56,10 @@ set(HEADERS
     src/ui/playlistcard.h
     src/ui/playerbar.h
     src/ui/svgicon.h
+    src/ui/settingspage.h
     src/core/playerengine.h
     src/core/apiclient.h
+    src/core/i18n.h
     src/theme/theme.h
 )
 

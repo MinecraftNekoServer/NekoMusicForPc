@@ -40,6 +40,7 @@ signals:
 
 public slots:
     void refreshData();
+    void retranslate();
 
 protected:
     void paintEvent(QPaintEvent *) override;
