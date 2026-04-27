@@ -92,7 +92,7 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     auto *minBtn = new QPushButton(this);
     minBtn->setObjectName("tbMinBtn");
     minBtn->setFixedSize(32, 32);
-    minBtn->setIcon(Icons::icon(Icons::kMinimize, 16, kIconNormal, kMinHover));
+    minBtn->setIcon(Icons::icon(Icons::kMinimize, 20, kIconNormal, kMinHover));
     minBtn->setCursor(Qt::PointingHandCursor);
     minBtn->setToolTip(QStringLiteral("最小化"));
     connect(minBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->showMinimized(); });
@@ -101,7 +101,7 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     auto *maxBtn = new QPushButton(this);
     maxBtn->setObjectName("tbMaxBtn");
     maxBtn->setFixedSize(32, 32);
-    maxBtn->setIcon(Icons::icon(Icons::kMaximize, 16, kIconNormal, kMaxHover));
+    maxBtn->setIcon(Icons::icon(Icons::kMaximize, 20, kIconNormal, kMaxHover));
     maxBtn->setCursor(Qt::PointingHandCursor);
     maxBtn->setToolTip(QStringLiteral("最大化"));
     connect(maxBtn, &QPushButton::clicked, this, [this]() {
@@ -112,7 +112,7 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     auto *closeBtn = new QPushButton(this);
     closeBtn->setObjectName("tbCloseBtn");
     closeBtn->setFixedSize(32, 32);
-    closeBtn->setIcon(Icons::icon(Icons::kClose, 16, kIconNormal, kCloseHover));
+    closeBtn->setIcon(Icons::icon(Icons::kClose, 20, kIconNormal, kCloseHover));
     closeBtn->setCursor(Qt::PointingHandCursor);
     closeBtn->setToolTip(QStringLiteral("关闭"));
     connect(closeBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->close(); });
