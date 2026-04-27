@@ -77,7 +77,8 @@ cmake --install build/linux-release --prefix /usr/local
 
 ### 1. 前置要求
 
-首先，请确保你的电脑里住着 **Node.js 22** 版本。你可以通过以下命令检查喵：
+首先，请确保你的电脑里住着 **Node.js 22** 版本。你可以通过以下
+命令检查喵：
 
 ```bash
 node -v  # 确认输出为 v22.x.x
