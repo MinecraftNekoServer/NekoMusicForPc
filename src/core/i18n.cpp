@@ -245,6 +245,8 @@ static QMap<QString, QString> zhCN()
     m["switchLanguageSuccess"] = QStringLiteral("语言设置已保存");
     m["switchLanguageFailed"] = QStringLiteral("切换语言失败");
     m["checkUpdateFailed"] = QStringLiteral("检查更新失败，请稍后重试");
+    m["showWindow"] = QStringLiteral("显示窗口");
+    m["exitApp"] = QStringLiteral("退出");
     m["sendVerifyCodeFailed"] = QStringLiteral("发送验证码失败");
     m["verifyCodeSent"] = QStringLiteral("验证码已发送至您的邮箱");
     m["codeSent"] = QStringLiteral("验证码已发送");
@@ -377,6 +379,8 @@ static QMap<QString, QString> nyaCN()
     m["playModeSingle"] = QStringLiteral("单曲循环喵~");
     m["playModeRandom"] = QStringLiteral("随机播放喵~");
     m["playModeOff"] = QStringLiteral("不循环喵~");
+    m["showWindow"] = QStringLiteral("显示窗口喵~");
+    m["exitApp"] = QStringLiteral("退出喵~");
     return m;
 }
 
@@ -643,6 +647,9 @@ static QMap<QString, QString> enUS()
     m["parseRecentPlayListFailed"] = "Failed to parse recent plays";
     m["parseMusicFailed"] = "Failed to parse music";
 
+    m["showWindow"] = "Show Window";
+    m["exitApp"] = "Exit";
+
     return m;
 }
 
@@ -664,3 +671,5 @@ QString I18n::languageChinese() const { return tr("languageChinese"); }
 QString I18n::languageEnglish() const { return tr("languageEnglish"); }
 QString I18n::languageZhCN() const { return tr("languageChinese"); }
 QString I18n::languageEnUS() const { return tr("languageEnglish"); }
+QString I18n::showWindow() const { return tr("showWindow"); }
+QString I18n::exitApp() const { return tr("exitApp"); }

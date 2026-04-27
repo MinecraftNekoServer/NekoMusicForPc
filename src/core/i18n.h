@@ -33,6 +33,8 @@ public:
     QString languageEnglish() const;
     QString languageZhCN() const;
     QString languageEnUS() const;
+    QString showWindow() const;
+    QString exitApp() const;
 
 private:
     I18n() = default;

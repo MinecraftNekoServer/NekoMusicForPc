@@ -15,7 +15,10 @@
 #include "ui/recentpage.h"
 #include "ui/playerbar.h"
 #include "core/playerengine.h"
+#include "core/i18n.h"
 #include "theme/theme.h"
+
+#include <QApplication>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -23,6 +26,10 @@
 #include <QFile>
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QCloseEvent>
+#include <QAction>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -32,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_engine = new PlayerEngine(this);
     setupUi();
     loadStyleSheet();
+    setupTray();
 
     setWindowTitle(QStringLiteral("NekoMusic"));
     resize(1200, 800);
@@ -154,4 +162,42 @@ void MainWindow::switchPage(QWidget *target)
 
     fadeOut->start(QAbstractAnimation::DeleteWhenStopped);
     fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MainWindow::setupTray()
+{
+    if (!QSystemTrayIcon::isSystemTrayAvailable())
+        return;
+
+    m_trayMenu = new QMenu(this);
+    auto *showAction = m_trayMenu->addAction(I18n::instance().showWindow());
+    connect(showAction, &QAction::triggered, this, [this]() {
+        if (isVisible()) hide(); else show();
+    });
+    m_trayMenu->addSeparator();
+    auto *exitAction = m_trayMenu->addAction(I18n::instance().exitApp());
+    connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
+
+    m_tray = new QSystemTrayIcon(this);
+    m_tray->setIcon(QIcon(QStringLiteral(":/icons/app.png")));
+    m_tray->setContextMenu(m_trayMenu);
+    m_tray->setToolTip(QStringLiteral("NekoMusic"));
+
+    connect(m_tray, &QSystemTrayIcon::activated,
+            this, &MainWindow::onTrayActivated);
+
+    m_tray->show();
+}
+
+void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::DoubleClick) {
+        if (isVisible()) hide(); else show();
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    hide();
+    event->ignore();
 }
