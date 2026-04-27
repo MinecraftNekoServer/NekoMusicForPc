@@ -10,7 +10,10 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include <QSystemTrayIcon>
 
+class QCloseEvent;
+class QMenu;
 class TitleBar;
 class Sidebar;
 class HomePage;
@@ -30,13 +33,18 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *) override;
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     void setupUi();
     void loadStyleSheet();
     void switchPage(QWidget *target);
+    void setupTray();
+    void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
 
     bool m_switching = false;
+    QSystemTrayIcon *m_tray = nullptr;
+    QMenu *m_trayMenu = nullptr;
     TitleBar *m_titleBar = nullptr;
     Sidebar *m_sidebar = nullptr;
     HomePage *m_homePage = nullptr;

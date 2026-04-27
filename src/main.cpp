@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
     app.setFont(font);
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
 
+    QApplication::setQuitOnLastWindowClosed(false);
+
     MainWindow window;
     window.show();
 
