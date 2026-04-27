@@ -107,6 +107,11 @@ static QMap<QString, QString> zhCN()
     m["newSongs"] = QStringLiteral("新歌上架");
     m["discoverMusic"] = QStringLiteral("去发现音乐");
     m["recommendPlaylists"] = QStringLiteral("推荐歌单");
+    m["recommend_playlists"] = QStringLiteral("推荐歌单");
+    m["hotMusic"] = QStringLiteral("热门音乐");
+    m["hot_music"] = QStringLiteral("热门音乐");
+    m["latestMusic"] = QStringLiteral("最新音乐");
+    m["latest_music"] = QStringLiteral("最新音乐");
     m["searchMusic"] = QStringLiteral("单曲");
     m["searchPlaylist"] = QStringLiteral("歌单");
     m["searchResults"] = QStringLiteral("搜索结果");
@@ -334,6 +339,11 @@ static QMap<QString, QString> nyaCN()
     m["newSongs"] = QStringLiteral("新歌上架喵~");
     m["discoverMusic"] = QStringLiteral("去发现音乐喵~");
     m["recommendPlaylists"] = QStringLiteral("推荐歌单喵~");
+    m["recommend_playlists"] = QStringLiteral("推荐歌单喵~");
+    m["hotMusic"] = QStringLiteral("热门音乐喵~");
+    m["hot_music"] = QStringLiteral("热门音乐喵~");
+    m["latestMusic"] = QStringLiteral("最新音乐喵~");
+    m["latest_music"] = QStringLiteral("最新音乐喵~");
     m["login"] = QStringLiteral("登录喵~");
     m["logout"] = QStringLiteral("退出登录喵~");
     m["register"] = QStringLiteral("注册喵~");
@@ -460,6 +470,11 @@ static QMap<QString, QString> enUS()
     m["newSongs"] = "New Songs";
     m["discoverMusic"] = "Discover Music";
     m["recommendPlaylists"] = "Recommended Playlists";
+    m["recommend_playlists"] = "Recommended Playlists";
+    m["hotMusic"] = "Hot Music";
+    m["hot_music"] = "Hot Music";
+    m["latestMusic"] = "Latest Music";
+    m["latest_music"] = "Latest Music";
     m["searchMusic"] = "Songs";
     m["searchPlaylist"] = "Playlists";
     m["searchResults"] = "Search Results";
