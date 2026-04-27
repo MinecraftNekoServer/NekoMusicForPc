@@ -47,19 +47,19 @@ void Sidebar::setupUi()
     lay->setContentsMargins(10, 12, 10, 12);
     lay->setSpacing(8);
 
-    // 主导航（带 SVG 图标）— 当前仅首页可用
+    // 主导航（带 SVG 图标）
     lay->addWidget(createNavItem("home", I18n::instance().tr("home"),
-                                 Icons::icon(Icons::kHome, 20, navIconColor(false), navIconColor(true))));
+                                 Icons::icon(Icons::kHome, 20, navIconColor(true), navIconColor(true))));
 
     // 我喜欢的（和首页相同样式，暂不响应点击）
     auto *favBtn = createNavPlaceholder(I18n::instance().tr("favorites"),
-                                        Icons::icon(Icons::kHeart, 20, navIconColor(false), navIconColor(true)));
+                                        Icons::icon(Icons::kHeart, 20, navIconColor(true), navIconColor(true)));
     favBtn->setObjectName("sbFavBtn");
     lay->addWidget(favBtn);
 
     // 最近播放（和首页相同样式，暂不响应点击）
     auto *recBtn = createNavPlaceholder(I18n::instance().tr("recentPlay"),
-                                        Icons::icon(Icons::kClock, 20, navIconColor(false), navIconColor(true)));
+                                        Icons::icon(Icons::kClock, 20, navIconColor(true), navIconColor(true)));
     recBtn->setObjectName("sbRecBtn");
     lay->addWidget(recBtn);
 
