@@ -19,6 +19,7 @@ class TitleBar : public QWidget
 
 public:
     explicit TitleBar(QWidget *parent = nullptr);
+    ~TitleBar() override;
     void retranslate();
 
 signals:
@@ -26,17 +27,13 @@ signals:
     void settingsClicked();
 
 protected:
-    void mousePressEvent(QMouseEvent *) override;
-    void mouseMoveEvent(QMouseEvent *) override;
-    void mouseReleaseEvent(QMouseEvent *) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
     void paintEvent(QPaintEvent *) override;
 
 private:
+    void setupUi();
     QLineEdit *m_search = nullptr;
     QLabel *m_logo = nullptr;
     QLabel *m_name = nullptr;
-
-    bool m_dragging = false;
-    QPoint m_dragPos;
 };

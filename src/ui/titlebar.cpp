@@ -18,6 +18,9 @@
 #include <QLinearGradient>
 #include <QMouseEvent>
 #include <QStyle>
+#include <QEvent>
+#include <QGuiApplication>
+#include <QWindow>
 
 namespace {
 const QColor kIconNormal = QColor(245, 240, 255, 166);
@@ -27,6 +30,59 @@ const QColor kCloseActive = QColor(242, 100, 100, 230);
 }
 
 TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
+{
+    setupUi();
+    // 安装事件过滤器到 QApplication，捕获标题栏内所有子控件的鼠标事件
+    QGuiApplication::instance()->installEventFilter(this);
+}
+
+TitleBar::~TitleBar() = default;
+
+bool TitleBar::eventFilter(QObject *watched, QEvent *event)
+{
+    // 只处理 TitleBar 及其子控件的事件
+    auto *w = qobject_cast<QWidget *>(watched);
+    if (!w || !isAncestorOf(w)) {
+        return QObject::eventFilter(watched, event);
+    }
+
+    switch (event->type()) {
+    case QEvent::MouseButtonPress: {
+        auto *e = static_cast<QMouseEvent *>(event);
+        if (e->button() == Qt::LeftButton) {
+            // 按钮和输入框不拦截，让它们自己处理
+            if (qobject_cast<QPushButton *>(w) || qobject_cast<QLineEdit *>(w)) {
+                return false;
+            }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            if (window()) window()->windowHandle()->startSystemMove();
+#endif
+            return true;
+        }
+        break;
+    }
+    case QEvent::MouseButtonDblClick: {
+        auto *e = static_cast<QMouseEvent *>(event);
+        if (e->button() == Qt::LeftButton && window()) {
+            if (qobject_cast<QPushButton *>(w)) return false;
+            window()->isMaximized() ? window()->showNormal() : window()->showMaximized();
+            return true;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return QObject::eventFilter(watched, event);
+}
+
+void TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton && window())
+        window()->isMaximized() ? window()->showNormal() : window()->showMaximized();
+}
+
+void TitleBar::setupUi()
 {
     setFixedHeight(Theme::kTitleBarH);
     setAttribute(Qt::WA_StyledBackground, false);
@@ -144,31 +200,4 @@ void TitleBar::paintEvent(QPaintEvent *)
     line.setColorAt(1.0, QColor(196, 167, 231, 0));
     p.setPen(QPen(QBrush(line), 1));
     p.drawLine(rect().bottomLeft(), rect().bottomRight());
-}
-
-void TitleBar::mousePressEvent(QMouseEvent *e)
-{
-    if (e->button() == Qt::LeftButton) {
-        m_dragging = true;
-        m_dragPos = e->globalPosition().toPoint() - window()->pos();
-    }
-}
-
-void TitleBar::mouseMoveEvent(QMouseEvent *e)
-{
-    if (m_dragging && window()) {
-        if (window()->isMaximized()) {
-            window()->showNormal();
-            m_dragPos = QPoint(window()->width() / 2, Theme::kTitleBarH / 2);
-        }
-        window()->move(e->globalPosition().toPoint() - m_dragPos);
-    }
-}
-
-void TitleBar::mouseReleaseEvent(QMouseEvent *) { m_dragging = false; }
-
-void TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
-{
-    if (e->button() == Qt::LeftButton && window())
-        window()->isMaximized() ? window()->showNormal() : window()->showMaximized();
 }
