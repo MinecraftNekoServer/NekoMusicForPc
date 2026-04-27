@@ -21,6 +21,7 @@ class Sidebar : public QWidget
 public:
     explicit Sidebar(QWidget *parent = nullptr);
     void setActiveNav(const QString &key);
+    void retranslate();
 
 signals:
     void navigationRequested(const QString &key);

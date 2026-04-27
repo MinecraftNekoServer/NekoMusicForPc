@@ -84,6 +84,9 @@ void MainWindow::setupUi()
         m_stack->setCurrentWidget(m_settingsPage);
     });
     connect(m_settingsPage, &SettingsPage::languageChanged, m_homePage, &HomePage::retranslate);
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_sidebar, &Sidebar::retranslate);
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_titleBar, &TitleBar::retranslate);
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_playerBar, &PlayerBar::retranslate);
 }
 
 void MainWindow::loadStyleSheet()

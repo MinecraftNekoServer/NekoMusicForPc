@@ -112,6 +112,15 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     lay->addWidget(closeBtn);
 }
 
+void TitleBar::retranslate()
+{
+    auto *search = findChild<QLineEdit *>("tbSearch");
+    if (search) search->setPlaceholderText(I18n::instance().tr("searchPlaceholder"));
+
+    auto *settingsBtn = findChild<QPushButton *>("tbIconBtn");
+    if (settingsBtn) settingsBtn->setToolTip(I18n::instance().tr("settings"));
+}
+
 void TitleBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);

@@ -52,14 +52,14 @@ void Sidebar::setupUi()
                                  Icons::icon(Icons::kHome, 20, navIconColor(false), navIconColor(true))));
 
     auto *favBtn = new QPushButton(I18n::instance().tr("favorites"), this);
-    favBtn->setObjectName("sbNavItem");
+    favBtn->setObjectName("sbFavBtn");
     favBtn->setFixedHeight(42);
     favBtn->setIcon(Icons::render(Icons::kHeart, 20, navIconColor(false)));
     favBtn->setEnabled(false);
     lay->addWidget(favBtn);
 
     auto *recBtn = new QPushButton(I18n::instance().tr("recentPlay"), this);
-    recBtn->setObjectName("sbNavItem");
+    recBtn->setObjectName("sbRecBtn");
     recBtn->setFixedHeight(42);
     recBtn->setIcon(Icons::render(Icons::kClock, 20, navIconColor(false)));
     recBtn->setEnabled(false);
@@ -122,6 +122,24 @@ void Sidebar::setActiveNav(const QString &key)
             it.value()->setIcon(Icons::render(Icons::kSettings, 20, navIconColor(active)));
         }
     }
+}
+
+void Sidebar::retranslate()
+{
+    auto *homeBtn = m_navBtns.value("home");
+    if (homeBtn) homeBtn->setText(I18n::instance().tr("home"));
+
+    auto *favBtn = findChild<QPushButton *>("sbFavBtn");
+    if (favBtn) favBtn->setText(I18n::instance().tr("favorites"));
+
+    auto *recBtn = findChild<QPushButton *>("sbRecBtn");
+    if (recBtn) recBtn->setText(I18n::instance().tr("recentPlay"));
+
+    auto *plHeader = findChild<QLabel *>("sbPlaylistTitle");
+    if (plHeader) plHeader->setText(I18n::instance().tr("myPlaylistsTitle"));
+
+    auto *empty = findChild<QLabel *>("sbEmpty");
+    if (empty) empty->setText(I18n::instance().tr("goToLogin"));
 }
 
 void Sidebar::paintEvent(QPaintEvent *)

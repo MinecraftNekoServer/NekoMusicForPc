@@ -21,6 +21,7 @@ class PlayerBar : public QWidget
 
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
+    void retranslate();
 
 protected:
     void paintEvent(QPaintEvent *) override;

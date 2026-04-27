@@ -178,6 +178,37 @@ void PlayerBar::setupUi()
     }
 }
 
+void PlayerBar::retranslate()
+{
+    // Update default labels if still showing defaults
+    if (m_songName && (m_songName->text() == "未在播放" || m_songName->text() == I18n::instance().tr("notPlaying")))
+        m_songName->setText(I18n::instance().tr("notPlaying"));
+    if (m_artist && (m_artist->text() == "--" || m_artist->text() == I18n::instance().tr("unknown")))
+        m_artist->setText(I18n::instance().tr("unknown"));
+
+    // Update tooltips by objectName
+    auto *prevBtn = findChild<QPushButton *>("pbCtrlBtn", Qt::FindDirectChildrenOnly);
+    if (prevBtn) prevBtn->setToolTip(I18n::instance().tr("previous"));
+
+    if (m_playBtn) {
+        bool playing = m_engine && m_engine->playbackState() == PlayerEngine::Playing;
+        m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
+    }
+
+    auto *nextBtn = findChild<QPushButton *>("pbCtrlBtn", Qt::FindChildrenRecursively);
+    // find all pbCtrlBtn buttons and set appropriate tooltips
+    auto btns = findChildren<QPushButton *>();
+    int ctrlCount = 0;
+    for (auto *btn : btns) {
+        if (btn->objectName() == "pbCtrlBtn") {
+            if (ctrlCount == 0) btn->setToolTip(I18n::instance().tr("previous"));
+            else if (ctrlCount == 1) btn->setToolTip(I18n::instance().tr("next"));
+            else if (ctrlCount == 2) btn->setToolTip(I18n::instance().tr("playModeList"));
+            ctrlCount++;
+        }
+    }
+}
+
 void PlayerBar::updateState()
 {
     if (!m_engine) return;
