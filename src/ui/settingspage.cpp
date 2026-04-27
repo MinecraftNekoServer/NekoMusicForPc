@@ -14,6 +14,7 @@
 #include <QComboBox>
 #include <QScrollArea>
 #include <QFrame>
+#include <QSettings>
 
 SettingsPage::SettingsPage(QWidget *parent) : QWidget(parent)
 {
@@ -54,11 +55,22 @@ void SettingsPage::setupUi()
     m_langCombo->addItem(I18n::instance().languageChinese(), I18n::ZhCN);
     m_langCombo->addItem(I18n::instance().languageNya(), I18n::NyaCN);
     m_langCombo->addItem(I18n::instance().languageEnglish(), I18n::EnUS);
-    m_langCombo->setCurrentIndex(0);
+
+    // 恢复保存的语言设置
+    QSettings settings;
+    I18n::Language savedLang = static_cast<I18n::Language>(
+        settings.value("language", static_cast<int>(I18n::ZhCN)).toInt());
+    I18n::instance().setLanguage(savedLang);
+    int idx = (savedLang == I18n::ZhCN) ? 0 : (savedLang == I18n::NyaCN) ? 1 : 2;
+    m_langCombo->setCurrentIndex(idx);
+
     m_langCombo->blockSignals(false);
     connect(m_langCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
         auto lang = static_cast<I18n::Language>(m_langCombo->itemData(index).toInt());
         I18n::instance().setLanguage(lang);
+        // 保存设置
+        QSettings settings;
+        settings.setValue("language", static_cast<int>(lang));
         retranslate();
         emit languageChanged(lang);
     });
