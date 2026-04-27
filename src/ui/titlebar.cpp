@@ -84,30 +84,37 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     connect(settingsBtn, &QPushButton::clicked, this, &TitleBar::settingsClicked);
     lay->addWidget(settingsBtn);
 
-    // 窗口控制
+    // 窗口控制（圆形彩色按钮）
+    const QColor kMinHover = QColor(196, 167, 231);  // 薰衣草紫
+    const QColor kMaxHover = QColor(126, 200, 200);  // 薄荷绿
+    const QColor kCloseHover = QColor(232, 93, 117); // 红色
+
     auto *minBtn = new QPushButton(this);
-    minBtn->setObjectName("tbWinBtn");
-    minBtn->setFixedSize(30, 30);
-    minBtn->setIcon(Icons::icon(Icons::kMinimize, 14, kIconNormal, kIconActive));
+    minBtn->setObjectName("tbMinBtn");
+    minBtn->setFixedSize(32, 32);
+    minBtn->setIcon(Icons::icon(Icons::kMinimize, 16, kIconNormal, kMinHover));
     minBtn->setCursor(Qt::PointingHandCursor);
+    minBtn->setToolTip(QStringLiteral("最小化"));
     connect(minBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->showMinimized(); });
     lay->addWidget(minBtn);
 
     auto *maxBtn = new QPushButton(this);
-    maxBtn->setObjectName("tbWinBtn");
-    maxBtn->setFixedSize(30, 30);
-    maxBtn->setIcon(Icons::icon(Icons::kMaximize, 14, kIconNormal, kIconActive));
+    maxBtn->setObjectName("tbMaxBtn");
+    maxBtn->setFixedSize(32, 32);
+    maxBtn->setIcon(Icons::icon(Icons::kMaximize, 16, kIconNormal, kMaxHover));
     maxBtn->setCursor(Qt::PointingHandCursor);
+    maxBtn->setToolTip(QStringLiteral("最大化"));
     connect(maxBtn, &QPushButton::clicked, this, [this]() {
         if (window()) window()->isMaximized() ? window()->showNormal() : window()->showMaximized();
     });
     lay->addWidget(maxBtn);
 
     auto *closeBtn = new QPushButton(this);
-    closeBtn->setObjectName("tbWinClose");
-    closeBtn->setFixedSize(30, 30);
-    closeBtn->setIcon(Icons::icon(Icons::kClose, 14, kCloseNormal, kCloseActive));
+    closeBtn->setObjectName("tbCloseBtn");
+    closeBtn->setFixedSize(32, 32);
+    closeBtn->setIcon(Icons::icon(Icons::kClose, 16, kIconNormal, kCloseHover));
     closeBtn->setCursor(Qt::PointingHandCursor);
+    closeBtn->setToolTip(QStringLiteral("关闭"));
     connect(closeBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->close(); });
     lay->addWidget(closeBtn);
 }

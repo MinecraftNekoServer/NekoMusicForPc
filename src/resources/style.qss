@@ -60,30 +60,41 @@ QMainWindow {
     color: #C4A7E7;
 }
 
-#tbWinBtn {
+/* ─── 窗口控制按钮（低调，hover 时显色）────────────── */
+#tbMinBtn {
     background: transparent;
     border: none;
-    border-radius: 6px;
-    color: rgba(245, 240, 255, 130);
-    font-size: 14px;
+    border-radius: 16px;
+    color: rgba(245, 240, 255, 160);
 }
 
-#tbWinBtn:hover {
-    background: rgba(245, 240, 255, 30);
-    color: #F5F0FF;
+#tbMinBtn:hover {
+    background: rgba(196, 167, 231, 60);
+    color: #C4A7E7;
 }
 
-#tbWinClose {
+#tbMaxBtn {
     background: transparent;
     border: none;
-    border-radius: 6px;
-    color: rgba(245, 240, 255, 130);
-    font-size: 14px;
+    border-radius: 16px;
+    color: rgba(245, 240, 255, 160);
 }
 
-#tbWinClose:hover {
-    background: rgba(242, 172, 185, 180);
-    color: #F5F0FF;
+#tbMaxBtn:hover {
+    background: rgba(126, 200, 200, 60);
+    color: #7EC8C8;
+}
+
+#tbCloseBtn {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: rgba(245, 240, 255, 160);
+}
+
+#tbCloseBtn:hover {
+    background: rgba(232, 93, 117, 70);
+    color: #E85D75;
 }
 
 /* ─── 侧边栏 ────────────────────────────────────────────── */
