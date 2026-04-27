@@ -10,7 +10,12 @@
 class I18n
 {
 public:
-    enum Language { NyaCN, ZhCN, EnUS };
+    enum Language
+    {
+        NyaCN,
+        ZhCN,
+        EnUS
+    };
 
     static I18n &instance();
 

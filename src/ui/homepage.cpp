@@ -24,6 +24,7 @@
 #include <QPainterPath>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
+#include <QTimer>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -200,7 +201,9 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_StyledBackground, false);
     setupUi();
-    refreshData();
+
+    // 延迟加载数据，先显示UI
+    QTimer::singleShot(100, this, &HomePage::refreshData);
 
     // 入场淡入
     auto *eff = new QGraphicsOpacityEffect(this);
@@ -294,7 +297,9 @@ void HomePage::fetchHotMusic()
     q.addQueryItem(QStringLiteral("limit"), QStringLiteral("300"));
     url.setQuery(q);
 
-    QNetworkReply *reply = m_nam.get(QNetworkRequest(url));
+    QNetworkRequest req(url);
+    req.setTransferTimeout(5000); // 5s timeout
+    QNetworkReply *reply = m_nam.get(req);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {
@@ -332,6 +337,7 @@ void HomePage::fetchPlaylists()
 {
     QNetworkRequest req(QUrl(QString::fromUtf8("%1/api/playlists/search").arg(Theme::kApiBase)));
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    req.setTransferTimeout(5000); // 5s timeout
     QNetworkReply *reply = m_nam.post(req, QByteArray("{\"query\":\"\"}"));
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
@@ -377,7 +383,9 @@ void HomePage::fetchLatestMusic()
     q.addQueryItem(QStringLiteral("limit"), QStringLiteral("300"));
     url.setQuery(q);
 
-    QNetworkReply *reply = m_nam.get(QNetworkRequest(url));
+    QNetworkRequest req(url);
+    req.setTransferTimeout(5000); // 5s timeout
+    QNetworkReply *reply = m_nam.get(req);
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {
