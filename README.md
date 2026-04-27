@@ -6,7 +6,83 @@
 
 ---
 
-## 🛠️ 构建指南 (Build Instructions)
+## 🛠️ 构建指南
+
+### 前置要求
+
+| 依赖 | 最低版本 |
+| --- | --- |
+| CMake | ≥ 3.20 |
+| Qt 6 | ≥ 6.2 |
+| C++17 编译器 | GCC ≥ 9 / MSVC 2019 / Clang ≥ 10 |
+
+**Linux (Debian/Ubuntu) 安装依赖：**
+
+```bash
+sudo apt install cmake qt6-base-dev qt6-multimedia-dev
+```
+
+**Windows (vcpkg)：**
+
+```bash
+vcpkg install qtbase qtmultimedia
+```
+
+**macOS (Homebrew)：**
+
+```bash
+brew install cmake qt
+```
+
+### 配置
+
+项目使用 CMake Presets 管理多平台构建，可直接选择对应预设：
+
+```bash
+# Linux
+cmake --preset linux-debug     # 开发调试
+cmake --preset linux-release   # 发布构建
+
+# Windows
+cmake --preset windows-debug
+cmake --preset windows-release
+
+# macOS
+cmake --preset macos-debug
+cmake --preset macos-release
+```
+
+也可以手动配置：
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+```
+
+### 编译
+
+```bash
+# 使用预设构建
+cmake --build build/linux-debug -j$(nproc)
+
+# 或手动指定目录
+cmake --build build --parallel
+```
+
+### 运行测试
+
+```bash
+ctest --test-dir build/linux-debug --output-on-failure
+```
+
+### 安装
+
+```bash
+cmake --install build/linux-release --prefix /usr/local
+```
+
+---
+
+## 🛠️ 构建指南 (old旧版本 Electron)
 
 想要亲手捕捉这只“云音乐猫”吗？按照以下步骤操作就可以啦，喵！
 

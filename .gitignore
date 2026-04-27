@@ -1,4 +1,35 @@
-dist
-dist-electron
-node_modules
-release
+# Build
+build/
+cmake-build-*/
+
+# IDE
+.vscode/
+.idea/
+*.user
+CMakeLists.txt.user
+
+# Compiled
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.so
+*.dylib
+*.dll
+
+# Generated
+moc_*
+ui_*
+qrc_*
+*.autosave
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old Electron project
+dist/
+dist-electron/
+node_modules/
+release/
