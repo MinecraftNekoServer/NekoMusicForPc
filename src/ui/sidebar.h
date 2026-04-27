@@ -32,6 +32,7 @@ protected:
 private:
     void setupUi();
     QPushButton *createNavItem(const QString &key, const QString &label, const QIcon &icon);
+    QPushButton *createNavPlaceholder(const QString &label, const QIcon &icon);
 
     QMap<QString, QPushButton *> m_navBtns;
     QString m_activeKey;

@@ -114,8 +114,9 @@ QMainWindow {
 }
 
 #sbNavItem:disabled {
-    color: rgba(245, 240, 255, 60);
+    color: rgba(245, 240, 255, 150);
     border-left-color: transparent;
+    background: transparent;
 }
 
 #sbDivider {
