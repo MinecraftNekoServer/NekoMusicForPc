@@ -1,0 +1,126 @@
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import electron from 'vite-plugin-electron'
+import renderer from 'vite-plugin-electron-renderer'
+
+// https://vite.dev/config/
+export default defineConfig(({ mode }) => {
+  const isProd = mode === 'production'
+  
+  return {
+    plugins: [
+      vue(),
+      // 生产环境完全禁用 vueDevTools
+      electron([
+        {
+          // 主进程入口
+          entry: 'electron/main.js',
+          onstart({ startup }) {
+            startup()
+          },
+          vite: {
+            build: {
+              outDir: 'dist-electron',
+              rollupOptions: {
+                external: ['electron']
+              }
+            }
+          }
+        },
+      ]),
+      renderer()
+    ],
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      },
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'https://music.cnmsb.xin',
+          changeOrigin: true,
+          configure: (proxy, options) => {
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              if (req.headers['authorization']) {
+                proxyReq.setHeader('Authorization', req.headers['authorization'])
+              }
+            })
+          },
+          rewrite: (path) => path
+        },
+        '/version.json': {
+          target: 'https://music.cnmsb.xin',
+          changeOrigin: true,
+          rewrite: (path) => path
+        }
+      },
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    },
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+      base: './',  // 使用相对路径，确保打包后能正确加载资源
+      
+      // 代码压缩
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,  // 移除 console.log
+          drop_debugger: true,  // 移除 debugger
+          pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn', 'console.trace'],  // 移除指定的函数
+          dead_code: true,  // 移除死代码
+          unused: true,  // 移除未使用的变量
+        },
+        format: {
+          comments: false,  // 移除注释
+        },
+        mangle: {
+          safari10: true,  // 兼容 Safari 10
+        },
+      },
+      
+      // Chunk 优化
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vue-vendor': ['vue', 'vue-router'],  // 将 Vue 相关代码打包到一个 chunk
+          },
+          // 更紧凑的 chunk 文件名
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+          // 优化 chunk 拆分策略
+          inlineDynamicImports: false,
+        },
+        // 外部依赖排除
+        external: [],
+      },
+      
+      // Chunk 大小警告限制（KB）
+      chunkSizeWarningLimit: 1000,
+      
+      // 启用 CSS 代码分割
+      cssCodeSplit: true,
+      
+      // 构建目标
+      target: 'esnext',
+      
+      // 资源内联限制
+      assetsInlineLimit: 4096,
+      
+      // 源码映射
+      sourcemap: false,
+      
+      // 报告压缩
+      reportCompressedSize: true,
+    },
+    clearScreen: false,
+  }
+})

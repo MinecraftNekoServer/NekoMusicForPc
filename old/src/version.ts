@@ -1,0 +1,1 @@
+export const APP_VERSION = '2026.417.12'
