@@ -112,7 +112,7 @@ QPushButton *Sidebar::createNavPlaceholder(const QString &label, const QIcon &ic
     btn->setFixedHeight(42);
     btn->setIcon(icon);
     btn->setCursor(Qt::PointingHandCursor);
-    btn->setEnabled(false);
+    // 不连接任何点击事件，保持enabled状态以应用正常样式
     return btn;
 }
 
