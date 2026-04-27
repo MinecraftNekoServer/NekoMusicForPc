@@ -2,9 +2,8 @@
 
 /**
  * @file homepage.h
- * @brief 首页 — 日系动漫风
+ * @brief 首页 — 推荐歌单
  *
- * 轮播：热门歌曲
  * 推荐歌单：POST /api/playlists/search
  * 热门音乐：GET /api/music/ranking
  * 最新音乐：GET /api/music/latest
@@ -12,13 +11,21 @@
 
 #include <QWidget>
 #include <QNetworkAccessManager>
+#include <QMouseEvent>
+#include "playlistcard.h"
 
-class Carousel;
 class GlassWidget;
-class QGridLayout;
+class QScrollArea;
+class QHBoxLayout;
 
-struct PlaylistInfo;
-struct MusicInfo;
+struct MusicInfo {
+    int id = -1;
+    QString title;
+    QString artist;
+    QString album;
+    int duration = 0;
+    QString coverUrl;
+};
 
 class HomePage : public QWidget
 {
@@ -39,28 +46,24 @@ protected:
 
 private:
     void setupUi();
-    GlassWidget *createSection(const QString &title, QGridLayout *&grid, QWidget *&gridContainer);
 
-    void fetchHotMusic();     // 轮播 + 热门网格
-    void fetchPlaylists();    // 推荐歌单网格
-    void fetchLatestMusic();  // 最新网格
+    void fetchHotMusic();     // 热门音乐卡片
+    void fetchPlaylists();    // 推荐歌单卡片
+    void fetchLatestMusic();  // 最新音乐卡片
 
-    void populatePlaylistGrid(QGridLayout *grid, QWidget *container, const QList<PlaylistInfo> &list);
-    void populateMusicGrid(QGridLayout *grid, QWidget *container, const QList<MusicInfo> &list);
+    void rebuildRecommendSection();
 
-    Carousel *m_carousel = nullptr;
+    QScrollArea *m_scroll = nullptr;
+    QHBoxLayout *m_cardLayout = nullptr;
+    QWidget *m_cardContainer = nullptr;
 
-    // 推荐歌单区
-    QGridLayout *m_playlistGrid = nullptr;
-    QWidget *m_playlistContainer = nullptr;
+    QList<PlaylistInfo> m_playlists;
+    QList<MusicInfo> m_hotMusic;
+    QList<MusicInfo> m_latestMusic;
 
-    // 热门音乐区
-    QGridLayout *m_hotGrid = nullptr;
-    QWidget *m_hotContainer = nullptr;
-
-    // 最新音乐区
-    QGridLayout *m_latestGrid = nullptr;
-    QWidget *m_latestContainer = nullptr;
+    bool m_hotReady = false;
+    bool m_playlistReady = false;
+    bool m_latestReady = false;
 
     QNetworkAccessManager m_nam;
 };
