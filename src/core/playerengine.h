@@ -27,6 +27,8 @@ public:
     void setVolume(float volume);
 
     PlaybackState playbackState() const;
+    qint64 duration() const;
+    qint64 position() const;
 
 signals:
     void stateChanged(PlaybackState state);

@@ -1,0 +1,320 @@
+/*
+ * NekoMusic 日系动漫风全局 QSS
+ *
+ * 薰衣草紫 #C4A7E7 / 樱花粉 #F2ACB9 / 薄荷绿 #7EC8C8
+ * 深夜紫黑 #1A1625 / 暗紫灰 #241F31
+ */
+
+/* ─── 全局 ──────────────────────────────────────────────── */
+QWidget {
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #F5F0FF;
+    font-size: 14px;
+}
+
+QMainWindow {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #1A1625, stop:1 #241F31);
+}
+
+/* ─── 标题栏 ────────────────────────────────────────────── */
+#tbAppName {
+    font-size: 14px;
+    font-weight: bold;
+    color: #C4A7E7;
+    letter-spacing: 0.5px;
+}
+
+#tbSearch {
+    background: rgba(245, 240, 255, 18);
+    border: 1.5px solid rgba(196, 167, 231, 30);
+    border-radius: 17px;
+    padding: 6px 18px;
+    color: #F5F0FF;
+    font-size: 13px;
+    selection-background-color: #C4A7E7;
+}
+
+#tbSearch::placeholder { color: rgba(245, 240, 255, 90); }
+
+#tbSearch:focus {
+    background: rgba(245, 240, 255, 28);
+    border-color: rgba(126, 200, 200, 130);
+}
+
+#tbAvatar {
+    border: 2px solid rgba(242, 172, 185, 130);
+    border-radius: 15px;
+}
+
+#tbIconBtn {
+    background: rgba(245, 240, 255, 15);
+    border: none;
+    border-radius: 10px;
+    color: rgba(245, 240, 255, 150);
+}
+
+#tbIconBtn:hover {
+    background: rgba(196, 167, 231, 40);
+    color: #C4A7E7;
+}
+
+#tbWinBtn {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: rgba(245, 240, 255, 130);
+    font-size: 14px;
+}
+
+#tbWinBtn:hover {
+    background: rgba(245, 240, 255, 30);
+    color: #F5F0FF;
+}
+
+#tbWinClose {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: rgba(245, 240, 255, 130);
+    font-size: 14px;
+}
+
+#tbWinClose:hover {
+    background: rgba(242, 172, 185, 180);
+    color: #F5F0FF;
+}
+
+/* ─── 侧边栏 ────────────────────────────────────────────── */
+#sbScroll, #sbContainer { background: transparent; }
+
+#sbNavItem {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: rgba(245, 240, 255, 150);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 14px;
+    border-left: 3px solid transparent;
+}
+
+#sbNavItem:hover {
+    background: rgba(196, 167, 231, 18);
+    color: #F5F0FF;
+    padding-left: 17px;
+}
+
+#sbNavItem[active="true"] {
+    background: rgba(196, 167, 231, 35);
+    color: #F5F0FF;
+    border-left-color: #7EC8C8;
+}
+
+#sbNavItem:disabled {
+    color: rgba(245, 240, 255, 60);
+    border-left-color: transparent;
+}
+
+#sbDivider {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 transparent, stop:0.5 rgba(196, 167, 231, 30), stop:1 transparent);
+}
+
+#sbPlaylistTitle {
+    font-size: 12px;
+    color: rgba(245, 240, 255, 100);
+    padding: 8px 14px 4px;
+    letter-spacing: 1px;
+}
+
+#sbEmpty {
+    font-size: 12px;
+    color: rgba(245, 240, 255, 70);
+    padding: 16px;
+}
+
+/* ─── 轮播 ──────────────────────────────────────────────── */
+#carouselBg { background: transparent; border-radius: 0; }
+
+#carouselOverlay {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 transparent, stop:0.3 rgba(26,22,37,100), stop:1 rgba(26,22,37,210));
+}
+
+#carouselTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #F5F0FF;
+}
+
+#carouselDesc {
+    font-size: 13px;
+    color: rgba(245, 240, 255, 160);
+}
+
+#carouselPlayBtn {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border: none;
+    border-radius: 20px;
+    color: #1A1625;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+#carouselPlayBtn:hover {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #D4BFF0, stop:1 #C4A7E7);
+}
+
+#carouselPrev, #carouselNext {
+    background: rgba(245, 240, 255, 20);
+    border: none;
+    border-radius: 16px;
+    color: rgba(245, 240, 255, 180);
+    font-size: 16px;
+}
+
+#carouselPrev:hover, #carouselNext:hover {
+    background: rgba(196, 167, 231, 50);
+    color: #F5F0FF;
+}
+
+#carouselDot {
+    color: rgba(245, 240, 255, 60);
+    font-size: 10px;
+}
+
+#carouselDot[active="true"] {
+    color: #7EC8C8;
+}
+
+/* ─── 首页 ──────────────────────────────────────────────── */
+#hpScroll, #hpContainer { background: transparent; }
+
+#hpSectionTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #F5F0FF;
+}
+
+#hpLoading {
+    color: rgba(245, 240, 255, 120);
+    font-size: 14px;
+    padding: 40px;
+}
+
+/* ─── 歌单卡片 ──────────────────────────────────────────── */
+#plCover {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border-radius: 12px;
+}
+
+#plName {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(245, 240, 255, 200);
+}
+
+/* ─── 播放栏 ────────────────────────────────────────────── */
+#pbCover { border-radius: 8px; }
+
+#pbSong {
+    font-size: 13px;
+    font-weight: 600;
+    color: #F5F0FF;
+}
+
+#pbArtist {
+    font-size: 11px;
+    color: rgba(245, 240, 255, 120);
+}
+
+#pbPlayBtn {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border: none;
+    border-radius: 20px;
+    color: #1A1625;
+    font-size: 16px;
+}
+
+#pbPlayBtn:hover {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #D4BFF0, stop:1 #C4A7E7);
+}
+
+#pbCtrlBtn {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: rgba(245, 240, 255, 160);
+}
+
+#pbCtrlBtn:hover {
+    background: rgba(196, 167, 231, 25);
+    color: #F5F0FF;
+}
+
+#pbTime {
+    font-size: 11px;
+    color: rgba(245, 240, 255, 100);
+}
+
+/* ─── 滑块 ──────────────────────────────────────────────── */
+QSlider::groove:horizontal {
+    background: rgba(245, 240, 255, 25);
+    height: 3px;
+    border-radius: 1.5px;
+}
+
+QSlider::handle:horizontal {
+    background: #C4A7E7;
+    width: 10px;
+    height: 10px;
+    margin: -3.5px 0;
+    border-radius: 5px;
+}
+
+QSlider::handle:horizontal:hover { background: #D4BFF0; }
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border-radius: 1.5px;
+}
+
+#pbVolume::groove:horizontal { height: 2px; }
+#pbVolume::handle:horizontal { width: 8px; height: 8px; margin: -3px 0; border-radius: 4px; }
+
+/* ─── 滚动条 ────────────────────────────────────────────── */
+QScrollBar:vertical {
+    background: transparent;
+    width: 5px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(196, 167, 231, 60);
+    border-radius: 2.5px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover { background: rgba(196, 167, 231, 100); }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 5px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(196, 167, 231, 60);
+    border-radius: 2.5px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover { background: rgba(196, 167, 231, 100); }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
