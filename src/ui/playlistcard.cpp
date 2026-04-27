@@ -9,6 +9,7 @@
 #include "playlistcard.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
+#include "core/i18n.h"
 
 #include <QVBoxLayout>
 #include <QPainter>
@@ -123,7 +124,7 @@ void PlaylistCard::paintEvent(QPaintEvent *)
         p.setFont(QFont(QString(), 10, QFont::Bold));
         QRect countRect = coverRect.adjusted(0, 0, -8, -6);
         p.drawText(countRect, Qt::AlignRight | Qt::AlignBottom,
-                   QStringLiteral("%1\u9996").arg(m_info.musicCount));  // X首
+                   QString::number(m_info.musicCount) + I18n::instance().tr("musicCount"));
     }
 
     // 悬停薄荷绿光晕边框

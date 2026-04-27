@@ -229,6 +229,52 @@ QMainWindow {
     color: rgba(245, 240, 255, 120);
 }
 
+/* ─── 设置页 ──────────────────────────────────────────────── */
+#settingsTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #F5F0FF;
+}
+
+#settingsLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(245, 240, 255, 180);
+}
+
+#settingsInfo {
+    font-size: 14px;
+    color: rgba(245, 240, 255, 160);
+}
+
+#settingsDivider {
+    background: rgba(196, 167, 231, 30);
+    max-height: 1px;
+}
+
+#settingsCombo {
+    background: rgba(245, 240, 255, 18);
+    border: 1.5px solid rgba(196, 167, 231, 30);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #F5F0FF;
+    font-size: 13px;
+    min-width: 140px;
+}
+
+#settingsCombo::drop-down {
+    border: none;
+    width: 24px;
+}
+
+#settingsCombo QAbstractItemView {
+    background: #241F31;
+    color: #F5F0FF;
+    selection-background-color: rgba(196, 167, 231, 50);
+    border: 1px solid rgba(196, 167, 231, 40);
+    border-radius: 6px;
+}
+
 /* ─── 歌单卡片 ──────────────────────────────────────────── */
 #plCover {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:1,

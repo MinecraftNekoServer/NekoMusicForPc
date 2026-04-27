@@ -8,6 +8,7 @@
  */
 
 #include "homepage.h"
+#include "core/i18n.h"
 #include "theme/theme.h"
 #include "ui/playlistcard.h"
 #include "ui/glasswidget.h"
@@ -98,7 +99,7 @@ public:
     enum Type { Hot, Latest };
 
     MusicAggregateCard(Type type, int firstId, int totalCount, QWidget *parent = nullptr)
-        : QWidget(parent), m_firstId(firstId), m_type(type)
+        : QWidget(parent), m_firstId(firstId), m_type(type), m_totalCount(totalCount)
     {
         setFixedSize(204, 260);
         setCursor(Qt::PointingHandCursor);
@@ -128,12 +129,12 @@ public:
 
         // 标题 & 数量
         auto *titleLbl = new QLabel(
-            type == Hot ? QStringLiteral("热门音乐") : QStringLiteral("最新音乐"), glass);
+            type == Hot ? I18n::instance().tr("hot_music") : I18n::instance().tr("latest_music"), glass);
         titleLbl->setObjectName(type == Hot ? "hpHotTitle" : "hpLatestTitle");
         vlay->addWidget(titleLbl);
 
         auto *countLbl = new QLabel(
-            QString::number(totalCount) + QStringLiteral("首"), glass);
+            QString::number(totalCount) + I18n::instance().tr("songs"), glass);
         countLbl->setObjectName(type == Hot ? "hpHotCount" : "hpLatestCount");
         vlay->addWidget(countLbl);
 
@@ -142,6 +143,13 @@ public:
         auto *outer = new QVBoxLayout(this);
         outer->setContentsMargins(0, 0, 0, 0);
         outer->addWidget(glass);
+    }
+
+    void retranslate() {
+        auto *titleLbl = findChild<QLabel *>(m_type == Hot ? "hpHotTitle" : "hpLatestTitle");
+        if (titleLbl) titleLbl->setText(m_type == Hot ? I18n::instance().tr("hot_music") : I18n::instance().tr("latest_music"));
+        auto *countLbl = findChild<QLabel *>(m_type == Hot ? "hpHotCount" : "hpLatestCount");
+        if (countLbl) countLbl->setText(QString::number(m_totalCount) + I18n::instance().tr("songs"));
     }
 
     void setCover(int index, const QString &url)
@@ -179,8 +187,12 @@ private:
 
     int m_type;
     int m_firstId;
+    int m_totalCount;
     QList<CoverLabel *> m_covers;
 };
+
+// Store for retranslate
+static QList<MusicAggregateCard *> m_aggCards;
 
 // ─── HomePage ────────────────────────────────────────
 
@@ -220,7 +232,7 @@ void HomePage::setupUi()
     lay->setSpacing(16);
 
     // ─── 推荐歌单标题 ─────────────────────────────────
-    auto *titleLabel = new QLabel(QStringLiteral("推荐歌单"), container);
+    auto *titleLabel = new QLabel(I18n::instance().tr("recommend_playlists"), container);
     titleLabel->setObjectName("hpSectionTitle");
     lay->addWidget(titleLabel);
     lay->addSpacing(8);
@@ -233,10 +245,10 @@ void HomePage::setupUi()
     m_cardLayout->setSpacing(20);
     m_cardLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    auto *loading = new QLabel(QStringLiteral("加载中..."), m_cardContainer);
-    loading->setObjectName("hpLoading");
-    loading->setAlignment(Qt::AlignCenter);
-    m_cardLayout->addWidget(loading);
+    auto *loadingLabel = new QLabel(I18n::instance().tr("loading"), m_cardContainer);
+    loadingLabel->setObjectName("hpLoading");
+    loadingLabel->setAlignment(Qt::AlignCenter);
+    m_cardLayout->addWidget(loadingLabel);
 
     lay->addWidget(m_cardContainer);
     lay->addStretch();
@@ -260,6 +272,19 @@ void HomePage::refreshData()
     fetchHotMusic();
     fetchPlaylists();
     fetchLatestMusic();
+}
+
+void HomePage::retranslate()
+{
+    auto *tl = findChild<QLabel *>("hpSectionTitle");
+    if (tl) tl->setText(I18n::instance().tr("recommend_playlists"));
+    auto *ll = findChild<QLabel *>("hpLoading");
+    if (ll) ll->setText(I18n::instance().tr("loading"));
+
+    // Update all MusicAggregateCard instances
+    for (auto *card : m_aggCards) {
+        card->retranslate();
+    }
 }
 
 void HomePage::fetchHotMusic()
@@ -395,6 +420,7 @@ void HomePage::rebuildRecommendSection()
         delete item->widget();
         delete item;
     }
+    m_aggCards.clear();
 
     // ── 热门音乐聚合卡片 ──
     {
@@ -403,6 +429,7 @@ void HomePage::rebuildRecommendSection()
         for (int i = 0; i < qMin(m_hotMusic.size(), 4); ++i) {
             card->setCover(i, m_hotMusic[i].coverUrl);
         }
+        m_aggCards.append(card);
         m_cardLayout->addWidget(card);
     }
 
@@ -413,6 +440,7 @@ void HomePage::rebuildRecommendSection()
         for (int i = 0; i < qMin(m_latestMusic.size(), 4); ++i) {
             card->setCover(i, m_latestMusic[i].coverUrl);
         }
+        m_aggCards.append(card);
         m_cardLayout->addWidget(card);
     }
 

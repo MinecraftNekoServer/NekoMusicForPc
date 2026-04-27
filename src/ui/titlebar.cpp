@@ -8,6 +8,7 @@
 #include "titlebar.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
+#include "core/i18n.h"
 
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -55,7 +56,7 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     // ─── 中间搜索框 ──────────────────────────────────
     m_search = new QLineEdit(this);
     m_search->setObjectName("tbSearch");
-    m_search->setPlaceholderText(QStringLiteral("搜索..."));
+    m_search->setPlaceholderText(I18n::instance().tr("searchPlaceholder"));
     m_search->setFixedHeight(34);
     m_search->setMinimumWidth(180);
     m_search->setMaximumWidth(380);
@@ -79,7 +80,7 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     settingsBtn->setFixedSize(34, 34);
     settingsBtn->setIcon(Icons::icon(Icons::kSettings, 18, kIconNormal, kIconActive));
     settingsBtn->setCursor(Qt::PointingHandCursor);
-    settingsBtn->setToolTip(QStringLiteral("设置"));
+    settingsBtn->setToolTip(I18n::instance().tr("settings"));
     connect(settingsBtn, &QPushButton::clicked, this, &TitleBar::settingsClicked);
     lay->addWidget(settingsBtn);
 
