@@ -11,6 +11,8 @@
 #include "ui/sidebar.h"
 #include "ui/homepage.h"
 #include "ui/settingspage.h"
+#include "ui/favoritespage.h"
+#include "ui/recentpage.h"
 #include "ui/playerbar.h"
 #include "core/playerengine.h"
 #include "theme/theme.h"
@@ -62,8 +64,12 @@ void MainWindow::setupUi()
     m_stack->setObjectName("pageStack");
     m_homePage = new HomePage(this);
     m_settingsPage = new SettingsPage(this);
+    m_favoritesPage = new FavoritesPage(this);
+    m_recentPage = new RecentPage(this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
+    m_stack->addWidget(m_favoritesPage);
+    m_stack->addWidget(m_recentPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addLayout(midH, 1);
@@ -75,6 +81,8 @@ void MainWindow::setupUi()
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
         if (key == "home") m_stack->setCurrentWidget(m_homePage);
+        else if (key == "favorites") m_stack->setCurrentWidget(m_favoritesPage);
+        else if (key == "recent") m_stack->setCurrentWidget(m_recentPage);
     });
     connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
         m_stack->setCurrentWidget(m_settingsPage);

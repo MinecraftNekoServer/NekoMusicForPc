@@ -41,6 +41,8 @@ set(SOURCES
     src/ui/playerbar.cpp
     src/ui/svgicon.cpp
     src/ui/settingspage.cpp
+    src/ui/favoritespage.cpp
+    src/ui/recentpage.cpp
     src/core/playerengine.cpp
     src/core/apiclient.cpp
     src/core/i18n.cpp
@@ -57,6 +59,8 @@ set(HEADERS
     src/ui/playerbar.h
     src/ui/svgicon.h
     src/ui/settingspage.h
+    src/ui/favoritespage.h
+    src/ui/recentpage.h
     src/core/playerengine.h
     src/core/apiclient.h
     src/core/i18n.h

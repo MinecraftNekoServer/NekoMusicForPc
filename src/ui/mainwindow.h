@@ -15,6 +15,8 @@ class TitleBar;
 class Sidebar;
 class HomePage;
 class SettingsPage;
+class FavoritesPage;
+class RecentPage;
 class PlayerBar;
 class PlayerEngine;
 
@@ -37,6 +39,8 @@ private:
     Sidebar *m_sidebar = nullptr;
     HomePage *m_homePage = nullptr;
     SettingsPage *m_settingsPage = nullptr;
+    FavoritesPage *m_favoritesPage = nullptr;
+    RecentPage *m_recentPage = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;

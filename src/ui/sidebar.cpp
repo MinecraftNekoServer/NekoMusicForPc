@@ -51,17 +51,15 @@ void Sidebar::setupUi()
     lay->addWidget(createNavItem("home", I18n::instance().tr("home"),
                                  Icons::icon(Icons::kHome, 20, navIconColor(true), navIconColor(true))));
 
-    // 我喜欢的（和首页相同样式，暂不响应点击）
-    auto *favBtn = createNavPlaceholder(I18n::instance().tr("favorites"),
-                                        Icons::icon(Icons::kHeart, 20, navIconColor(true), navIconColor(true)));
-    favBtn->setObjectName("sbFavBtn");
-    lay->addWidget(favBtn);
+    // 我喜欢的（可点击导航）
+    m_favBtn = createNavItem("favorites", I18n::instance().tr("favorites"),
+                             Icons::icon(Icons::kHeart, 20, navIconColor(false), navIconColor(false)));
+    lay->addWidget(m_favBtn);
 
-    // 最近播放（和首页相同样式，暂不响应点击）
-    auto *recBtn = createNavPlaceholder(I18n::instance().tr("recentPlay"),
-                                        Icons::icon(Icons::kClock, 20, navIconColor(true), navIconColor(true)));
-    recBtn->setObjectName("sbRecBtn");
-    lay->addWidget(recBtn);
+    // 最近播放（可点击导航）
+    m_recBtn = createNavItem("recent", I18n::instance().tr("recentPlay"),
+                             Icons::icon(Icons::kClock, 20, navIconColor(false), navIconColor(false)));
+    lay->addWidget(m_recBtn);
 
     // 分隔线
     auto *div = new QWidget(container);
@@ -105,18 +103,6 @@ QPushButton *Sidebar::createNavItem(const QString &key, const QString &label, co
     return btn;
 }
 
-QPushButton *Sidebar::createNavPlaceholder(const QString &label, const QIcon &icon)
-{
-    auto *btn = new QPushButton(label, this);
-    btn->setObjectName("sbNavItem");
-    btn->setFixedHeight(42);
-    btn->setIcon(icon);
-    btn->setCursor(Qt::PointingHandCursor);
-    btn->setProperty("active", true);
-    // 不连接任何点击事件
-    return btn;
-}
-
 void Sidebar::setActiveNav(const QString &key)
 {
     m_activeKey = key;
@@ -128,6 +114,10 @@ void Sidebar::setActiveNav(const QString &key)
         // 更新图标颜色
         if (it.key() == "home") {
             it.value()->setIcon(Icons::render(Icons::kHome, 20, navIconColor(active)));
+        } else if (it.key() == "favorites") {
+            it.value()->setIcon(Icons::render(Icons::kHeart, 20, navIconColor(active)));
+        } else if (it.key() == "recent") {
+            it.value()->setIcon(Icons::render(Icons::kClock, 20, navIconColor(active)));
         } else if (it.key() == "settings") {
             it.value()->setIcon(Icons::render(Icons::kSettings, 20, navIconColor(active)));
         }
@@ -139,11 +129,8 @@ void Sidebar::retranslate()
     auto *homeBtn = m_navBtns.value("home");
     if (homeBtn) homeBtn->setText(I18n::instance().tr("home"));
 
-    auto *favBtn = findChild<QPushButton *>("sbFavBtn");
-    if (favBtn) favBtn->setText(I18n::instance().tr("favorites"));
-
-    auto *recBtn = findChild<QPushButton *>("sbRecBtn");
-    if (recBtn) recBtn->setText(I18n::instance().tr("recentPlay"));
+    if (m_favBtn) m_favBtn->setText(I18n::instance().tr("favorites"));
+    if (m_recBtn) m_recBtn->setText(I18n::instance().tr("recentPlay"));
 
     auto *plHeader = findChild<QLabel *>("sbPlaylistTitle");
     if (plHeader) plHeader->setText(I18n::instance().tr("myPlaylistsTitle"));
