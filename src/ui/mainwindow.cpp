@@ -42,39 +42,35 @@ void MainWindow::setupUi()
     central->setObjectName("centralWidget");
     setCentralWidget(central);
 
-    auto *mainH = new QHBoxLayout(central);
-    mainH->setContentsMargins(0, 0, 0, 0);
-    mainH->setSpacing(0);
+    auto *mainV = new QVBoxLayout(central);
+    mainV->setContentsMargins(0, 0, 0, 0);
+    mainV->setSpacing(0);
 
-    // 侧边栏
-    m_sidebar = new Sidebar(this);
-    mainH->addWidget(m_sidebar);
-
-    // 右侧
-    auto *right = new QWidget(this);
-    right->setObjectName("rightArea");
-    auto *rightV = new QVBoxLayout(right);
-    rightV->setContentsMargins(0, 0, 0, 0);
-    rightV->setSpacing(0);
-
-    // 标题栏
+    // 标题栏（横跨整个窗口顶部）
     m_titleBar = new TitleBar(this);
-    rightV->addWidget(m_titleBar);
+    mainV->addWidget(m_titleBar);
 
-    // 页面容器
+    // 中间区域：侧边栏 + 页面
+    auto *midH = new QHBoxLayout();
+    midH->setContentsMargins(0, 0, 0, 0);
+    midH->setSpacing(0);
+
+    m_sidebar = new Sidebar(this);
+    midH->addWidget(m_sidebar);
+
     m_stack = new QStackedWidget(this);
     m_stack->setObjectName("pageStack");
     m_homePage = new HomePage(this);
     m_settingsPage = new SettingsPage(this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
-    rightV->addWidget(m_stack, 1);
+    midH->addWidget(m_stack, 1);
 
-    // 播放栏
+    mainV->addLayout(midH, 1);
+
+    // 播放栏（横跨整个窗口底部）
     m_playerBar = new PlayerBar(m_engine, this);
-    rightV->addWidget(m_playerBar);
-
-    mainH->addWidget(right, 1);
+    mainV->addWidget(m_playerBar);
 
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
