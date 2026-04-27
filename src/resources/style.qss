@@ -52,6 +52,7 @@ QMainWindow {
     border: none;
     border-radius: 10px;
     color: rgba(245, 240, 255, 150);
+    font-size: 14px;
 }
 
 #tbIconBtn:hover {
@@ -195,7 +196,7 @@ QMainWindow {
 #hpScroll, #hpContainer { background: transparent; }
 
 #hpSectionTitle {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: #F5F0FF;
 }
@@ -206,38 +207,26 @@ QMainWindow {
     padding: 40px;
 }
 
-/* 热门音乐聚合卡片 */
-#hpHotMusicCard {
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
-        stop:0 rgba(102,126,234,40), stop:1 rgba(118,75,162,40));
-}
-
 #hpHotTitle {
     font-size: 14px;
     font-weight: 600;
-    color: #F5F0FF;
+    color: rgba(245, 240, 255, 200);
 }
 
 #hpHotCount {
     font-size: 12px;
-    color: rgba(245, 240, 255, 140);
-}
-
-/* 最新音乐聚合卡片 */
-#hpLatestMusicCard {
-    background: qlineargradient(x1:0,y1=0,x2:1,y2:1,
-        stop:0 rgba(240,147,251,40), stop:1 rgba(245,87,108,40));
+    color: rgba(245, 240, 255, 120);
 }
 
 #hpLatestTitle {
     font-size: 14px;
     font-weight: 600;
-    color: #F5F0FF;
+    color: rgba(245, 240, 255, 200);
 }
 
 #hpLatestCount {
     font-size: 12px;
-    color: rgba(245, 240, 255, 140);
+    color: rgba(245, 240, 255, 120);
 }
 
 /* ─── 歌单卡片 ──────────────────────────────────────────── */

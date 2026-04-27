@@ -92,10 +92,6 @@ private:
 };
 
 // ─── 聚合卡片（热门/最新音乐）───────────────────────
-/**
- * 204px 宽，内部包含 2x2 封面马赛克 + 标题 + 数量。
- * 点击发出 playMusic 信号。
- */
 class MusicAggregateCard : public QWidget
 {
 public:
@@ -117,7 +113,7 @@ public:
         vlay->setContentsMargins(12, 12, 12, 12);
         vlay->setSpacing(8);
 
-        // 2x2 封面马赛克（占位，由外部设置封面）
+        // 2x2 封面马赛克
         auto *grid = new QGridLayout();
         grid->setContentsMargins(0, 0, 0, 0);
         grid->setSpacing(3);
@@ -166,7 +162,6 @@ protected:
 private:
     void emitClicked()
     {
-        // 直接通过父对象树找到 HomePage 并转发信号
         if (auto *hp = findParentHomePage()) {
             emit hp->playMusic(m_firstId);
         }
@@ -182,7 +177,7 @@ private:
         return nullptr;
     }
 
-    Type m_type;
+    int m_type;
     int m_firstId;
     QList<CoverLabel *> m_covers;
 };
@@ -221,19 +216,16 @@ void HomePage::setupUi()
     auto *container = new QWidget(m_scroll);
     container->setObjectName("hpContainer");
     auto *lay = new QVBoxLayout(container);
-    lay->setContentsMargins(0, 0, 0, 0);
-    lay->setSpacing(0);
+    lay->setContentsMargins(24, 24, 24, 24);
+    lay->setSpacing(16);
 
-    // ─── 推荐歌单标题 ────────────────────────────────
-    auto *titleRow = new QHBoxLayout();
+    // ─── 推荐歌单标题 ─────────────────────────────────
     auto *titleLabel = new QLabel(QStringLiteral("推荐歌单"), container);
     titleLabel->setObjectName("hpSectionTitle");
-    titleRow->addWidget(titleLabel);
-    titleRow->addStretch();
-    lay->addLayout(titleRow);
-    lay->addSpacing(12);
+    lay->addWidget(titleLabel);
+    lay->addSpacing(8);
 
-    // ─── 卡片横向滚动区 ──────────────────────────────
+    // ─── 卡片横向滚动区 ───────────────────────────────
     m_cardContainer = new QWidget(container);
     m_cardContainer->setObjectName("hpCardContainer");
     m_cardLayout = new QHBoxLayout(m_cardContainer);
@@ -241,7 +233,6 @@ void HomePage::setupUi()
     m_cardLayout->setSpacing(20);
     m_cardLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    // 初始占位
     auto *loading = new QLabel(QStringLiteral("加载中..."), m_cardContainer);
     loading->setObjectName("hpLoading");
     loading->setAlignment(Qt::AlignCenter);
@@ -271,9 +262,6 @@ void HomePage::refreshData()
     fetchLatestMusic();
 }
 
-/**
- * @brief GET /api/music/ranking → 热门音乐
- */
 void HomePage::fetchHotMusic()
 {
     QUrl url(QString::fromUtf8("%1/api/music/ranking").arg(Theme::kApiBase));
@@ -315,9 +303,6 @@ void HomePage::fetchHotMusic()
     });
 }
 
-/**
- * @brief POST /api/playlists/search → 推荐歌单
- */
 void HomePage::fetchPlaylists()
 {
     QNetworkRequest req(QUrl(QString::fromUtf8("%1/api/playlists/search").arg(Theme::kApiBase)));
@@ -360,9 +345,6 @@ void HomePage::fetchPlaylists()
     });
 }
 
-/**
- * @brief GET /api/music/latest → 最新音乐
- */
 void HomePage::fetchLatestMusic()
 {
     QUrl url(QString::fromUtf8("%1/api/music/latest").arg(Theme::kApiBase));
@@ -404,16 +386,10 @@ void HomePage::fetchLatestMusic()
     });
 }
 
-/**
- * @brief 当三个请求都返回后重建卡片区域
- *
- * 顺序：热门音乐卡片 → 最新音乐卡片 → 推荐歌单卡片
- */
 void HomePage::rebuildRecommendSection()
 {
     if (!m_hotReady || !m_playlistReady || !m_latestReady) return;
 
-    // 清除旧卡片
     QLayoutItem *item;
     while ((item = m_cardLayout->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -440,7 +416,7 @@ void HomePage::rebuildRecommendSection()
         m_cardLayout->addWidget(card);
     }
 
-    // ── 推荐歌单卡片 ──
+    // ── 推荐歌单卡片（原有样式不动）──
     for (const auto &info : m_playlists) {
         auto *card = new PlaylistCard(info, m_cardContainer);
         connect(card, &PlaylistCard::clicked, this, &HomePage::navigateToPlaylist);
