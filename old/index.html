@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neko云音乐</title>
+    <style>
+        /* 这里的样式是为了让提示看起来不那么寒酸喵 */
+        .no-js-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            color: #ff4d4f;
+            font-family: sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+
+<noscript>
+    <div class="no-js-message">
+        <h2>喵呜... 浏览器禁用了 JavaScript，或者脚本加载失败了喵！</h2>
+        <p>请检查 Electron 的沙箱设置或文件路径。🐾</p>
+    </div>
+</noscript>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
