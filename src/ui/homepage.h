@@ -4,18 +4,21 @@
  * @file homepage.h
  * @brief 首页 — 日系动漫风
  *
- * 上部：全屏大图轮播（Carousel）— 热门歌曲
- * 下部：毛玻璃容器包裹的 4 列推荐网格 — 歌单
- * 整体纵向可滚动，入场淡入动画。
+ * 轮播：热门歌曲
+ * 推荐歌单：POST /api/playlists/search
+ * 热门音乐：GET /api/music/ranking
+ * 最新音乐：GET /api/music/latest
  */
 
 #include <QWidget>
 #include <QNetworkAccessManager>
 
 class Carousel;
+class GlassWidget;
 class QGridLayout;
 
 struct PlaylistInfo;
+struct MusicInfo;
 
 class HomePage : public QWidget
 {
@@ -26,6 +29,7 @@ public:
 
 signals:
     void navigateToPlaylist(int id);
+    void playMusic(int id);
 
 public slots:
     void refreshData();
@@ -35,14 +39,28 @@ protected:
 
 private:
     void setupUi();
-    void fetchHotMusic();     // 轮播：GET /api/music/ranking
-    void fetchPlaylists();    // 网格：POST /api/playlists/search
-    void populateGrid(const QList<PlaylistInfo> &list);
+    GlassWidget *createSection(const QString &title, QGridLayout *&grid, QWidget *&gridContainer);
+
+    void fetchHotMusic();     // 轮播 + 热门网格
+    void fetchPlaylists();    // 推荐歌单网格
+    void fetchLatestMusic();  // 最新网格
+
+    void populatePlaylistGrid(QGridLayout *grid, QWidget *container, const QList<PlaylistInfo> &list);
+    void populateMusicGrid(QGridLayout *grid, QWidget *container, const QList<MusicInfo> &list);
 
     Carousel *m_carousel = nullptr;
-    QGridLayout *m_gridLayout = nullptr;
-    QWidget *m_gridContainer = nullptr;
-    QNetworkAccessManager m_nam;
 
-    QList<PlaylistInfo> m_playlists;
+    // 推荐歌单区
+    QGridLayout *m_playlistGrid = nullptr;
+    QWidget *m_playlistContainer = nullptr;
+
+    // 热门音乐区
+    QGridLayout *m_hotGrid = nullptr;
+    QWidget *m_hotContainer = nullptr;
+
+    // 最新音乐区
+    QGridLayout *m_latestGrid = nullptr;
+    QWidget *m_latestContainer = nullptr;
+
+    QNetworkAccessManager m_nam;
 };
