@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
     QFont font(QStringLiteral("Segoe UI"), 14);
     font.setStyleHint(QFont::SansSerif);
     app.setFont(font);
+    app.setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
 
     MainWindow window;
     window.show();
