@@ -27,6 +27,7 @@ qrc_*
 # OS
 .DS_Store
 Thumbs.db
+.qoder
 
 # Old Electron project
 dist/
