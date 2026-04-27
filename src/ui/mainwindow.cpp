@@ -21,6 +21,8 @@
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QFile>
+#include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -80,12 +82,12 @@ void MainWindow::setupUi()
 
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
-        if (key == "home") m_stack->setCurrentWidget(m_homePage);
-        else if (key == "favorites") m_stack->setCurrentWidget(m_favoritesPage);
-        else if (key == "recent") m_stack->setCurrentWidget(m_recentPage);
+        if (key == "home") switchPage(m_homePage);
+        else if (key == "favorites") switchPage(m_favoritesPage);
+        else if (key == "recent") switchPage(m_recentPage);
     });
     connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
-        m_stack->setCurrentWidget(m_settingsPage);
+        switchPage(m_settingsPage);
     });
     connect(m_settingsPage, &SettingsPage::languageChanged, m_homePage, &HomePage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_sidebar, &Sidebar::retranslate);
@@ -108,4 +110,48 @@ void MainWindow::paintEvent(QPaintEvent *)
     bg.setColorAt(0.0, QColor(26, 22, 37));   // #1A1625
     bg.setColorAt(1.0, QColor(36, 31, 49));   // #241F31
     p.fillRect(rect(), bg);
+}
+
+void MainWindow::switchPage(QWidget *target)
+{
+    if (m_switching) return;
+    if (m_stack->currentWidget() == target) return;
+
+    m_switching = true;
+    QWidget *current = m_stack->currentWidget();
+
+    // Make target visible alongside current for cross-fade
+    target->show();
+
+    // Opacity effects
+    auto *currentEff = new QGraphicsOpacityEffect(current);
+    currentEff->setOpacity(1.0);
+    current->setGraphicsEffect(currentEff);
+
+    auto *targetEff = new QGraphicsOpacityEffect(target);
+    targetEff->setOpacity(0.0);
+    target->setGraphicsEffect(targetEff);
+
+    // Parallel cross-fade
+    auto *fadeOut = new QPropertyAnimation(currentEff, "opacity");
+    fadeOut->setDuration(Theme::kAnimNormal);
+    fadeOut->setStartValue(1.0);
+    fadeOut->setEndValue(0.0);
+    fadeOut->setEasingCurve(QEasingCurve::OutCubic);
+
+    auto *fadeIn = new QPropertyAnimation(targetEff, "opacity");
+    fadeIn->setDuration(Theme::kAnimNormal);
+    fadeIn->setStartValue(0.0);
+    fadeIn->setEndValue(1.0);
+    fadeIn->setEasingCurve(QEasingCurve::OutCubic);
+
+    connect(fadeIn, &QPropertyAnimation::finished, this, [this, target, current]() {
+        m_stack->setCurrentWidget(target);
+        current->setGraphicsEffect(nullptr);
+        target->setGraphicsEffect(nullptr);
+        m_switching = false;
+    });
+
+    fadeOut->start(QAbstractAnimation::DeleteWhenStopped);
+    fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
 }

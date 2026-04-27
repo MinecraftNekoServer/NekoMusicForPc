@@ -34,7 +34,9 @@ protected:
 private:
     void setupUi();
     void loadStyleSheet();
+    void switchPage(QWidget *target);
 
+    bool m_switching = false;
     TitleBar *m_titleBar = nullptr;
     Sidebar *m_sidebar = nullptr;
     HomePage *m_homePage = nullptr;
