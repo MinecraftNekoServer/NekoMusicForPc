@@ -10,12 +10,11 @@
 #include "theme/theme.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
+#include "core/covercache.h"
 
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QPainterPath>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QEnterEvent>
 #include <QPropertyAnimation>
 
@@ -68,15 +67,23 @@ void PlaylistCard::loadCover()
     p.end();
     m_coverPixmap = ph;
 
-    // 异步加载网络封面
+    // 异步加载封面（先查缓存）
     if (!m_info.coverUrl.isEmpty()) {
-        static QNetworkAccessManager nam;
-        QNetworkReply *reply = nam.get(QNetworkRequest(QUrl(m_info.coverUrl)));
-        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-            reply->deleteLater();
-            if (reply->error() != QNetworkReply::NoError) return;
-            QPixmap pix;
-            if (pix.loadFromData(reply->readAll())) {
+        QString musicId = m_info.coverUrl.mid(m_info.coverUrl.lastIndexOf(QLatin1Char('/')) + 1);
+
+        QPixmap cached = CoverCache::instance()->get(musicId);
+        if (!cached.isNull()) {
+            int s = qMin(cached.width(), cached.height());
+            m_coverPixmap = cached.copy((cached.width()-s)/2, (cached.height()-s)/2, s, s)
+                .scaled(Theme::kCoverSmall, Theme::kCoverSmall,
+                        Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            update();
+            return;
+        }
+
+        connect(CoverCache::instance(), &CoverCache::coverLoaded, this,
+                [this, musicId](const QString &id, const QPixmap &pix) {
+            if (id == musicId) {
                 int s = qMin(pix.width(), pix.height());
                 m_coverPixmap = pix.copy((pix.width()-s)/2, (pix.height()-s)/2, s, s)
                     .scaled(Theme::kCoverSmall, Theme::kCoverSmall,
@@ -84,6 +91,7 @@ void PlaylistCard::loadCover()
                 update();
             }
         });
+        CoverCache::instance()->fetchCover(musicId, m_info.coverUrl);
     }
 }
 

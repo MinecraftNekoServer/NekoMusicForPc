@@ -9,6 +9,7 @@
 
 #include "homepage.h"
 #include "core/i18n.h"
+#include "core/covercache.h"
 #include "theme/theme.h"
 #include "ui/playlistcard.h"
 #include "ui/glasswidget.h"
@@ -30,7 +31,6 @@
 #include <QJsonArray>
 #include <QNetworkReply>
 #include <QUrlQuery>
-#include <QNetworkAccessManager>
 
 // ─── 单曲封面标签（圆角 6px + 异步加载）─────────────────
 class CoverLabel : public QLabel
@@ -60,21 +60,19 @@ public:
     void loadCover(const QString &url)
     {
         if (url.isEmpty()) { setPlaceholder(); return; }
-        static QNetworkAccessManager nam;
-        QNetworkReply *reply = nam.get(QNetworkRequest(QUrl(url)));
-        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-            reply->deleteLater();
-            if (reply->error() != QNetworkReply::NoError) { setPlaceholder(); return; }
-            QPixmap pix;
-            if (pix.loadFromData(reply->readAll())) {
-                int s = qMin(pix.width(), pix.height());
-                m_pixmap = pix.copy((pix.width()-s)/2, (pix.height()-s)/2, s, s)
-                    .scaled(m_size, m_size, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                update();
-            } else {
-                setPlaceholder();
-            }
+        QString musicId = url.mid(url.lastIndexOf(QLatin1Char('/')) + 1);
+
+        QPixmap cached = CoverCache::instance()->get(musicId);
+        if (!cached.isNull()) {
+            applyPixmap(cached);
+            return;
+        }
+
+        connect(CoverCache::instance(), &CoverCache::coverLoaded, this,
+                [this, musicId](const QString &id, const QPixmap &pix) {
+            if (id == musicId) applyPixmap(pix);
         });
+        CoverCache::instance()->fetchCover(musicId, url);
     }
 
 protected:
@@ -89,6 +87,14 @@ protected:
     }
 
 private:
+    void applyPixmap(const QPixmap &pix)
+    {
+        int s = qMin(pix.width(), pix.height());
+        m_pixmap = pix.copy((pix.width()-s)/2, (pix.height()-s)/2, s, s)
+            .scaled(m_size, m_size, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        update();
+    }
+
     QPixmap m_pixmap;
     int m_size;
 };

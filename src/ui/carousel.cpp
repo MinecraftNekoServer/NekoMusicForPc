@@ -11,13 +11,12 @@
 #include "theme/theme.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
+#include "core/covercache.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QPainterPath>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QPixmap>
 #include <QPushButton>
 #include <QLabel>
@@ -226,19 +225,23 @@ void Carousel::updateDisplay()
     p.end();
     m_bgLabel->setPixmap(ph);
 
-    // 异步加载封面
+    // 异步加载封面（先查缓存）
     if (!item.coverUrl.isEmpty()) {
-        static QNetworkAccessManager nam;
-        QNetworkReply *reply = nam.get(QNetworkRequest(QUrl(item.coverUrl)));
-        connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-            reply->deleteLater();
-            if (reply->error() != QNetworkReply::NoError) return;
-            QPixmap pix;
-            if (pix.loadFromData(reply->readAll())) {
-                pix = pix.scaled(m_bgLabel->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                m_bgLabel->setPixmap(pix);
+        QString musicId = item.coverUrl.mid(item.coverUrl.lastIndexOf(QLatin1Char('/')) + 1);
+
+        QPixmap cached = CoverCache::instance()->get(musicId);
+        if (!cached.isNull()) {
+            m_bgLabel->setPixmap(cached.scaled(m_bgLabel->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+            return;
+        }
+
+        connect(CoverCache::instance(), &CoverCache::coverLoaded, this,
+                [this, musicId](const QString &id, const QPixmap &pix) {
+            if (id == musicId) {
+                m_bgLabel->setPixmap(pix.scaled(m_bgLabel->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
             }
         });
+        CoverCache::instance()->fetchCover(musicId, item.coverUrl);
     }
 
     // 更新圆点

@@ -46,6 +46,7 @@ set(SOURCES
     src/core/playerengine.cpp
     src/core/apiclient.cpp
     src/core/i18n.cpp
+    src/core/covercache.cpp
 )
 
 set(HEADERS
@@ -64,6 +65,7 @@ set(HEADERS
     src/core/playerengine.h
     src/core/apiclient.h
     src/core/i18n.h
+    src/core/covercache.h
     src/theme/theme.h
 )
 
