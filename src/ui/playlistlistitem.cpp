@@ -51,6 +51,7 @@ PlaylistListItem::PlaylistListItem(int playlistId, const QString& name, int musi
 
     // Name
     m_nameLbl = new QLabel(this);
+    m_nameLbl->setText(QString("%1 (%2)").arg(m_name).arg(m_musicCount));
     m_nameLbl->setStyleSheet("QLabel { font-size: 13px; color: #e0e0e0; }");
     m_nameLbl->setAlignment(Qt::AlignVCenter);
     m_nameLbl->setWordWrap(false);

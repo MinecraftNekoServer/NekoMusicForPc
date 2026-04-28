@@ -138,12 +138,23 @@ void Sidebar::loadPlaylists()
                 info.id = pl.value("id").toInt();
                 info.name = pl.value("name").toString();
                 info.description = pl.value("description").toString();
-                info.coverUrl = pl.value("firstMusicCover").toString();
                 info.musicCount = pl.value("musicCount").toInt();
+                // Try firstMusicCover first, fallback to constructing from firstMusicId
+                QString coverUrl = pl.value("firstMusicCover").toString();
+                if (coverUrl.isEmpty()) {
+                    int firstMusicId = pl.value("firstMusicId").toInt();
+                    if (firstMusicId > 0) {
+                        coverUrl = QString::fromUtf8("/api/music/cover/%1").arg(firstMusicId);
+                    }
+                }
+                info.coverUrl = coverUrl;
+                qDebug() << "[歌单] 加载歌单: id =" << info.id << ", name =" << info.name << ", coverUrl =" << coverUrl << ", musicCount =" << info.musicCount;
                 m_apiPlaylists.append(info);
             }
+            qDebug() << "[歌单] 共加载" << m_apiPlaylists.size() << "个歌单";
         } else {
             m_apiPlaylists.clear();
+            qDebug() << "[歌单] 加载失败";
         }
         refreshPlaylistList();
     });
