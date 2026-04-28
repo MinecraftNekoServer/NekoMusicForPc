@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(NekoMusic
-    VERSION 0.1.0
+    VERSION 2026.0417.0
     LANGUAGES CXX
 )
 
@@ -123,6 +123,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/src
 )
+
+# Generate version header from CMake project version
+configure_file(
+    ${CMAKE_SOURCE_DIR}/src/core/version.h.in
+    ${CMAKE_BINARY_DIR}/generated/version.h
+)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/generated)
 
 # Install
 install(TARGETS ${PROJECT_NAME}

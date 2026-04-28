@@ -10,6 +10,7 @@
 #include "ui/mainwindow.h"
 #include "core/i18n.h"
 #include "core/playlistdb.h"
+#include "version.h"
 
 // 单实例服务器名称
 static const QString kServerName = QStringLiteral("NekoMusicSingleInstance");
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("NekoMusic"));
-    app.setApplicationVersion(QStringLiteral("0.1.0"));
+    app.setApplicationVersion(QStringLiteral(APP_VERSION));
     app.setOrganizationName(QStringLiteral("NekoMusic"));
     app.setOrganizationDomain(QStringLiteral("nekomusic.local"));
 
