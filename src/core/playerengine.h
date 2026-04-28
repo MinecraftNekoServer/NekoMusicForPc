@@ -25,6 +25,8 @@ public:
     void pause();
     void stop();
     void setVolume(float volume);
+    float volume() const;
+    void setPosition(qint64 position);
 
     PlaybackState playbackState() const;
     qint64 duration() const;

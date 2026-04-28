@@ -24,6 +24,7 @@ class PlayerEngine;
 class MusicDownloader;
 class MusicListPage;
 class UploadPage;
+class PlayerPage;
 class QMenu;
 
 class MainWindow : public QMainWindow
@@ -36,6 +37,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *) override;
+    void resizeEvent(QResizeEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
@@ -64,7 +66,9 @@ private:
     MusicListPage *m_hotMusicPage = nullptr;
     MusicListPage *m_latestMusicPage = nullptr;
     UploadPage *m_uploadPage = nullptr;
+    PlayerPage *m_playerPage = nullptr;
     PlayerBar *m_playerBar = nullptr;
+    QWidget *m_midWidget = nullptr;
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;
     MusicDownloader *m_downloader = nullptr;
