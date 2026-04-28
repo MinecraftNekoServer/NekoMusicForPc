@@ -22,7 +22,7 @@ class PlayerBar : public QWidget
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
     void retranslate();
-    void setSongInfo(const QString &title, const QString &artist);
+    void setSongInfo(const QString &title, const QString &artist, const QString &coverUrl = QString());
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -30,6 +30,8 @@ protected:
 private:
     void setupUi();
     void updateState();
+    void setCoverPixmap(const QPixmap &pm);
+    void loadCoverAsync(const QString &url);
 
     PlayerEngine *m_engine = nullptr;
     QPushButton *m_playBtn = nullptr;
@@ -39,4 +41,5 @@ private:
     QLabel *m_artist = nullptr;
     QLabel *m_curTime = nullptr;
     QLabel *m_durTime = nullptr;
+    QLabel *m_cover = nullptr;
 };

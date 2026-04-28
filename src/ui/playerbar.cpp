@@ -21,6 +21,8 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QStyle>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 namespace {
 const QColor kCtrlNormal = QColor(245, 240, 255, 180);
@@ -56,6 +58,7 @@ void PlayerBar::setupUi()
     auto *cover = new QLabel(this);
     cover->setObjectName("pbCover");
     cover->setFixedSize(48, 48);
+    m_cover = cover;
     QPixmap ph(48, 48);
     ph.fill(Qt::transparent);
     QPainter pp(&ph);
@@ -217,10 +220,48 @@ void PlayerBar::retranslate()
     }
 }
 
-void PlayerBar::setSongInfo(const QString &title, const QString &artist)
+void PlayerBar::setSongInfo(const QString &title, const QString &artist, const QString &coverUrl)
 {
     if (m_songName) m_songName->setText(title.isEmpty() ? I18n::instance().tr("unknown") : title);
     if (m_artist) m_artist->setText(artist.isEmpty() ? I18n::instance().tr("unknown") : artist);
+
+    if (m_cover && !coverUrl.isEmpty()) {
+        if (coverUrl.startsWith("http")) {
+            loadCoverAsync(coverUrl);
+        } else {
+            QPixmap pm(coverUrl);
+            if (!pm.isNull()) setCoverPixmap(pm);
+        }
+    }
+}
+
+void PlayerBar::setCoverPixmap(const QPixmap &pm)
+{
+    if (!m_cover || pm.isNull()) return;
+    QPixmap scaled = pm.scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap rounded(48, 48);
+    rounded.fill(Qt::transparent);
+    QPainter p(&rounded);
+    p.setRenderHint(QPainter::Antialiasing);
+    QPainterPath path;
+    path.addRoundedRect(0, 0, 48, 48, 8, 8);
+    p.setClipPath(path);
+    p.drawPixmap(0, 0, scaled);
+    m_cover->setPixmap(rounded);
+}
+
+void PlayerBar::loadCoverAsync(const QString &url)
+{
+    static QNetworkAccessManager nam;
+    auto *reply = nam.get(QNetworkRequest(QUrl(url)));
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) return;
+        QPixmap pm;
+        if (pm.loadFromData(reply->readAll())) {
+            setCoverPixmap(pm);
+        }
+    });
 }
 
 void PlayerBar::updateState()
