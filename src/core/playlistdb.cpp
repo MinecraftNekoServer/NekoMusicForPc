@@ -80,6 +80,38 @@ bool PlaylistDatabase::createTables() {
         return false;
     }
 
+    // Play Queue table
+    QString queueSql = R"(
+        CREATE TABLE IF NOT EXISTS play_queue (
+            queue_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+            music_id    INTEGER NOT NULL,
+            title       TEXT NOT NULL DEFAULT '',
+            artist      TEXT NOT NULL DEFAULT '',
+            album       TEXT NOT NULL DEFAULT '',
+            duration    INTEGER NOT NULL DEFAULT 0,
+            cover_url   TEXT NOT NULL DEFAULT '',
+            queue_order INTEGER NOT NULL DEFAULT 0
+        )
+    )";
+
+    if (!query.exec(queueSql)) {
+        qWarning() << "Failed to create play_queue table:" << query.lastError().text();
+        return false;
+    }
+
+    // Play Queue state table
+    QString queueStateSql = R"(
+        CREATE TABLE IF NOT EXISTS play_queue_state (
+            key         TEXT PRIMARY KEY,
+            value       TEXT NOT NULL
+        )
+    )";
+
+    if (!query.exec(queueStateSql)) {
+        qWarning() << "Failed to create play_queue_state table:" << query.lastError().text();
+        return false;
+    }
+
     return true;
 }
 
@@ -255,4 +287,163 @@ int PlaylistDatabase::getPlaylistMusicCount(int playlistId) {
         return query.value(0).toInt();
     }
     return 0;
+}
+
+// ─── Play Queue Methods ──────────────────────────────────────────────
+
+void PlaylistDatabase::clearQueue() {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query;
+    query.exec("DELETE FROM play_queue");
+    query.exec("DELETE FROM play_queue_state");
+}
+
+void PlaylistDatabase::addToQueue(const MusicInfo& music) {
+    QMutexLocker locker(&m_mutex);
+
+    // Check if already exists
+    QSqlQuery checkQuery;
+    checkQuery.prepare("SELECT COUNT(*) FROM play_queue WHERE music_id = :mid");
+    checkQuery.bindValue(":mid", music.id);
+    checkQuery.exec();
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        return; // Already in queue
+    }
+
+    // Get max queue_order
+    QSqlQuery orderQuery("SELECT COALESCE(MAX(queue_order), 0) + 1 FROM play_queue");
+    orderQuery.exec();
+    int order = 0;
+    if (orderQuery.next()) {
+        order = orderQuery.value(0).toInt();
+    }
+
+    QSqlQuery insertQuery;
+    insertQuery.prepare("INSERT INTO play_queue (music_id, title, artist, album, duration, cover_url, queue_order) VALUES (:mid, :title, :artist, :album, :duration, :cover, :order)");
+    insertQuery.bindValue(":mid", music.id);
+    insertQuery.bindValue(":title", music.title);
+    insertQuery.bindValue(":artist", music.artist);
+    insertQuery.bindValue(":album", music.album);
+    insertQuery.bindValue(":duration", music.duration);
+    insertQuery.bindValue(":cover", music.coverUrl);
+    insertQuery.bindValue(":order", order);
+
+    if (!insertQuery.exec()) {
+        qWarning() << "Failed to add to queue:" << insertQuery.lastError().text();
+    }
+}
+
+void PlaylistDatabase::removeFromQueue(int queueId) {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query;
+    query.prepare("DELETE FROM play_queue WHERE queue_id = :qid");
+    query.bindValue(":qid", queueId);
+
+    if (!query.exec()) {
+        qWarning() << "Failed to remove from queue:" << query.lastError().text();
+    }
+}
+
+void PlaylistDatabase::setQueueMusic(const QList<MusicInfo>& musicList, int currentIndex) {
+    QMutexLocker locker(&m_mutex);
+
+    // Clear existing queue
+    QSqlQuery clearQuery("DELETE FROM play_queue");
+    clearQuery.exec();
+
+    // Insert all music
+    int order = 0;
+    for (const auto& music : musicList) {
+        QSqlQuery insertQuery;
+        insertQuery.prepare("INSERT INTO play_queue (music_id, title, artist, album, duration, cover_url, queue_order) VALUES (:mid, :title, :artist, :album, :duration, :cover, :order)");
+        insertQuery.bindValue(":mid", music.id);
+        insertQuery.bindValue(":title", music.title);
+        insertQuery.bindValue(":artist", music.artist);
+        insertQuery.bindValue(":album", music.album);
+        insertQuery.bindValue(":duration", music.duration);
+        insertQuery.bindValue(":cover", music.coverUrl);
+        insertQuery.bindValue(":order", order++);
+
+        if (!insertQuery.exec()) {
+            qWarning() << "Failed to set queue music:" << insertQuery.lastError().text();
+        }
+    }
+
+    // Save current index
+    QSqlQuery indexQuery;
+    indexQuery.prepare("INSERT OR REPLACE INTO play_queue_state (key, value) VALUES ('currentIndex', :value)");
+    indexQuery.bindValue(":value", QString::number(currentIndex));
+    indexQuery.exec();
+}
+
+QList<MusicInfo> PlaylistDatabase::getQueue() {
+    QMutexLocker locker(&m_mutex);
+
+    QList<MusicInfo> musicList;
+    QSqlQuery query("SELECT queue_id, music_id, title, artist, album, duration, cover_url FROM play_queue ORDER BY queue_order ASC");
+
+    if (query.exec()) {
+        while (query.next()) {
+            MusicInfo info;
+            info.id = query.value(1).toInt();
+            info.title = query.value(2).toString();
+            info.artist = query.value(3).toString();
+            info.album = query.value(4).toString();
+            info.duration = query.value(5).toInt();
+            info.coverUrl = query.value(6).toString();
+            musicList.append(info);
+        }
+    } else {
+        qWarning() << "Failed to get queue:" << query.lastError().text();
+    }
+
+    return musicList;
+}
+
+int PlaylistDatabase::getQueueCurrentIndex() {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query;
+    query.prepare("SELECT value FROM play_queue_state WHERE key = 'currentIndex'");
+    if (query.exec() && query.next()) {
+        return query.value(0).toString().toInt();
+    }
+    return -1;
+}
+
+void PlaylistDatabase::setQueueCurrentIndex(int index) {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query;
+    query.prepare("INSERT OR REPLACE INTO play_queue_state (key, value) VALUES ('currentIndex', :value)");
+    query.bindValue(":value", QString::number(index));
+
+    if (!query.exec()) {
+        qWarning() << "Failed to set queue current index:" << query.lastError().text();
+    }
+}
+
+QString PlaylistDatabase::getQueuePlayMode() {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query;
+    query.prepare("SELECT value FROM play_queue_state WHERE key = 'playMode'");
+    if (query.exec() && query.next()) {
+        return query.value(0).toString();
+    }
+    return "list"; // Default mode
+}
+
+void PlaylistDatabase::setQueuePlayMode(const QString& mode) {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query;
+    query.prepare("INSERT OR REPLACE INTO play_queue_state (key, value) VALUES ('playMode', :value)");
+    query.bindValue(":value", mode);
+
+    if (!query.exec()) {
+        qWarning() << "Failed to set queue play mode:" << query.lastError().text();
+    }
 }
