@@ -12,6 +12,8 @@
 
 class QLineEdit;
 class QLabel;
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class TitleBar : public QWidget
 {
@@ -35,6 +37,10 @@ protected:
 private:
     void setupUi();
     void updateAvatar();
+    void loadAvatarAsync(const QString &url);
+    void onAvatarReplyFinished();
+
+    QNetworkAccessManager *m_nam = nullptr;
     QLineEdit *m_search = nullptr;
     QLabel *m_logo = nullptr;
     QLabel *m_name = nullptr;
