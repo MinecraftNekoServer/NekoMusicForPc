@@ -156,8 +156,8 @@ void TitleBar::setupUi()
     m_avatarWidget->setObjectName("tbAvatarWidget");
     m_avatarWidget->setCursor(Qt::PointingHandCursor);
     auto *avatarLay = new QHBoxLayout(m_avatarWidget);
-    avatarLay->setContentsMargins(10, 4, 8, 4);
-    avatarLay->setSpacing(8);
+    avatarLay->setContentsMargins(14, 4, 12, 4);
+    avatarLay->setSpacing(10);
 
     m_avatarIcon = new QLabel(m_avatarWidget);
     m_avatarIcon->setFixedSize(24, 24);
@@ -167,7 +167,7 @@ void TitleBar::setupUi()
     m_usernameLabel = new QLabel(m_avatarWidget);
     m_usernameLabel->setObjectName("tbUsername");
     m_usernameLabel->setCursor(Qt::PointingHandCursor);
-    m_usernameLabel->setMaximumWidth(140);
+    m_usernameLabel->setMaximumWidth(180);
     avatarLay->addWidget(m_usernameLabel);
 
     // 下拉箭头
@@ -243,7 +243,7 @@ void TitleBar::updateAvatar()
 
         // 用户名截断
         QFontMetrics fm(m_usernameLabel->font());
-        m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, 140));
+        m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, 180));
         m_usernameLabel->setToolTip(username);
 
         // 异步加载头像
