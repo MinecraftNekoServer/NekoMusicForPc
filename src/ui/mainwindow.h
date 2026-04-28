@@ -20,6 +20,7 @@ class FavoritesPage;
 class RecentPage;
 class PlayerBar;
 class PlayerEngine;
+class MusicDownloader;
 class MusicListPage;
 class UploadPage;
 
@@ -55,4 +56,5 @@ private:
     PlayerBar *m_playerBar = nullptr;
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;
+    MusicDownloader *m_downloader = nullptr;
 };

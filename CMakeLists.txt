@@ -52,6 +52,7 @@ set(SOURCES
     src/core/i18n.cpp
     src/core/covercache.cpp
     src/core/usermanager.cpp
+    src/core/musicdownloader.cpp
 )
 
 set(HEADERS

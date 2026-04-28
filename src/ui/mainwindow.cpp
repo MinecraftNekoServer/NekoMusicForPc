@@ -19,6 +19,7 @@
 #include "ui/uploadpage.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
+#include "core/musicdownloader.h"
 #include "core/usermanager.h"
 #include "theme/theme.h"
 
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setAttribute(Qt::WA_TranslucentBackground, false);
 
     m_engine = new PlayerEngine(this);
+    m_downloader = new MusicDownloader(this);
     setupUi();
     loadStyleSheet();
 
@@ -238,9 +240,14 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Update player bar
     m_playerBar->setSongInfo(title, artist, coverUrl);
 
-    // 构建音乐URL
+    // Build music URL
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
-    m_engine->play(url);
+
+    // Use downloader for buffered playback
+    m_downloader->download(url);
+    connect(m_downloader, &MusicDownloader::bufferReady, this, [this](const QString &localPath) {
+        m_engine->play(QUrl::fromLocalFile(localPath));
+    }, Qt::UniqueConnection);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
