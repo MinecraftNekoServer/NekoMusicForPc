@@ -40,7 +40,7 @@ private:
     void loadStyleSheet();
     void switchPage(QWidget *target);
     void showMusicListPage(bool isHot);
-    void playMusicById(int musicId);
+    void playMusicById(int musicId, const QString &title, const QString &artist);
 
     bool m_switching = false;
     TitleBar *m_titleBar = nullptr;

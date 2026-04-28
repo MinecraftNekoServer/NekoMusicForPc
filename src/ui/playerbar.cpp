@@ -25,6 +25,11 @@
 namespace {
 const QColor kCtrlNormal = QColor(245, 240, 255, 180);
 const QColor kCtrlActive = QColor(196, 167, 231, 255);
+
+QString formatTime(qint64 ms) {
+    qint64 sec = ms / 1000;
+    return QString("%1:%2").arg(sec / 60).arg(sec % 60, 2, 10, QChar('0'));
+}
 }
 
 PlayerBar::PlayerBar(PlayerEngine *engine, QWidget *parent)
@@ -117,6 +122,7 @@ void PlayerBar::setupUi()
     auto *curTime = new QLabel(QStringLiteral("0:00"), this);
     curTime->setObjectName("pbTime");
     curTime->setFixedWidth(36);
+    m_curTime = curTime;
     progL->addWidget(curTime);
 
     m_progress = new QSlider(Qt::Horizontal, this);
@@ -128,6 +134,7 @@ void PlayerBar::setupUi()
     auto *durTime = new QLabel(QStringLiteral("0:00"), this);
     durTime->setObjectName("pbTime");
     durTime->setFixedWidth(36);
+    m_durTime = durTime;
     progL->addWidget(durTime);
 
     cl->addLayout(progL);
@@ -169,11 +176,12 @@ void PlayerBar::setupUi()
         connect(m_engine, &PlayerEngine::stateChanged, this, [this]() { updateState(); });
         // 进度条跟随播放位置
         connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 pos) {
+            if (m_curTime) m_curTime->setText(formatTime(pos));
             if (m_engine->duration() > 0)
                 m_progress->setValue(static_cast<int>(pos * 1000 / m_engine->duration()));
         });
         connect(m_engine, &PlayerEngine::durationChanged, this, [this](qint64 dur) {
-            Q_UNUSED(dur)
+            if (m_durTime) m_durTime->setText(formatTime(dur));
         });
     }
 }
@@ -207,6 +215,12 @@ void PlayerBar::retranslate()
             ctrlCount++;
         }
     }
+}
+
+void PlayerBar::setSongInfo(const QString &title, const QString &artist)
+{
+    if (m_songName) m_songName->setText(title.isEmpty() ? I18n::instance().tr("unknown") : title);
+    if (m_artist) m_artist->setText(artist.isEmpty() ? I18n::instance().tr("unknown") : artist);
 }
 
 void PlayerBar::updateState()

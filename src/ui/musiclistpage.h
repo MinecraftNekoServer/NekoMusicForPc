@@ -35,7 +35,7 @@ public:
     explicit MusicListPage(Type type, QWidget *parent = nullptr);
 
 signals:
-    void playMusic(int id);
+    void playMusic(const MusicInfo &info);
     void backRequested();
 
 public slots:
@@ -49,7 +49,6 @@ private:
     void setupUi();
     void fetchData();
     void buildList();
-    void onMusicItemClicked(int musicId);
 
     Type m_type;
     QScrollArea *m_scroll = nullptr;

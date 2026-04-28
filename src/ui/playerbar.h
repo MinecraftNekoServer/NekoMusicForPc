@@ -22,6 +22,7 @@ class PlayerBar : public QWidget
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
     void retranslate();
+    void setSongInfo(const QString &title, const QString &artist);
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -36,4 +37,6 @@ private:
     QSlider *m_volume = nullptr;
     QLabel *m_songName = nullptr;
     QLabel *m_artist = nullptr;
+    QLabel *m_curTime = nullptr;
+    QLabel *m_durTime = nullptr;
 };

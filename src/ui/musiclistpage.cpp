@@ -308,18 +308,13 @@ void MusicListPage::buildList()
 
     for (const auto &info : m_musicList) {
         auto *card = new MusicItemCard(info, m_listContainer);
-        card->onClicked = [this](int musicId) {
-            onMusicItemClicked(musicId);
+        card->onClicked = [this, info](int) {
+            emit playMusic(info);
         };
         m_listLayout->addWidget(card);
     }
 
     m_listLayout->addStretch();
-}
-
-void MusicListPage::onMusicItemClicked(int musicId)
-{
-    emit playMusic(musicId);
 }
 
 void MusicListPage::retranslate()
