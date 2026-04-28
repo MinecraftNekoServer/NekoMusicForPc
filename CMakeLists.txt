@@ -43,10 +43,15 @@ set(SOURCES
     src/ui/settingspage.cpp
     src/ui/favoritespage.cpp
     src/ui/recentpage.cpp
+    src/ui/logindialog.cpp
+    src/ui/forgotpassworddialog.cpp
+    src/ui/musiclistpage.cpp
+    src/ui/uploadpage.cpp
     src/core/playerengine.cpp
     src/core/apiclient.cpp
     src/core/i18n.cpp
     src/core/covercache.cpp
+    src/core/usermanager.cpp
 )
 
 set(HEADERS
@@ -62,10 +67,15 @@ set(HEADERS
     src/ui/settingspage.h
     src/ui/favoritespage.h
     src/ui/recentpage.h
+    src/ui/logindialog.h
+    src/ui/forgotpassworddialog.h
+    src/ui/musiclistpage.h
+    src/ui/uploadpage.h
     src/core/playerengine.h
     src/core/apiclient.h
     src/core/i18n.h
     src/core/covercache.h
+    src/core/usermanager.h
     src/theme/theme.h
 )
 
