@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QList>
 #include <QString>
-#include <QSettings>
 #include "core/musicinfo.h"
 
 class PlaylistManager : public QObject {

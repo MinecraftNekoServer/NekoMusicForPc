@@ -39,6 +39,17 @@ public:
     QList<MusicInfo> getPlaylistMusic(int playlistId);
     int getPlaylistMusicCount(int playlistId);
 
+    // Play Queue Operations
+    void clearQueue();
+    void addToQueue(const MusicInfo& music);
+    void removeFromQueue(int queueId);
+    void setQueueMusic(const QList<MusicInfo>& musicList, int currentIndex);
+    QList<MusicInfo> getQueue();
+    int getQueueCurrentIndex();
+    void setQueueCurrentIndex(int index);
+    QString getQueuePlayMode();
+    void setQueuePlayMode(const QString& mode);
+
 private:
     PlaylistDatabase() = default;
     ~PlaylistDatabase() = default;

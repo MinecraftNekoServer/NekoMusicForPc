@@ -1,7 +1,7 @@
 #include "core/playlistmanager.h"
+#include "core/playlistdb.h"
 
 #include <QRandomGenerator>
-#include <QDebug>
 
 PlaylistManager& PlaylistManager::instance() {
     static PlaylistManager manager;
@@ -9,42 +9,16 @@ PlaylistManager& PlaylistManager::instance() {
 }
 
 void PlaylistManager::load() {
-    QSettings settings;
-    int size = settings.beginReadArray("playlist");
-    m_playlist.clear();
-    for (int i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        MusicInfo info;
-        info.id = settings.value("id").toInt();
-        info.title = settings.value("title").toString();
-        info.artist = settings.value("artist").toString();
-        info.album = settings.value("album").toString();
-        info.duration = settings.value("duration").toInt();
-        info.coverUrl = settings.value("coverUrl").toString();
-        m_playlist.append(info);
-    }
-    settings.endArray();
-
-    m_currentIndex = settings.value("currentIndex", -1).toInt();
-    m_playMode = settings.value("playMode", "list").toString();
+    // Load from SQLite
+    m_playlist = PlaylistDatabase::instance().getQueue();
+    m_currentIndex = PlaylistDatabase::instance().getQueueCurrentIndex();
+    m_playMode = PlaylistDatabase::instance().getQueuePlayMode();
 }
 
 void PlaylistManager::save() {
-    QSettings settings;
-    settings.beginWriteArray("playlist");
-    for (int i = 0; i < m_playlist.size(); ++i) {
-        settings.setArrayIndex(i);
-        settings.setValue("id", m_playlist[i].id);
-        settings.setValue("title", m_playlist[i].title);
-        settings.setValue("artist", m_playlist[i].artist);
-        settings.setValue("album", m_playlist[i].album);
-        settings.setValue("duration", m_playlist[i].duration);
-        settings.setValue("coverUrl", m_playlist[i].coverUrl);
-    }
-    settings.endArray();
-
-    settings.setValue("currentIndex", m_currentIndex);
-    settings.setValue("playMode", m_playMode);
+    // Save to SQLite
+    PlaylistDatabase::instance().setQueueMusic(m_playlist, m_currentIndex);
+    PlaylistDatabase::instance().setQueuePlayMode(m_playMode);
 }
 
 void PlaylistManager::addToPlaylist(const MusicInfo& music) {
@@ -58,7 +32,7 @@ void PlaylistManager::addToPlaylist(const MusicInfo& music) {
     if (m_currentIndex == -1) {
         m_currentIndex = 0;
     }
-    save();
+    PlaylistDatabase::instance().addToQueue(music);
     emit playlistChanged();
 }
 
@@ -73,12 +47,12 @@ void PlaylistManager::addAllToPlaylist(const QList<MusicInfo>& musicList) {
         }
         if (!exists) {
             m_playlist.append(music);
+            PlaylistDatabase::instance().addToQueue(music);
         }
     }
     if (m_currentIndex == -1 && !m_playlist.isEmpty()) {
         m_currentIndex = 0;
     }
-    save();
     emit playlistChanged();
 }
 
@@ -89,6 +63,7 @@ void PlaylistManager::removeFromPlaylist(int localId) {
         if (m_currentIndex >= m_playlist.size()) {
             m_currentIndex = m_playlist.isEmpty() ? -1 : m_playlist.size() - 1;
         }
+        // Rebuild queue in DB
         save();
         emit playlistChanged();
     }
@@ -97,13 +72,13 @@ void PlaylistManager::removeFromPlaylist(int localId) {
 void PlaylistManager::clearPlaylist() {
     m_playlist.clear();
     m_currentIndex = -1;
-    save();
+    PlaylistDatabase::instance().clearQueue();
     emit playlistChanged();
 }
 
 void PlaylistManager::setPlayMode(const QString& mode) {
     m_playMode = mode;
-    save();
+    PlaylistDatabase::instance().setQueuePlayMode(mode);
     emit playModeChanged(mode);
 }
 
@@ -115,13 +90,13 @@ void PlaylistManager::togglePlayMode() {
     } else {
         m_playMode = "list";
     }
-    save();
+    PlaylistDatabase::instance().setQueuePlayMode(m_playMode);
     emit playModeChanged(m_playMode);
 }
 
 void PlaylistManager::setCurrentIndex(int index) {
     m_currentIndex = index;
-    save();
+    PlaylistDatabase::instance().setQueueCurrentIndex(index);
 }
 
 int PlaylistManager::nextIndex() const {
