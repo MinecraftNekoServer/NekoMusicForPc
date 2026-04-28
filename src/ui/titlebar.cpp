@@ -61,7 +61,7 @@ bool TitleBar::eventFilter(QObject *watched, QEvent *event)
                 return false;
             }
             // 头像点击
-            if (w == m_avatar) {
+            if (w == m_avatarWidget) {
                 emit avatarClicked();
                 return true;
             }
@@ -82,7 +82,7 @@ bool TitleBar::eventFilter(QObject *watched, QEvent *event)
         break;
     }
     case QEvent::Enter: {
-        if (w == m_avatar) {
+        if (w == m_avatarWidget) {
             QString tip = UserManager::instance().isLoggedIn()
                 ? UserManager::instance().userInfo().value("username").toString()
                 : I18n::instance().tr("goToLogin");
@@ -145,13 +145,26 @@ void TitleBar::setupUi()
     lay->addStretch(1);
 
     // ─── 右侧控制 ────────────────────────────────────
-    m_avatar = new QLabel(this);
-    m_avatar->setObjectName("tbAvatar");
-    m_avatar->setFixedSize(30, 30);
-    m_avatar->setCursor(Qt::PointingHandCursor);
-    m_avatar->setPixmap(QPixmap(":/icons/app.png").scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    m_avatar->setToolTip(I18n::instance().tr("goToLogin"));
-    lay->addWidget(m_avatar);
+    // 头像区域：左边头像图标 + 右边用户名
+    m_avatarWidget = new QWidget(this);
+    m_avatarWidget->setObjectName("tbAvatarWidget");
+    m_avatarWidget->setCursor(Qt::PointingHandCursor);
+    auto *avatarLay = new QHBoxLayout(m_avatarWidget);
+    avatarLay->setContentsMargins(8, 4, 8, 4);
+    avatarLay->setSpacing(6);
+
+    m_avatarIcon = new QLabel(m_avatarWidget);
+    m_avatarIcon->setFixedSize(24, 24);
+    m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    avatarLay->addWidget(m_avatarIcon);
+
+    m_usernameLabel = new QLabel(m_avatarWidget);
+    m_usernameLabel->setObjectName("tbUsername");
+    m_usernameLabel->setCursor(Qt::PointingHandCursor);
+    avatarLay->addWidget(m_usernameLabel);
+
+    updateAvatar();
+    lay->addWidget(m_avatarWidget);
 
     auto *settingsBtn = new QPushButton(this);
     settingsBtn->setObjectName("tbIconBtn");
@@ -208,34 +221,38 @@ void TitleBar::retranslate()
 
 void TitleBar::updateAvatar()
 {
-    if (!m_avatar) return;
+    if (!m_avatarIcon || !m_usernameLabel) return;
 
     if (UserManager::instance().isLoggedIn()) {
         // 已登录，显示用户名
         QString username = UserManager::instance().userInfo().value("username").toString();
         if (username.isEmpty()) username = "User";
-        // 取首字母作为头像
+
+        // 首字母作为头像
         QString letter = username.left(1).toUpper();
-        QPixmap pixmap(30, 30);
+        QPixmap pixmap(24, 24);
         pixmap.fill(Qt::transparent);
         QPainter p(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);
         p.setBrush(QColor(242, 172, 185));  // 樱花粉
         p.setPen(Qt::NoPen);
-        p.drawEllipse(0, 0, 30, 30);
+        p.drawEllipse(0, 0, 24, 24);
         p.setPen(QColor(26, 22, 37));
         QFont font = p.font();
         font.setBold(true);
-        font.setPixelSize(14);
+        font.setPixelSize(12);
         p.setFont(font);
-        QRect rect(0, 0, 30, 30);
+        QRect rect(0, 0, 24, 24);
         p.drawText(rect, Qt::AlignCenter, letter);
-        m_avatar->setPixmap(pixmap);
-        m_avatar->setToolTip(username);
+        m_avatarIcon->setPixmap(pixmap);
+
+        m_usernameLabel->setText(username);
+        m_usernameLabel->setToolTip(username);
     } else {
-        // 未登录，显示默认图标
-        m_avatar->setPixmap(QPixmap(":/icons/app.png").scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        m_avatar->setToolTip(I18n::instance().tr("goToLogin"));
+        // 未登录，显示默认图标和点击登录
+        m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        m_usernameLabel->setText(I18n::instance().tr("goToLogin"));
+        m_usernameLabel->setToolTip(I18n::instance().tr("goToLogin"));
     }
 }
 

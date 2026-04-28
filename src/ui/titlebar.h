@@ -38,5 +38,7 @@ private:
     QLineEdit *m_search = nullptr;
     QLabel *m_logo = nullptr;
     QLabel *m_name = nullptr;
-    QLabel *m_avatar = nullptr;
+    QWidget *m_avatarWidget = nullptr;
+    QLabel *m_avatarIcon = nullptr;
+    QLabel *m_usernameLabel = nullptr;
 };

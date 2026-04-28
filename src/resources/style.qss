@@ -42,9 +42,22 @@ QMainWindow {
     border-color: rgba(126, 200, 200, 130);
 }
 
-#tbAvatar {
-    border: 2px solid rgba(242, 172, 185, 130);
+#tbAvatarWidget {
+    background: rgba(245, 240, 255, 15);
+    border: 1.5px solid rgba(196, 167, 231, 30);
     border-radius: 15px;
+}
+
+#tbAvatarWidget:hover {
+    background: rgba(196, 167, 231, 25);
+    border-color: rgba(196, 167, 231, 60);
+}
+
+#tbUsername {
+    font-size: 13px;
+    color: #F5F0FF;
+    font-weight: 500;
+    padding: 0 4px;
 }
 
 #tbIconBtn {
