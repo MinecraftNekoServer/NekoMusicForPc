@@ -4,7 +4,7 @@
  */
 
 #include "playlistdetailpage.h"
-#include "core/playlistdb.h"
+#include "core/apiclient.h"
 #include "core/i18n.h"
 #include "core/covercache.h"
 #include "theme/theme.h"
@@ -159,8 +159,8 @@ private:
 
 // ─── PlaylistDetailPage ──────────────────────────────────────
 
-PlaylistDetailPage::PlaylistDetailPage(QWidget *parent)
-    : QWidget(parent)
+PlaylistDetailPage::PlaylistDetailPage(ApiClient *apiClient, QWidget *parent)
+    : QWidget(parent), m_apiClient(apiClient)
 {
     setAttribute(Qt::WA_StyledBackground, false);
     setupUi();
@@ -217,15 +217,45 @@ void PlaylistDetailPage::setupUi()
     mainLay->addWidget(m_scroll, 1);
 }
 
-void PlaylistDetailPage::loadPlaylist(int localId)
+void PlaylistDetailPage::loadPlaylist(int playlistId)
 {
-    m_playlistId = localId;
-    auto playlist = PlaylistDatabase::instance().getPlaylist(localId);
-    m_playlistName = playlist.name;
-    m_musicList = PlaylistDatabase::instance().getPlaylistMusic(localId);
+    m_playlistId = playlistId;
 
-    updateHeader();
-    buildList();
+    if (!m_apiClient) {
+        m_playlistName = QStringLiteral("歌单详情");
+        updateHeader();
+        m_musicList.clear();
+        buildList();
+        return;
+    }
+
+    // 先获取歌单详情得到名称
+    m_apiClient->fetchPlaylistDetail(playlistId, [this](bool success, const QVariantMap &detail) {
+        if (success) {
+            m_playlistName = detail.value("name").toString();
+        } else {
+            m_playlistName = QStringLiteral("歌单详情");
+        }
+        updateHeader();
+
+        // 然后获取音乐列表
+        m_apiClient->fetchPlaylistMusic(m_playlistId, [this](bool success, int total, const QList<QVariantMap> &musicList) {
+            m_musicList.clear();
+            if (success) {
+                for (const auto &m : musicList) {
+                    MusicInfo info;
+                    info.id = m.value("id").toInt();
+                    info.title = m.value("title").toString();
+                    info.artist = m.value("artist").toString();
+                    info.album = m.value("album").toString();
+                    info.duration = m.value("duration").toInt();
+                    info.coverUrl = m.value("coverPath").toString();
+                    m_musicList.append(info);
+                }
+            }
+            buildList();
+        });
+    });
 }
 
 void PlaylistDetailPage::updateHeader()
@@ -259,9 +289,13 @@ void PlaylistDetailPage::buildList()
                 emit playMusic(info);
             };
             card->onRemoveRequested = [this, musicId = info.id](int) {
-                PlaylistDatabase::instance().removeMusic(m_playlistId, musicId);
-                loadPlaylist(m_playlistId);
-                emit refreshSidebarPlaylists();
+                if (!m_apiClient) return;
+                m_apiClient->removeMusicFromPlaylist(m_playlistId, musicId, [this](bool success, const QString &) {
+                    if (success) {
+                        loadPlaylist(m_playlistId);
+                        emit refreshSidebarPlaylists();
+                    }
+                });
             };
             m_listLayout->addWidget(card);
             m_musicItems.append(card);

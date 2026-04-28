@@ -11,7 +11,7 @@
 #include "ui/playlistlistitem.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
-#include "core/playlistdb.h"
+#include "core/apiclient.h"
 
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -34,7 +34,7 @@ QString navIconPath(const QString &key, bool active) {
 }
 }
 
-Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
+Sidebar::Sidebar(ApiClient *apiClient, QWidget *parent) : QWidget(parent), m_apiClient(apiClient)
 {
     setFixedWidth(Theme::kSidebarW);
     setAttribute(Qt::WA_StyledBackground, false);
@@ -42,7 +42,7 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     setActiveNav("home");
     // Upload nav only visible when logged in
     setUploadVisible(UserManager::instance().isLoggedIn());
-    refreshPlaylists();
+    loadPlaylists();
 }
 
 void Sidebar::setupUi()
@@ -118,7 +118,34 @@ void Sidebar::setupUi()
 
 void Sidebar::refreshPlaylists()
 {
-    refreshPlaylistList();
+    loadPlaylists();
+}
+
+void Sidebar::loadPlaylists()
+{
+    if (!m_apiClient || !UserManager::instance().isLoggedIn()) {
+        // Not logged in or no API client, clear the list
+        m_apiPlaylists.clear();
+        refreshPlaylistList();
+        return;
+    }
+
+    m_apiClient->fetchUserPlaylists([this](bool success, const QList<QVariantMap> &playlists) {
+        if (success) {
+            m_apiPlaylists.clear();
+            for (const auto &pl : playlists) {
+                ApiPlaylistInfo info;
+                info.id = pl.value("id").toInt();
+                info.name = pl.value("name").toString();
+                info.description = pl.value("description").toString();
+                info.musicCount = pl.value("musicCount").toInt();
+                m_apiPlaylists.append(info);
+            }
+        } else {
+            m_apiPlaylists.clear();
+        }
+        refreshPlaylistList();
+    });
 }
 
 void Sidebar::refreshPlaylistList()
@@ -130,9 +157,7 @@ void Sidebar::refreshPlaylistList()
     }
     m_playlistItems.clear();
 
-    auto playlists = PlaylistDatabase::instance().getAllPlaylists();
-
-    if (playlists.isEmpty()) {
+    if (m_apiPlaylists.isEmpty()) {
         auto *empty = new QLabel(I18n::instance().tr("noPlaylists"), m_playlistContainer);
         empty->setObjectName("sbEmptyPlaylist");
         empty->setAlignment(Qt::AlignCenter);
@@ -140,18 +165,28 @@ void Sidebar::refreshPlaylistList()
         m_playlistLayout->addWidget(empty);
         m_playlistItems.append(nullptr); // 标记空状态
     } else {
-        for (const auto &pl : playlists) {
-            int count = PlaylistDatabase::instance().getPlaylistMusicCount(pl.localId);
-            auto *item = new PlaylistListItem(pl.localId, pl.name, count, m_playlistContainer);
-            connect(item, &PlaylistListItem::clicked, this, [this, localId = pl.localId]() {
-                emit playlistClicked(localId);
+        for (const auto &pl : m_apiPlaylists) {
+            auto *item = new PlaylistListItem(pl.id, pl.name, pl.musicCount, m_playlistContainer);
+            connect(item, &PlaylistListItem::clicked, this, [this, playlistId = pl.id]() {
+                emit playlistClicked(playlistId);
             });
-            connect(item, &PlaylistListItem::renameRequested, this, [this, localId = pl.localId]() {
-                emit playlistClicked(localId); // 暂时通过点击信号处理
+            connect(item, &PlaylistListItem::renameRequested, this, [this, playlistId = pl.id]() {
+                emit playlistClicked(playlistId); // 暂时通过点击信号处理
             });
-            connect(item, &PlaylistListItem::deleteRequested, this, [this, localId = pl.localId]() {
-                PlaylistDatabase::instance().deletePlaylist(localId);
-                refreshPlaylistList();
+            connect(item, &PlaylistListItem::deleteRequested, this, [this, playlistId = pl.id]() {
+                if (!m_apiClient) return;
+                m_apiClient->deletePlaylist(playlistId, [this, playlistId](bool success, const QString &) {
+                    if (success) {
+                        // 从缓存中移除
+                        for (int i = 0; i < m_apiPlaylists.size(); ++i) {
+                            if (m_apiPlaylists[i].id == playlistId) {
+                                m_apiPlaylists.removeAt(i);
+                                break;
+                            }
+                        }
+                        refreshPlaylistList();
+                    }
+                });
             });
             m_playlistLayout->addWidget(item);
             m_playlistItems.append(item);

@@ -16,21 +16,30 @@ class QPushButton;
 class QVBoxLayout;
 class QWidget;
 class PlaylistListItem;
+class ApiClient;
+
+struct ApiPlaylistInfo {
+    int id = 0;
+    QString name;
+    QString description;
+    int musicCount = 0;
+};
 
 class Sidebar : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Sidebar(QWidget *parent = nullptr);
+    explicit Sidebar(ApiClient *apiClient, QWidget *parent = nullptr);
     void setActiveNav(const QString &key);
     void retranslate();
     void setUploadVisible(bool visible);
     void refreshPlaylists();
+    void loadPlaylists();
 
 signals:
     void navigationRequested(const QString &key);
-    void playlistClicked(int localId);
+    void playlistClicked(int playlistId);
     void playlistCreateRequested();
 
 protected:
@@ -41,6 +50,8 @@ private:
     QPushButton *createNavItem(const QString &key, const QString &label, const QIcon &icon);
     void refreshPlaylistList();
 
+    ApiClient *m_apiClient = nullptr;
+    QList<ApiPlaylistInfo> m_apiPlaylists;
     QMap<QString, QPushButton *> m_navBtns;
     QString m_activeKey;
     QPushButton *m_favBtn = nullptr;

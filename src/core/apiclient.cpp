@@ -344,6 +344,286 @@ void ApiClient::changePassword(const QString &oldPassword, const QString &newPas
     });
 }
 
+void ApiClient::fetchPlaylists(const QString &query, PlaylistsCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/playlists/search").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["query"] = query;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) { cb(false, {}); return; }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QList<QVariantMap> res;
+        if (ok) for (const auto &v : doc.object().value("results").toArray())
+            res.append(v.toObject().toVariantMap());
+        cb(ok, res);
+    });
+}
+
+void ApiClient::fetchPlaylistDetail(int playlistId, PlaylistDetailCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/playlist/%2").arg(Theme::kApiBase).arg(playlistId));
+    auto *reply = m_nam.get(QNetworkRequest(url));
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QVariantMap detail;
+        if (ok) {
+            detail = doc.object().value("playlist").toObject().toVariantMap();
+        }
+        if (cb) cb(ok, detail);
+    });
+}
+
+void ApiClient::fetchUserPlaylists(UserPlaylistsCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlists").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    if (UserManager::instance().isLoggedIn()) {
+        req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    }
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QList<QVariantMap> res;
+        if (ok) for (const auto &v : doc.object().value("playlists").toArray())
+            res.append(v.toObject().toVariantMap());
+        if (cb) cb(ok, res);
+    });
+}
+
+void ApiClient::createPlaylist(const QString &name, const QString &description, CreatePlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlist/create").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["name"] = name;
+    if (!description.isEmpty()) body["description"] = description;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString(), {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        QVariantMap playlist;
+        if (ok) {
+            playlist = doc.object().value("playlist").toObject().toVariantMap();
+        }
+        if (cb) cb(ok, message, playlist);
+    });
+}
+
+void ApiClient::updatePlaylist(int playlistId, const QString &name, const QString &description, UpdatePlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlist/update").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["id"] = playlistId;
+    body["name"] = name;
+    if (!description.isNull()) body["description"] = description;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString(), {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        QVariantMap playlist;
+        if (ok) {
+            playlist = doc.object().value("playlist").toObject().toVariantMap();
+        }
+        if (cb) cb(ok, message, playlist);
+    });
+}
+
+void ApiClient::deletePlaylist(int playlistId, DeletePlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlist/delete").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["id"] = playlistId;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString());
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        if (cb) cb(ok, message);
+    });
+}
+
+void ApiClient::fetchPlaylistMusic(int playlistId, PlaylistMusicCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlist/music/%2").arg(Theme::kApiBase).arg(playlistId));
+    QNetworkRequest req(url);
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, 0, {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QList<QVariantMap> res;
+        int total = 0;
+        if (ok) {
+            total = doc.object().value("total").toInt();
+            for (const auto &v : doc.object().value("musicList").toArray())
+                res.append(v.toObject().toVariantMap());
+        }
+        if (cb) cb(ok, total, res);
+    });
+}
+
+void ApiClient::addMusicToPlaylist(int playlistId, int musicId, AddMusicToPlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlist/music/add").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["playlistId"] = playlistId;
+    body["musicId"] = musicId;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString());
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        if (cb) cb(ok, message);
+    });
+}
+
+void ApiClient::removeMusicFromPlaylist(int playlistId, int musicId, RemoveMusicFromPlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/playlist/music/remove").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["playlistId"] = playlistId;
+    body["musicId"] = musicId;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString());
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        if (cb) cb(ok, message);
+    });
+}
+
+void ApiClient::fetchFavoritePlaylists(UserPlaylistsCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/favorite-playlists").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QList<QVariantMap> res;
+        if (ok) for (const auto &v : doc.object().value("playlists").toArray())
+            res.append(v.toObject().toVariantMap());
+        if (cb) cb(ok, res);
+    });
+}
+
+void ApiClient::favoritePlaylist(int playlistId, AddMusicToPlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/favorite-playlists").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject body;
+    body["playlistId"] = playlistId;
+    auto *reply = m_nam.post(req, QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString());
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        if (cb) cb(ok, message);
+    });
+}
+
+void ApiClient::unfavoritePlaylist(int playlistId, RemoveMusicFromPlaylistCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/favorite-playlists/%2").arg(Theme::kApiBase).arg(playlistId));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    auto *reply = m_nam.deleteResource(req);
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, reply->errorString());
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QString message = doc.object().value("message").toString();
+        if (cb) cb(ok, message);
+    });
+}
+
+void ApiClient::fetchFavoritePlaylistMusic(int playlistId, PlaylistMusicCb cb) {
+    QUrl url(QString::fromUtf8("%1/api/user/favorite-playlists/%2").arg(Theme::kApiBase).arg(playlistId));
+    QNetworkRequest req(url);
+    req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            if (cb) cb(false, 0, {});
+            return;
+        }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QList<QVariantMap> res;
+        if (ok) for (const auto &v : doc.object().value("music").toArray())
+            res.append(v.toObject().toVariantMap());
+        if (cb) cb(ok, res.size(), res);
+    });
+}
+
 void ApiClient::uploadMusic(const QString &musicFilePath, const QString &title,
                              const QString &artist, const QString &language, int duration,
                              int uploadUserId, const QString &album,

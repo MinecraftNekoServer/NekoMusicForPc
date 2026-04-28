@@ -102,10 +102,10 @@ void MainWindow::setupUi()
     midH->setContentsMargins(0, 0, 0, 0);
     midH->setSpacing(0);
 
-    m_sidebar = new Sidebar(this);
+    m_apiClient = new ApiClient(this);
+    m_sidebar = new Sidebar(m_apiClient, this);
     midH->addWidget(m_sidebar);
 
-    m_apiClient = new ApiClient(this);
     m_stack = new QStackedWidget(this);
     m_stack->setObjectName("pageStack");
     m_homePage = new HomePage(this);
@@ -115,7 +115,7 @@ void MainWindow::setupUi()
     m_hotMusicPage = new MusicListPage(MusicListPage::Hot, this);
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
     m_uploadPage = new UploadPage(this);
-    m_playlistDetailPage = new PlaylistDetailPage(this);
+    m_playlistDetailPage = new PlaylistDetailPage(m_apiClient, this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
@@ -186,10 +186,12 @@ void MainWindow::setupUi()
     connect(&UserManager::instance(), &UserManager::loginStateChanged, this, [this]() {
         if (m_favoritesPage) m_favoritesPage->refresh();
         loadFavoritesCache();
+        m_sidebar->loadPlaylists();
     });
     // 启动时可能错过了信号，手动检查一次
     if (UserManager::instance().isLoggedIn()) {
         loadFavoritesCache();
+        m_sidebar->loadPlaylists();
     }
     connect(m_recentPage, &RecentPage::playRequested, this, &MainWindow::playMusicById);
     connect(m_sidebar, &Sidebar::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
@@ -377,7 +379,6 @@ void MainWindow::setupUi()
         m_sidebar->setUploadVisible(UserManager::instance().isLoggedIn());
     });
 }
-
 void MainWindow::loadStyleSheet()
 {
     QFile f(":/style.qss");
@@ -463,6 +464,10 @@ void MainWindow::playMusicFromInfo(const MusicInfo &info)
 
 void MainWindow::createPlaylist()
 {
+    if (!m_apiClient || !UserManager::instance().isLoggedIn()) {
+        return;
+    }
+
     bool ok = false;
     QString name = QInputDialog::getText(this,
         I18n::instance().tr("createPlaylist"),
@@ -472,10 +477,11 @@ void MainWindow::createPlaylist()
         &ok);
 
     if (ok && !name.isEmpty()) {
-        int playlistId = PlaylistDatabase::instance().createPlaylist(name);
-        if (playlistId > 0) {
-            m_sidebar->refreshPlaylists();
-        }
+        m_apiClient->createPlaylist(name, QString(), [this](bool success, const QString &message, const QVariantMap &) {
+            if (success) {
+                m_sidebar->loadPlaylists();
+            }
+        });
     }
 }
 
