@@ -13,6 +13,9 @@
 #include "core/usermanager.h"
 #include "core/apiclient.h"
 
+#include <QInputDialog>
+#include <QLineEdit>
+
 #include <QVBoxLayout>
 #include <QScrollArea>
 #include <QPushButton>
@@ -197,7 +200,36 @@ void Sidebar::refreshPlaylistList()
                 emit playlistClicked(playlistId);
             });
             connect(item, &PlaylistListItem::renameRequested, this, [this, playlistId = pl.id]() {
-                emit playlistClicked(playlistId); // 暂时通过点击信号处理
+                if (!m_apiClient) return;
+                // 找到当前歌单信息
+                for (const auto &pl : m_apiPlaylists) {
+                    if (pl.id == playlistId) {
+                        // 弹出重命名对话框
+                        bool ok;
+                        QString newName = QInputDialog::getText(this,
+                            I18n::instance().tr("renamePlaylist"),
+                            I18n::instance().tr("inputNewPlaylistName"),
+                            QLineEdit::Normal,
+                            pl.name,
+                            &ok);
+                        if (ok && !newName.isEmpty() && newName != pl.name) {
+                            // 调用API更新歌单名称
+                            m_apiClient->updatePlaylist(playlistId, newName, pl.description, [this, playlistId, newName](bool success, const QString &, const QVariantMap &) {
+                                if (success) {
+                                    // 更新缓存
+                                    for (auto &p : m_apiPlaylists) {
+                                        if (p.id == playlistId) {
+                                            p.name = newName;
+                                            break;
+                                        }
+                                    }
+                                    refreshPlaylistList();
+                                }
+                            });
+                        }
+                        break;
+                    }
+                }
             });
             connect(item, &PlaylistListItem::deleteRequested, this, [this, playlistId = pl.id]() {
                 if (!m_apiClient) return;
