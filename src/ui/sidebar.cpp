@@ -93,8 +93,8 @@ void Sidebar::setupUi()
     // 播放列表容器
     m_playlistContainer = new QWidget(container);
     m_playlistLayout = new QVBoxLayout(m_playlistContainer);
-    m_playlistLayout->setContentsMargins(0, 0, 0, 0);
-    m_playlistLayout->setSpacing(4);
+    m_playlistLayout->setContentsMargins(4, 0, 4, 0);
+    m_playlistLayout->setSpacing(2);
     lay->addWidget(m_playlistContainer);
 
     // 创建歌单按钮

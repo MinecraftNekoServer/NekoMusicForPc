@@ -3,7 +3,6 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QMenu>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPainterPath>
 #include <QNetworkAccessManager>
@@ -13,10 +12,10 @@ PlaylistListItem::PlaylistListItem(int playlistId, const QString& name, int musi
     : QWidget(parent), m_playlistId(playlistId), m_name(name), m_musicCount(musicCount)
 {
     setCursor(Qt::PointingHandCursor);
-    setFixedHeight(44);
+    setFixedHeight(56);  // padding 10+36+10 = 56
 
     auto *lay = new QHBoxLayout(this);
-    lay->setContentsMargins(8, 4, 8, 4);
+    lay->setContentsMargins(16, 10, 16, 10);
     lay->setSpacing(10);
 
     // Cover
@@ -51,8 +50,8 @@ PlaylistListItem::PlaylistListItem(int playlistId, const QString& name, int musi
 
     // Name
     m_nameLbl = new QLabel(this);
-    m_nameLbl->setText(QString("%1 (%2)").arg(m_name).arg(m_musicCount));
-    m_nameLbl->setStyleSheet("QLabel { font-size: 13px; color: #e0e0e0; }");
+    m_nameLbl->setText(m_name);
+    m_nameLbl->setStyleSheet("QLabel { font-size: 13px; color: rgba(255, 255, 255, 0.7); }");
     m_nameLbl->setAlignment(Qt::AlignVCenter);
     m_nameLbl->setWordWrap(false);
     lay->addWidget(m_nameLbl, 1);
@@ -104,12 +103,15 @@ void PlaylistListItem::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Background
+    // Background + border-left
+    QRect r = rect();
     if (m_hovered) {
         QPainterPath path;
-        path.addRoundedRect(rect().adjusted(2, 2, -2, -2), 8, 8);
-        painter.fillPath(path, QColor(255, 255, 255, 15));
+        path.addRoundedRect(r.adjusted(2, 2, -2, -2), 8, 8);
+        painter.fillPath(path, QColor(255, 255, 255, 20));  // rgba(255,255,255,0.08) ~ 20/255
     }
+    // border-left 3px transparent (visible on hover/active in future)
+    painter.fillRect(0, r.height() / 2 - 10, 3, 20, QColor(0, 0, 0, 1));
 }
 
 void PlaylistListItem::enterEvent(QEnterEvent *event) {
