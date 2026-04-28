@@ -398,3 +398,65 @@ QScrollBar::handle:horizontal {
 
 QScrollBar::handle:horizontal:hover { background: rgba(196, 167, 231, 100); }
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+
+/* ─── 登录对话框 ────────────────────────────────────────── */
+#dialogEdit {
+    background: rgba(245, 240, 255, 18);
+    border: 1.5px solid rgba(196, 167, 231, 30);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #F5F0FF;
+    font-size: 13px;
+    selection-background-color: #C4A7E7;
+}
+
+#dialogEdit::placeholder { color: rgba(245, 240, 255, 90); }
+
+#dialogEdit:focus {
+    background: rgba(245, 240, 255, 28);
+    border-color: rgba(126, 200, 200, 130);
+}
+
+#dialogBtn {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border: none;
+    border-radius: 8px;
+    color: #1A1625;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#dialogBtn:hover {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #D4BFF0, stop:1 #C4A7E7);
+}
+
+#dialogBtn:disabled {
+    background: rgba(196, 167, 231, 80);
+    color: rgba(26, 22, 37, 100);
+}
+
+#dialogLinkBtn {
+    background: transparent;
+    border: none;
+    color: #F2ACB9;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+#dialogLinkBtn:hover { color: #F8C8D1; }
+
+#dialogCloseBtn {
+    background: rgba(245, 240, 255, 15);
+    border: none;
+    border-radius: 16px;
+    color: rgba(245, 240, 255, 150);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#dialogCloseBtn:hover {
+    background: rgba(232, 93, 117, 70);
+    color: #E85D75;
+}

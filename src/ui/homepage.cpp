@@ -178,7 +178,8 @@ private:
     void emitClicked()
     {
         if (auto *hp = findParentHomePage()) {
-            emit hp->playMusic(m_firstId);
+            // 导航到完整列表页面而不是直接播放
+            emit hp->navigateToMusicList(m_type == Hot);
         }
     }
 
