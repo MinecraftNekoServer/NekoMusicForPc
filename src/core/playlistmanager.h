@@ -24,6 +24,10 @@ public:
     QList<MusicInfo> playlist() const { return m_playlist; }
     int count() const { return m_playlist.size(); }
 
+    // 恢复上次播放
+    bool hasLastPlayed() const { return m_currentIndex >= 0 && !m_playlist.isEmpty(); }
+    MusicInfo lastPlayedMusic() const;
+
     // Play mode: "list" (loop), "single", "random"
     void setPlayMode(const QString& mode);
     QString playMode() const { return m_playMode; }

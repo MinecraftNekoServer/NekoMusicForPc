@@ -156,3 +156,10 @@ int PlaylistManager::findIndexByLocalId(int localId) const {
     }
     return -1;
 }
+
+MusicInfo PlaylistManager::lastPlayedMusic() const {
+    if (m_currentIndex >= 0 && m_currentIndex < m_playlist.size()) {
+        return m_playlist[m_currentIndex];
+    }
+    return MusicInfo();
+}

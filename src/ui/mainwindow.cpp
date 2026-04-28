@@ -138,6 +138,13 @@ void MainWindow::setupUi()
     // 加载播放队列
     PlaylistManager::instance().load();
 
+    // 恢复上次播放的音乐
+    if (PlaylistManager::instance().hasLastPlayed()) {
+        auto lastMusic = PlaylistManager::instance().lastPlayedMusic();
+        m_playerBar->setSongInfo(lastMusic.title, lastMusic.artist, lastMusic.coverUrl);
+        m_playerPage->setMusicInfo(lastMusic.id, lastMusic.title, lastMusic.artist, QString(), lastMusic.coverUrl);
+    }
+
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
         if (key == "home") switchPage(m_homePage);
