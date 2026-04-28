@@ -193,6 +193,12 @@ void MainWindow::setupUi()
         playMusicById(info.id, info.title, info.artist, info.coverUrl);
     });
 
+    // 封面点击切换到播放页面
+    connect(m_playerBar, &PlayerBar::coverClicked, this, [this]() {
+        // TODO: 切换到播放页面（待实现 PlayerPage 后启用）
+        // switchPage(m_playerPage);
+    });
+
     // 语言切换
     connect(m_settingsPage, &SettingsPage::languageChanged, m_hotMusicPage, &MusicListPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_latestMusicPage, &MusicListPage::retranslate);

@@ -19,6 +19,9 @@ class PlayerBar : public QWidget
 {
     Q_OBJECT
 
+signals:
+    void coverClicked();
+
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
     void retranslate();
@@ -41,5 +44,5 @@ private:
     QLabel *m_artist = nullptr;
     QLabel *m_curTime = nullptr;
     QLabel *m_durTime = nullptr;
-    QLabel *m_cover = nullptr;
+    QPushButton *m_cover = nullptr;
 };

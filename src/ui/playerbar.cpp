@@ -71,10 +71,11 @@ void PlayerBar::setupUi()
     ll->setContentsMargins(0, 0, 0, 0);
     ll->setSpacing(10);
 
-    auto *cover = new QLabel(this);
-    cover->setObjectName("pbCover");
-    cover->setFixedSize(48, 48);
-    m_cover = cover;
+    auto *coverBtn = new QPushButton(this);
+    coverBtn->setObjectName("pbCover");
+    coverBtn->setFixedSize(48, 48);
+    coverBtn->setCursor(Qt::PointingHandCursor);
+    coverBtn->setFlat(true);
     QPixmap ph(48, 48);
     ph.fill(Qt::transparent);
     QPainter pp(&ph);
@@ -85,8 +86,13 @@ void PlayerBar::setupUi()
     g.setColorAt(1.0, QColor(168, 139, 212));
     pp.fillPath(ppp, g);
     pp.end();
-    cover->setPixmap(ph);
-    ll->addWidget(cover);
+    coverBtn->setIcon(QIcon(ph));
+    coverBtn->setIconSize(QSize(48, 48));
+    m_cover = coverBtn;
+    connect(coverBtn, &QPushButton::clicked, this, [this]() {
+        emit coverClicked();
+    });
+    ll->addWidget(coverBtn);
 
     auto *infoL = new QVBoxLayout();
     infoL->setSpacing(2);
@@ -253,7 +259,8 @@ void PlayerBar::setSongInfo(const QString &title, const QString &artist, const Q
 
 void PlayerBar::setCoverPixmap(const QPixmap &pm)
 {
-    if (!m_cover || pm.isNull()) return;
+    auto *btn = qobject_cast<QPushButton *>(m_cover);
+    if (!btn || pm.isNull()) return;
     QPixmap scaled = pm.scaled(48, 48, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QPixmap rounded(48, 48);
     rounded.fill(Qt::transparent);
@@ -263,7 +270,7 @@ void PlayerBar::setCoverPixmap(const QPixmap &pm)
     path.addRoundedRect(0, 0, 48, 48, 8, 8);
     p.setClipPath(path);
     p.drawPixmap(0, 0, scaled);
-    m_cover->setPixmap(rounded);
+    btn->setIcon(QIcon(rounded));
 }
 
 void PlayerBar::loadCoverAsync(const QString &url)
