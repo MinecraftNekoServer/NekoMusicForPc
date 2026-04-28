@@ -33,6 +33,8 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QTimer>
+#include <memory>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -145,8 +147,17 @@ void MainWindow::setupUi()
         m_playerPage->setMusicInfo(lastMusic.id, lastMusic.title, lastMusic.artist, QString(), lastMusic.coverUrl);
         m_engine->setCurrentMusic(lastMusic);
 
-        // 预加载音频文件，使播放按钮可以直接播放
+        // 预加载音频文件：下载完成后自动播放然后立即暂停，这样音频源已加载，用户点播放即可
         QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
+        auto restoreConn = std::make_shared<QMetaObject::Connection>();
+        *restoreConn = connect(m_downloader, &MusicDownloader::downloadFinished, this, [this, restoreConn](const QString &localPath) {
+            disconnect(*restoreConn);
+            m_engine->play(QUrl::fromLocalFile(localPath));
+            // 立即暂停，等待用户操作
+            QTimer::singleShot(50, this, [this]() {
+                m_engine->pause();
+            });
+        });
         m_downloader->download(url);
     }
 
