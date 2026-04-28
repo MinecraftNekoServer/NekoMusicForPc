@@ -12,6 +12,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDateTime>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
 
 PlayerPage::PlayerPage(PlayerEngine *engine, QWidget *parent)
     : QWidget(parent), m_engine(engine)
@@ -25,7 +27,14 @@ PlayerPage::~PlayerPage() = default;
 void PlayerPage::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
-    p.fillRect(rect(), QColor(26, 22, 37));
+    p.setRenderHint(QPainter::Antialiasing);
+
+    // 深色渐变背景
+    QLinearGradient grad(rect().topLeft(), rect().bottomRight());
+    grad.setColorAt(0.0, QColor(20, 16, 30));
+    grad.setColorAt(1.0, QColor(30, 24, 45));
+    p.fillRect(rect(), grad);
+
     QWidget::paintEvent(event);
 }
 
@@ -34,28 +43,38 @@ void PlayerPage::setupUi()
     setObjectName("playerPage");
 
     auto *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(40, 12, 40, 40);
-    mainLayout->setSpacing(16);
+    mainLayout->setContentsMargins(48, 20, 48, 48);
+    mainLayout->setSpacing(0);
 
-    // Back button
-    m_backBtn = new QPushButton(QString::fromUtf8("\xe2\x86\x90"), this);
-    m_backBtn->setFixedSize(40, 40);
+    // ─── 顶部栏：返回按钮 ───
+    auto *topBar = new QHBoxLayout();
+    topBar->setContentsMargins(0, 0, 0, 24);
+
+    m_backBtn = new QPushButton(this);
+    m_backBtn->setFixedSize(44, 44);
     m_backBtn->setCursor(Qt::PointingHandCursor);
     m_backBtn->setObjectName("playerBackBtn");
-    mainLayout->addWidget(m_backBtn, 0, Qt::AlignLeft);
+    // 使用 SVG 返回图标
+    m_backBtn->setText(QString::fromUtf8("\xe2\x86\x90"));
     connect(m_backBtn, &QPushButton::clicked, this, [this]() { emit backRequested(); });
 
-    // Top row: cover (left) + info & lyrics (right)
-    auto *topRow = new QHBoxLayout();
-    topRow->setSpacing(40);
+    topBar->addWidget(m_backBtn);
+    topBar->addStretch();
+    mainLayout->addLayout(topBar);
 
-    // Left: cover
+    // ─── 主内容区 ───
+    auto *contentRow = new QHBoxLayout();
+    contentRow->setSpacing(56);
+    contentRow->setContentsMargins(0, 0, 0, 0);
+
+    // 左侧封面列
     auto *coverCol = new QVBoxLayout();
-    coverCol->setSpacing(16);
+    coverCol->setSpacing(20);
     coverCol->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 
+    // 封面容器（带阴影效果）
     m_coverLabel = new QLabel(this);
-    m_coverLabel->setFixedSize(280, 280);
+    m_coverLabel->setFixedSize(320, 320);
     m_coverLabel->setScaledContents(false);
     m_coverLabel->setAlignment(Qt::AlignCenter);
     m_coverLabel->setObjectName("playerCoverLabel");
@@ -64,6 +83,7 @@ void PlayerPage::setupUi()
     m_titleLabel->setObjectName("playerSongTitleLabel");
     m_titleLabel->setAlignment(Qt::AlignCenter);
     m_titleLabel->setWordWrap(true);
+    m_titleLabel->setMaximumWidth(340);
 
     m_artistLabel = new QLabel(QStringLiteral("Unknown Artist"), this);
     m_artistLabel->setObjectName("playerArtistLabel");
@@ -73,52 +93,112 @@ void PlayerPage::setupUi()
     m_albumLabel->setObjectName("playerAlbumLabel");
     m_albumLabel->setAlignment(Qt::AlignCenter);
 
+    coverCol->addSpacing(16);
     coverCol->addWidget(m_coverLabel);
+    coverCol->addSpacing(12);
     coverCol->addWidget(m_titleLabel);
+    coverCol->addSpacing(6);
     coverCol->addWidget(m_artistLabel);
+    coverCol->addSpacing(4);
     coverCol->addWidget(m_albumLabel);
     coverCol->addStretch();
 
-    // Right: lyrics
+    // 右侧歌词区
+    auto *lyricsCol = new QVBoxLayout();
+    lyricsCol->setContentsMargins(0, 0, 0, 0);
+    lyricsCol->setSpacing(0);
+
+    // 歌词标题
+    auto *lyricsTitle = new QLabel(QString::fromUtf8("歌词"), this);
+    lyricsTitle->setObjectName("lyricsTitleLabel");
+    lyricsTitle->setMaximumWidth(500);
+
+    lyricsCol->addWidget(lyricsTitle);
+    lyricsCol->addSpacing(16);
+
+    // 歌词分隔线
+    auto *separator = new QLabel(this);
+    separator->setFixedHeight(1);
+    separator->setObjectName("lyricsSeparator");
+    separator->setMaximumWidth(500);
+    lyricsCol->addWidget(separator);
+    lyricsCol->addSpacing(16);
+
     m_lyricsScroll = new QScrollArea(this);
     m_lyricsScroll->setObjectName("lyricsScroll");
     m_lyricsScroll->setWidgetResizable(true);
     m_lyricsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_lyricsScroll->setMinimumWidth(300);
+    m_lyricsScroll->setFrameShape(QFrame::NoFrame);
 
     m_lyricsContainer = new QWidget();
     m_lyricsLayout = new QVBoxLayout(m_lyricsContainer);
     m_lyricsLayout->setAlignment(Qt::AlignTop);
-    m_lyricsLayout->setSpacing(10);
-    m_lyricsLayout->setContentsMargins(20, 30, 20, 30);
+    m_lyricsLayout->setSpacing(12);
+    m_lyricsLayout->setContentsMargins(16, 20, 16, 20);
 
     m_lyricsScroll->setWidget(m_lyricsContainer);
+    lyricsCol->addWidget(m_lyricsScroll, 1);
 
-    topRow->addLayout(coverCol, 0);
-    topRow->addWidget(m_lyricsScroll, 1);
+    contentRow->addLayout(coverCol, 0);
+    contentRow->addLayout(lyricsCol, 1);
 
-    mainLayout->addLayout(topRow, 1);
+    mainLayout->addLayout(contentRow, 1);
 
-    // Style
+    // ─── 样式 ───
     setStyleSheet(QString::fromUtf8(
         "#playerPage { background: transparent; }"
+
+        // 返回按钮
         "#playerBackBtn { "
-        "  background: transparent; color: %1; font-size: 22px; "
-        "  border: none; border-radius: 20px; }"
-        "#playerBackBtn:hover { background: rgba(196,167,231,50); }"
-        "#playerCoverLabel { background: transparent; border-radius: 28px; }"
+        "  background: rgba(196,167,231,15); color: %1; font-size: 20px; "
+        "  border: 1px solid rgba(196,167,231,30); border-radius: 22px; }"
+        "#playerBackBtn:hover { "
+        "  background: rgba(196,167,231,40); color: %1; border-color: rgba(196,167,231,60); }"
+
+        // 封面
+        "#playerCoverLabel { "
+        "  background: transparent; "
+        "  border: 2px solid rgba(196,167,231,25); "
+        "  border-radius: 32px; }"
+
+        // 歌曲标题
         "#playerSongTitleLabel { "
-        "  color: %1; font-size: 24px; font-weight: bold; background: transparent; }"
+        "  color: %1; font-size: 22px; font-weight: 600; "
+        "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
+
+        // 艺术家
         "#playerArtistLabel { "
-        "  color: %2; font-size: 16px; background: transparent; }"
+        "  color: %2; font-size: 15px; font-weight: 400; "
+        "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
+
+        // 专辑
         "#playerAlbumLabel { "
-        "  color: %3; font-size: 13px; background: transparent; }"
+        "  color: %3; font-size: 13px; "
+        "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
+
+        // 歌词标题
+        "#lyricsTitleLabel { "
+        "  color: %1; font-size: 18px; font-weight: 600; "
+        "  background: transparent; padding-left: 16px; }"
+
+        // 分隔线
+        "#lyricsSeparator { "
+        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:0, "
+        "    stop:0 rgba(196,167,231,40), stop:1 rgba(196,167,231,0)); }"
+
+        // 歌词滚动区
         "#lyricsScroll { "
         "  background: transparent; border: none; }"
         "#lyricsScroll > QWidget { background: transparent; }"
+
+        // 滚动条
         "QScrollBar:vertical { width: 4px; background: transparent; }"
         "QScrollBar::handle:vertical { "
-        "  background: rgba(196,167,231,80); border-radius: 2px; min-height: 40px; }"
+        "  background: rgba(196,167,231,60); border-radius: 2px; min-height: 50px; }"
+        "QScrollBar::handle:vertical:hover { "
+        "  background: rgba(196,167,231,100); }"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
+        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }"
     ).arg(Theme::kLavender, Theme::kTextSub, Theme::kTextMuted));
 }
 
@@ -140,6 +220,27 @@ void PlayerPage::retranslate()
 {
 }
 
+void PlayerPage::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+
+    // 入场动画：淡入 + 内容上移
+    auto *opacity = new QGraphicsOpacityEffect(this);
+    opacity->setOpacity(0.0);
+    setGraphicsEffect(opacity);
+
+    auto *fadeIn = new QPropertyAnimation(opacity, "opacity");
+    fadeIn->setDuration(350);
+    fadeIn->setStartValue(0.0);
+    fadeIn->setEndValue(1.0);
+    fadeIn->setEasingCurve(QEasingCurve::OutCubic);
+    fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+
+    connect(fadeIn, &QPropertyAnimation::finished, this, [this]() {
+        setGraphicsEffect(nullptr);
+    });
+}
+
 void PlayerPage::loadCover(const QString &url)
 {
     if (url.isEmpty()) return;
@@ -149,14 +250,14 @@ void PlayerPage::loadCover(const QString &url)
         if (reply->error() == QNetworkReply::NoError) {
             QPixmap pm;
             if (pm.loadFromData(reply->readAll())) {
-                QPixmap rounded(280, 280);
+                QPixmap rounded(320, 320);
                 rounded.fill(Qt::transparent);
                 QPainter p(&rounded);
                 p.setRenderHint(QPainter::Antialiasing);
                 QPainterPath path;
-                path.addRoundedRect(0, 0, 280, 280, 28, 28);
+                path.addRoundedRect(0, 0, 320, 320, 32, 32);
                 p.setClipPath(path);
-                p.drawPixmap(0, 0, pm.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                p.drawPixmap(0, 0, pm.scaled(320, 320, Qt::KeepAspectRatio, Qt::SmoothTransformation));
                 m_coverLabel->setPixmap(rounded);
             }
         }
@@ -203,7 +304,6 @@ void PlayerPage::parseLrc(const QString &lrc)
         QString line = lines[i].trimmed();
         if (line.isEmpty()) continue;
 
-        // Match [mm:ss.xx] or [mm:ss.xxx]
         static const QRegularExpression timeRe(R"(\[(\d{1,2}):(\d{1,2})\.(\d{2,3})\])");
         auto match = timeRe.match(line);
         if (!match.hasMatch()) continue;
@@ -211,13 +311,11 @@ void PlayerPage::parseLrc(const QString &lrc)
         int min = match.captured(1).toInt();
         int sec = match.captured(2).toInt();
         int ms = match.captured(3).toInt();
-        // 2-digit ms: divide by 100, 3-digit: divide by 1000
         if (match.captured(3).length() == 2) ms *= 10;
         qint64 timeMs = (min * 60 + sec) * 1000 + ms;
 
         QString text = line.replace(match.captured(0), "").trimmed();
 
-        // Check next line for translation {"..."}
         QString translation;
         if (i + 1 < lines.size()) {
             QString next = lines[i + 1].trimmed();
@@ -231,14 +329,12 @@ void PlayerPage::parseLrc(const QString &lrc)
         m_lyrics.append({timeMs, text, translation});
     }
 
-    // Sort by time
     std::sort(m_lyrics.begin(), m_lyrics.end(),
               [](const LyricLine &a, const LyricLine &b) { return a.time < b.time; });
 }
 
 void PlayerPage::rebuildLyricLabels()
 {
-    // Clear existing
     QLayoutItem *item;
     while ((item = m_lyricsLayout->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -246,11 +342,11 @@ void PlayerPage::rebuildLyricLabels()
     }
 
     if (m_lyrics.isEmpty()) {
-        auto *noData = new QLabel(QString::fromUtf8("\xf0\x9f\x8e\xb5"), m_lyricsContainer);
+        auto *noData = new QLabel(QString::fromUtf8("\xe2\x99\xaa"), m_lyricsContainer);
         noData->setAlignment(Qt::AlignCenter);
         noData->setObjectName("noLyricsIcon");
         noData->setStyleSheet(QString::fromUtf8(
-            "color: %1; font-size: 48px; background: transparent;"
+            "color: %1; font-size: 56px; background: transparent; margin-top: 60px;"
         ).arg(Theme::kTextMuted));
         m_lyricsLayout->addWidget(noData);
 
@@ -267,9 +363,10 @@ void PlayerPage::rebuildLyricLabels()
 
     for (int i = 0; i < m_lyrics.size(); ++i) {
         auto *lineWidget = new QWidget(m_lyricsContainer);
+        lineWidget->setObjectName(QString("lyricWidget_%1").arg(i));
         auto *lineLayout = new QVBoxLayout(lineWidget);
-        lineLayout->setContentsMargins(0, 0, 0, 0);
-        lineLayout->setSpacing(2);
+        lineLayout->setContentsMargins(12, 8, 12, 8);
+        lineLayout->setSpacing(4);
 
         auto *textLabel = new QLabel(m_lyrics[i].text, lineWidget);
         textLabel->setAlignment(Qt::AlignCenter);
@@ -277,7 +374,8 @@ void PlayerPage::rebuildLyricLabels()
         textLabel->setProperty("lyricIndex", i);
         textLabel->setWordWrap(true);
         textLabel->setStyleSheet(QString::fromUtf8(
-            "color: %1; font-size: 15px; background: transparent; padding: 2px 0;"
+            "color: %1; font-size: 15px; background: transparent; "
+            "border-radius: 8px; padding: 6px 12px;"
         ).arg(Theme::kTextMuted));
         lineLayout->addWidget(textLabel);
 
@@ -288,7 +386,8 @@ void PlayerPage::rebuildLyricLabels()
             transLabel->setProperty("lyricIndex", i);
             transLabel->setWordWrap(true);
             transLabel->setStyleSheet(QString::fromUtf8(
-                "color: %1; font-size: 12px; background: transparent; padding: 0 0 6px 0;"
+                "color: %1; font-size: 12px; background: transparent; "
+                "border-radius: 6px; padding: 4px 10px;"
             ).arg(Theme::kTextMuted));
             lineLayout->addWidget(transLabel);
         }
@@ -313,15 +412,12 @@ void PlayerPage::updateLyricHighlight(qint64 positionMs)
     if (line == m_currentLyricLine) return;
     m_currentLyricLine = line;
 
-    // Update all labels
     for (int i = 0; i < m_lyricsLayout->count(); ++i) {
         QLayoutItem *layoutItem = m_lyricsLayout->itemAt(i);
         if (!layoutItem) continue;
         auto *widget = qobject_cast<QWidget *>(layoutItem->widget());
-        if (!widget) {
-            // Could be a stretch, skip
-            continue;
-        }
+        if (!widget) continue;
+
         auto *textLabel = widget->findChild<QLabel *>("lyricText");
         auto *transLabel = widget->findChild<QLabel *>("lyricTranslation");
         if (!textLabel) continue;
@@ -330,20 +426,23 @@ void PlayerPage::updateLyricHighlight(qint64 positionMs)
         bool isCurrent = (idx == line);
 
         textLabel->setStyleSheet(QString::fromUtf8(
-            "color: %1; font-size: %2; font-weight: %3; background: transparent; padding: 2px 0;"
+            "color: %1; font-size: %2; font-weight: %3; "
+            "background: %4; border-radius: 8px; padding: 6px 12px;"
         ).arg(isCurrent ? Theme::kLavender : Theme::kTextMuted)
-         .arg(isCurrent ? 18 : 15)
-         .arg(isCurrent ? "bold" : "normal"));
+         .arg(isCurrent ? 17 : 15)
+         .arg(isCurrent ? "bold" : "normal")
+         .arg(isCurrent ? "rgba(196,167,231,20)" : "transparent"));
 
         if (transLabel) {
             transLabel->setStyleSheet(QString::fromUtf8(
-                "color: %1; font-size: %2; background: transparent; padding: 0 0 6px 0;"
+                "color: %1; font-size: %2; "
+                "background: transparent; border-radius: 6px; padding: 4px 10px;"
             ).arg(isCurrent ? Theme::kLavenderLt : Theme::kTextMuted)
-             .arg(isCurrent ? 14 : 12));
+             .arg(isCurrent ? 13 : 12));
         }
     }
 
-    // Auto-scroll to current line
+    // Auto-scroll
     if (line >= 0) {
         QLayoutItem *layoutItem = m_lyricsLayout->itemAt(line);
         if (layoutItem && layoutItem->widget()) {

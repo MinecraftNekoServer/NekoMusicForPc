@@ -10,7 +10,7 @@
 #include "../core/playerengine.h"
 
 struct LyricLine {
-    qint64 time;      // in milliseconds
+    qint64 time;
     QString text;
     QString translation;
 };
@@ -31,6 +31,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 signals:
     void backRequested();
@@ -43,7 +44,6 @@ private:
 
     PlayerEngine *m_engine;
 
-    // UI
     QPushButton *m_backBtn;
     QLabel *m_coverLabel;
     QLabel *m_titleLabel;
@@ -53,7 +53,6 @@ private:
     QWidget *m_lyricsContainer;
     QVBoxLayout *m_lyricsLayout;
 
-    // State
     int m_musicId = 0;
     QString m_coverUrl;
     QVector<LyricLine> m_lyrics;
