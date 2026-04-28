@@ -233,6 +233,9 @@ void MainWindow::setupUi()
         anim->start(QAbstractAnimation::DeleteWhenStopped);
     });
 
+    // 播放位置变化时更新歌词高亮
+    connect(m_engine, &PlayerEngine::positionChanged, m_playerPage, &PlayerPage::updateLyricHighlight);
+
     // 语言切换
     connect(m_settingsPage, &SettingsPage::languageChanged, m_hotMusicPage, &MusicListPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_latestMusicPage, &MusicListPage::retranslate);
@@ -322,6 +325,10 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
 
     // Update player bar
     m_playerBar->setSongInfo(title, artist, coverUrl);
+
+    // Update player page
+    m_playerPage->setMusicInfo(musicId, title, artist, QString(), coverUrl);
+    m_playerPage->loadLyrics(musicId);
 
     // Build music URL and start buffered download
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
