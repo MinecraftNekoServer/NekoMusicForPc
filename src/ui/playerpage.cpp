@@ -442,13 +442,29 @@ void PlayerPage::updateLyricHighlight(qint64 positionMs)
         }
     }
 
-    // Auto-scroll
+    // Auto-scroll with animation
     if (line >= 0) {
         QLayoutItem *layoutItem = m_lyricsLayout->itemAt(line);
         if (layoutItem && layoutItem->widget()) {
             int y = layoutItem->widget()->y();
+            int target = y - m_lyricsScroll->height() / 3;
             auto *scrollBar = m_lyricsScroll->verticalScrollBar();
-            scrollBar->setValue(y - m_lyricsScroll->height() / 3);
+
+            // Cancel previous animation
+            if (m_scrollAnim) {
+                m_scrollAnim->stop();
+                delete m_scrollAnim;
+            }
+
+            m_scrollAnim = new QPropertyAnimation(scrollBar, "value");
+            m_scrollAnim->setDuration(300);
+            m_scrollAnim->setStartValue(scrollBar->value());
+            m_scrollAnim->setEndValue(target);
+            m_scrollAnim->setEasingCurve(QEasingCurve::OutCubic);
+            m_scrollAnim->start(QAbstractAnimation::DeleteWhenStopped);
+            connect(m_scrollAnim, &QPropertyAnimation::finished, this, [this]() {
+                m_scrollAnim = nullptr;
+            });
         }
     }
 }
