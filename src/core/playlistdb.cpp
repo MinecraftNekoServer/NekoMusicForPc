@@ -319,14 +319,19 @@ void PlaylistDatabase::addToQueue(const MusicInfo& music) {
         order = orderQuery.value(0).toInt();
     }
 
+    QString title = music.title.isEmpty() ? "" : music.title;
+    QString artist = music.artist.isEmpty() ? "" : music.artist;
+    QString album = music.album.isEmpty() ? "" : music.album;
+    QString cover = music.coverUrl.isEmpty() ? "" : music.coverUrl;
+
     QSqlQuery insertQuery;
     insertQuery.prepare("INSERT INTO play_queue (music_id, title, artist, album, duration, cover_url, queue_order) VALUES (:mid, :title, :artist, :album, :duration, :cover, :order)");
     insertQuery.bindValue(":mid", music.id);
-    insertQuery.bindValue(":title", music.title);
-    insertQuery.bindValue(":artist", music.artist);
-    insertQuery.bindValue(":album", music.album);
+    insertQuery.bindValue(":title", title);
+    insertQuery.bindValue(":artist", artist);
+    insertQuery.bindValue(":album", album);
     insertQuery.bindValue(":duration", music.duration);
-    insertQuery.bindValue(":cover", music.coverUrl);
+    insertQuery.bindValue(":cover", cover);
     insertQuery.bindValue(":order", order);
 
     if (!insertQuery.exec()) {
@@ -356,14 +361,19 @@ void PlaylistDatabase::setQueueMusic(const QList<MusicInfo>& musicList, int curr
     // Insert all music
     int order = 0;
     for (const auto& music : musicList) {
+        QString title = music.title.isEmpty() ? "" : music.title;
+        QString artist = music.artist.isEmpty() ? "" : music.artist;
+        QString album = music.album.isEmpty() ? "" : music.album;
+        QString cover = music.coverUrl.isEmpty() ? "" : music.coverUrl;
+
         QSqlQuery insertQuery;
         insertQuery.prepare("INSERT INTO play_queue (music_id, title, artist, album, duration, cover_url, queue_order) VALUES (:mid, :title, :artist, :album, :duration, :cover, :order)");
         insertQuery.bindValue(":mid", music.id);
-        insertQuery.bindValue(":title", music.title);
-        insertQuery.bindValue(":artist", music.artist);
-        insertQuery.bindValue(":album", music.album);
+        insertQuery.bindValue(":title", title);
+        insertQuery.bindValue(":artist", artist);
+        insertQuery.bindValue(":album", album);
         insertQuery.bindValue(":duration", music.duration);
-        insertQuery.bindValue(":cover", music.coverUrl);
+        insertQuery.bindValue(":cover", cover);
         insertQuery.bindValue(":order", order++);
 
         if (!insertQuery.exec()) {
