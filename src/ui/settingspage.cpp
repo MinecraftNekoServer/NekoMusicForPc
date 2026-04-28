@@ -13,6 +13,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QComboBox>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QFrame>
 #include <QSettings>
@@ -92,6 +93,27 @@ void SettingsPage::setupUi()
     m_systemLabel = new QLabel(QString("%1: %2").arg(I18n::instance().system()).arg(QSysInfo::prettyProductName()), card);
     m_systemLabel->setObjectName("settingsInfo");
     cardLay->addWidget(m_systemLabel);
+
+    // 检查更新按钮
+    m_checkUpdateBtn = new QPushButton(I18n::instance().tr("checkForUpdates"), card);
+    m_checkUpdateBtn->setObjectName("checkUpdateBtn");
+    m_checkUpdateBtn->setFixedHeight(40);
+    m_checkUpdateBtn->setCursor(Qt::PointingHandCursor);
+    m_checkUpdateBtn->setStyleSheet(
+        "QPushButton#checkUpdateBtn { "
+        "  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2); "
+        "  color: white; "
+        "  border: none; "
+        "  border-radius: 8px; "
+        "  font-size: 14px; "
+        "  font-weight: 600; "
+        "}"
+        "QPushButton#checkUpdateBtn:hover { opacity: 0.9; }"
+        "QPushButton#checkUpdateBtn:pressed { opacity: 0.8; }"
+        "QPushButton#checkUpdateBtn:disabled { opacity: 0.6; }"
+    );
+    connect(m_checkUpdateBtn, &QPushButton::clicked, this, &SettingsPage::checkForUpdatesRequested);
+    cardLay->addWidget(m_checkUpdateBtn);
 
     cardLay->addStretch();
     lay->addWidget(card);

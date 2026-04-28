@@ -9,6 +9,7 @@
 
 class QComboBox;
 class QLabel;
+class QPushButton;
 
 class SettingsPage : public QWidget
 {
@@ -19,6 +20,7 @@ public:
 
 signals:
     void languageChanged(int language);
+    void checkForUpdatesRequested();
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -31,4 +33,5 @@ private:
     QLabel *m_langLabel = nullptr;
     QLabel *m_versionLabel = nullptr;
     QLabel *m_systemLabel = nullptr;
+    QPushButton *m_checkUpdateBtn = nullptr;
 };

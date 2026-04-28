@@ -356,6 +356,7 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_latestMusicPage, &MusicListPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_uploadPage, &UploadPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playlistDetailPage, &PlaylistDetailPage::retranslate);
+    connect(m_settingsPage, &SettingsPage::checkForUpdatesRequested, this, &MainWindow::checkForUpdates);
 
     // 播放列表页面返回
     connect(m_playlistDetailPage, &PlaylistDetailPage::backRequested, this, [this]() {
@@ -807,6 +808,11 @@ void MainWindow::loadFavoritesCache()
 
 void MainWindow::checkForUpdates()
 {
+    // 防止重复检查
+    if (m_updateChecker && m_updateDialog && m_updateDialog->isVisible()) {
+        return;
+    }
+
     m_updateChecker = new UpdateChecker(QString::fromUtf8(APP_VERSION), this);
 
     connect(m_updateChecker, &UpdateChecker::updateAvailable, this, [this](const UpdateInfo &info) {
