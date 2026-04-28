@@ -48,6 +48,8 @@ set(SOURCES
     src/ui/musiclistpage.cpp
     src/ui/uploadpage.cpp
     src/ui/searchpage.cpp
+    src/ui/playerpage.cpp
+    src/ui/usermenu.cpp
     src/core/playerengine.cpp
     src/core/apiclient.cpp
     src/core/i18n.cpp
@@ -73,6 +75,8 @@ set(HEADERS
     src/ui/musiclistpage.h
     src/ui/uploadpage.h
     src/ui/searchpage.h
+    src/ui/playerpage.h
+    src/ui/usermenu.h
     src/core/playerengine.h
     src/core/apiclient.h
     src/core/i18n.h

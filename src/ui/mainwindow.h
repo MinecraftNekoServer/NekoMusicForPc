@@ -24,6 +24,7 @@ class PlayerEngine;
 class MusicListPage;
 class UploadPage;
 class SearchPage;
+class PlayerPage;
 class QMenu;
 
 class MainWindow : public QMainWindow
@@ -65,6 +66,7 @@ private:
     MusicListPage *m_latestMusicPage = nullptr;
     UploadPage *m_uploadPage = nullptr;
     SearchPage *m_searchPage = nullptr;
+    PlayerPage *m_playerPage = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;

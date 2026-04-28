@@ -18,6 +18,8 @@
 #include "ui/musiclistpage.h"
 #include "ui/uploadpage.h"
 #include "ui/searchpage.h"
+#include "ui/playerpage.h"
+#include "ui/usermenu.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
@@ -97,6 +99,7 @@ void MainWindow::setupUi()
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
     m_uploadPage = new UploadPage(this);
     m_searchPage = new SearchPage(this);
+    m_playerPage = new PlayerPage(m_engine, this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
@@ -105,6 +108,7 @@ void MainWindow::setupUi()
     m_stack->addWidget(m_latestMusicPage);
     m_stack->addWidget(m_uploadPage);
     m_stack->addWidget(m_searchPage);
+    m_stack->addWidget(m_playerPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addLayout(midH, 1);
@@ -133,17 +137,35 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_titleBar, &TitleBar::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playerBar, &PlayerBar::retranslate);
 
-    // 头像点击 - 显示登录对话框
+    // 头像点击 - 显示用户菜单
     connect(m_titleBar, &TitleBar::avatarClicked, this, [this]() {
-        if (UserManager::instance().isLoggedIn()) {
-            // 已登录，显示登出确认
-            // TODO: 可以添加用户菜单
-            UserManager::instance().logout();
-        } else {
-            // 未登录，显示登录对话框
-            LoginDialog dlg(this);
-            dlg.exec();
-        }
+        UserMenu *menu = new UserMenu(this);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        
+        connect(menu, &UserMenu::showProfile, this, []() {
+            // TODO: 显示用户资料页面
+        });
+        
+        connect(menu, &UserMenu::showFavorites, this, [this]() {
+            switchPage(m_favoritesPage);
+        });
+        
+        connect(menu, &UserMenu::showPlaylists, this, []() {
+            // TODO: 显示用户歌单页面
+        });
+        
+        connect(menu, &UserMenu::logout, this, [this, menu]() {
+            if (UserManager::instance().isLoggedIn()) {
+                UserManager::instance().logout();
+            } else {
+                // 未登录，显示登录对话框
+                LoginDialog dlg(this);
+                dlg.exec();
+            }
+            menu->close();
+        });
+        
+        menu->popup(m_titleBar->mapToGlobal(m_titleBar->avatarPos()));
     });
 
     // 音乐列表页面导航
@@ -165,6 +187,11 @@ void MainWindow::setupUi()
     // 搜索页面返回
     connect(m_searchPage, &SearchPage::playMusic, this, [this](int musicId) {
         playMusicById(musicId);
+    });
+
+    // 播放页面返回
+    connect(m_playerPage, &PlayerPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
     });
 
     // 音乐列表页面播放
@@ -276,6 +303,7 @@ void MainWindow::playMusicById(int musicId)
         
         QString title = I18n::instance().tr("unknown");
         QString artist = I18n::instance().tr("unknown");
+        QString album = I18n::instance().tr("unknown");
         
         if (reply->error() == QNetworkReply::NoError) {
             auto doc = QJsonDocument::fromJson(reply->readAll());
@@ -283,12 +311,20 @@ void MainWindow::playMusicById(int musicId)
                 auto data = doc.object().value("data").toObject();
                 title = data.value("title").toString();
                 artist = data.value("artist").toString();
+                album = data.value("album").toString();
             }
         }
         
         // 更新播放栏显示
         if (m_playerBar) {
             m_playerBar->setSongInfo(title, artist);
+        }
+        
+        // 更新播放页面
+        if (m_playerPage) {
+            m_playerPage->setMusicInfo(musicId, title, artist, album);
+            // 切换到播放页面
+            switchPage(m_playerPage);
         }
         
         // 构建音乐URL并播放

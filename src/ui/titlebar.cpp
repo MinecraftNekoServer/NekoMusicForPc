@@ -213,6 +213,14 @@ void TitleBar::retranslate()
     if (settingsBtn) settingsBtn->setToolTip(I18n::instance().tr("settings"));
 }
 
+QPoint TitleBar::avatarPos() const
+{
+    if (m_avatar) {
+        return m_avatar->mapToGlobal(QPoint(m_avatar->width() / 2, m_avatar->height()));
+    }
+    return mapToGlobal(QPoint(width() - 40, height()));
+}
+
 void TitleBar::updateAvatar()
 {
     if (!m_avatar) return;
