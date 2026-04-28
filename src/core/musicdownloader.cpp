@@ -10,12 +10,30 @@ MusicDownloader::MusicDownloader(QObject *parent) : QObject(parent) {}
 
 MusicDownloader::~MusicDownloader()
 {
-    cancel();
+    if (m_reply) {
+        m_reply->disconnect();
+        m_reply->abort();
+    }
+    if (m_file && m_file->isOpen()) {
+        m_file->close();
+    }
 }
 
 void MusicDownloader::download(const QUrl &url)
 {
-    cancel();
+    if (m_reply) {
+        m_reply->disconnect();
+        m_reply->abort();
+    }
+    if (m_file && m_file->isOpen()) {
+        m_file->close();
+    }
+    if (m_file) {
+        m_file->deleteLater();
+    }
+    m_file = nullptr;
+    m_reply = nullptr;
+    m_bufferEmitted = false;
 
     // Generate cache path from URL hash (no extension - FFmpeg detects format from content)
     QString hash = QCryptographicHash::hash(url.toEncoded(), QCryptographicHash::Md5).toHex();
@@ -30,44 +48,31 @@ void MusicDownloader::download(const QUrl &url)
         return;
     }
 
-    m_file = new QFile(m_tempPath + ".part");
+    // Remove old partial file if exists
+    QString partPath = m_tempPath + ".part";
+    QFile::remove(partPath);
+
+    m_file = new QFile(partPath, this);
     if (!m_file->open(QIODevice::WriteOnly)) {
         emit downloadError(QStringLiteral("无法创建临时文件"));
-        delete m_file;
-        m_file = nullptr;
         return;
     }
 
     QNetworkRequest req(url);
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     m_reply = m_nam.get(req);
-
-    m_bufferEmitted = false;
+    m_reply->setParent(this);
 
     connect(m_reply, &QNetworkReply::downloadProgress, this, &MusicDownloader::onDownloadProgress);
     connect(m_reply, &QNetworkReply::finished, this, &MusicDownloader::onReplyFinished);
-    connect(m_reply, &QNetworkReply::readyRead, this, [this]() {
-        if (m_file && m_reply) {
-            m_file->write(m_reply->readAll());
-        }
-    });
+    connect(m_reply, &QNetworkReply::readyRead, this, &MusicDownloader::onReadyRead);
 }
 
-void MusicDownloader::cancel()
+void MusicDownloader::onReadyRead()
 {
-    if (m_reply) {
-        m_reply->abort();
-        m_reply->deleteLater();
-        m_reply = nullptr;
+    if (m_file && m_reply) {
+        m_file->write(m_reply->readAll());
     }
-    if (m_file) {
-        m_file->close();
-        m_file->remove();
-        delete m_file;
-        m_file = nullptr;
-    }
-    m_tempPath.clear();
-    m_bufferEmitted = false;
 }
 
 void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -105,31 +110,35 @@ void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
 
 void MusicDownloader::onReplyFinished()
 {
-    if (!m_reply || !m_file) {
-        emit downloadError(m_reply ? m_reply->errorString() : QStringLiteral("下载失败"));
-        cancel();
-        return;
-    }
+    if (!m_reply) return;
 
     if (m_reply->error() != QNetworkReply::NoError) {
         emit downloadError(m_reply->errorString());
-        cancel();
+        m_reply->disconnect();
+        m_reply->deleteLater();
+        m_reply = nullptr;
         return;
     }
 
     // Write remaining data
-    m_file->write(m_reply->readAll());
-    m_file->close();
+    if (m_file && m_file->isOpen()) {
+        m_file->write(m_reply->readAll());
+        m_file->close();
+    }
 
-    // Rename if not already done
-    if (m_tempPath.endsWith(".part") || QFile::exists(m_tempPath + ".part")) {
-        QFile::rename(m_tempPath + ".part", m_tempPath);
+    // Rename partial file to final path if needed
+    QString partPath = m_tempPath + ".part";
+    if (QFile::exists(partPath)) {
+        QFile::rename(partPath, m_tempPath);
     }
 
     emit downloadFinished(m_tempPath);
 
-    delete m_file;
-    m_file = nullptr;
+    m_reply->disconnect();
     m_reply->deleteLater();
     m_reply = nullptr;
+    if (m_file) {
+        m_file->deleteLater();
+        m_file = nullptr;
+    }
 }
