@@ -10,6 +10,7 @@
 #include "theme/theme.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
+#include "core/usermanager.h"
 
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -30,6 +31,8 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_StyledBackground, false);
     setupUi();
     setActiveNav("home");
+    // Upload nav only visible when logged in
+    setUploadVisible(UserManager::instance().isLoggedIn());
 }
 
 void Sidebar::setupUi()
@@ -60,6 +63,11 @@ void Sidebar::setupUi()
     m_recBtn = createNavItem("recent", I18n::instance().tr("recentPlay"),
                              Icons::icon(Icons::kClock, 20, navIconColor(false), navIconColor(false)));
     lay->addWidget(m_recBtn);
+
+    // 上传音乐（可点击导航）
+    m_uploadBtn = createNavItem("upload", I18n::instance().tr("uploadMusic"),
+                                Icons::icon(Icons::kUpload, 20, navIconColor(false), navIconColor(false)));
+    lay->addWidget(m_uploadBtn);
 
     // 分隔线
     auto *div = new QWidget(container);
@@ -118,6 +126,8 @@ void Sidebar::setActiveNav(const QString &key)
             it.value()->setIcon(Icons::render(Icons::kHeart, 20, navIconColor(active)));
         } else if (it.key() == "recent") {
             it.value()->setIcon(Icons::render(Icons::kClock, 20, navIconColor(active)));
+        } else if (it.key() == "upload") {
+            it.value()->setIcon(Icons::render(Icons::kUpload, 20, navIconColor(active)));
         } else if (it.key() == "settings") {
             it.value()->setIcon(Icons::render(Icons::kSettings, 20, navIconColor(active)));
         }
@@ -131,6 +141,7 @@ void Sidebar::retranslate()
 
     if (m_favBtn) m_favBtn->setText(I18n::instance().tr("favorites"));
     if (m_recBtn) m_recBtn->setText(I18n::instance().tr("recentPlay"));
+    if (m_uploadBtn) m_uploadBtn->setText(I18n::instance().tr("uploadMusic"));
 
     auto *plHeader = findChild<QLabel *>("sbPlaylistTitle");
     if (plHeader) plHeader->setText(I18n::instance().tr("myPlaylistsTitle"));
@@ -157,4 +168,11 @@ void Sidebar::paintEvent(QPaintEvent *)
     // 右侧边线
     p.setPen(QPen(QColor(196, 167, 231, 25), 1));
     p.drawLine(rect().topRight(), rect().bottomRight());
+}
+
+void Sidebar::setUploadVisible(bool visible)
+{
+    if (m_uploadBtn) {
+        m_uploadBtn->setVisible(visible);
+    }
 }

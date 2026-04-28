@@ -10,10 +10,8 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
-#include <QSystemTrayIcon>
 
 class QCloseEvent;
-class QMenu;
 class TitleBar;
 class Sidebar;
 class HomePage;
@@ -22,6 +20,8 @@ class FavoritesPage;
 class RecentPage;
 class PlayerBar;
 class PlayerEngine;
+class MusicListPage;
+class UploadPage;
 
 class MainWindow : public QMainWindow
 {
@@ -39,18 +39,19 @@ private:
     void setupUi();
     void loadStyleSheet();
     void switchPage(QWidget *target);
-    void setupTray();
-    void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
+    void showMusicListPage(bool isHot);
+    void playMusicById(int musicId);
 
     bool m_switching = false;
-    QSystemTrayIcon *m_tray = nullptr;
-    QMenu *m_trayMenu = nullptr;
     TitleBar *m_titleBar = nullptr;
     Sidebar *m_sidebar = nullptr;
     HomePage *m_homePage = nullptr;
     SettingsPage *m_settingsPage = nullptr;
     FavoritesPage *m_favoritesPage = nullptr;
     RecentPage *m_recentPage = nullptr;
+    MusicListPage *m_hotMusicPage = nullptr;
+    MusicListPage *m_latestMusicPage = nullptr;
+    UploadPage *m_uploadPage = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;
