@@ -23,6 +23,11 @@
 #include <QGuiApplication>
 #include <QWindow>
 #include <QToolTip>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QFontMetrics>
+#include <QPainterPath>
+#include <QUrl>
 
 namespace {
 const QColor kIconNormal = QColor(245, 240, 255, 166);
@@ -32,6 +37,7 @@ const QColor kCloseActive = QColor(242, 100, 100, 230);
 }
 
 TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
+    , m_nam(new QNetworkAccessManager(this))
 {
     setupUi();
     // 安装事件过滤器到 QApplication，捕获标题栏内所有子控件的鼠标事件
@@ -235,28 +241,21 @@ void TitleBar::updateAvatar()
         QString username = UserManager::instance().userInfo().value("username").toString();
         if (username.isEmpty()) username = "User";
 
-        // 首字母作为头像
-        QString letter = username.left(1).toUpper();
-        QPixmap pixmap(24, 24);
-        pixmap.fill(Qt::transparent);
-        QPainter p(&pixmap);
-        p.setRenderHint(QPainter::Antialiasing);
-        p.setBrush(QColor(242, 172, 185));  // 樱花粉
-        p.setPen(Qt::NoPen);
-        p.drawEllipse(0, 0, 24, 24);
-        p.setPen(QColor(26, 22, 37));
-        QFont font = p.font();
-        font.setBold(true);
-        font.setPixelSize(12);
-        p.setFont(font);
-        QRect rect(0, 0, 24, 24);
-        p.drawText(rect, Qt::AlignCenter, letter);
-        m_avatarIcon->setPixmap(pixmap);
-
         // 用户名截断
         QFontMetrics fm(m_usernameLabel->font());
         m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, 100));
         m_usernameLabel->setToolTip(username);
+
+        // 异步加载头像
+        int userId = UserManager::instance().userInfo().value("id").toInt();
+        if (userId > 0) {
+            QString avatarUrl = QString::fromUtf8("%1/api/user/avatar/%2")
+                .arg(Theme::kApiBase).arg(userId);
+            loadAvatarAsync(avatarUrl);
+        } else {
+            // 没有用户ID，显示默认图标
+            m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
     } else {
         // 未登录，显示默认图标和点击登录
         m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -273,6 +272,35 @@ void TitleBar::updateAvatar()
     p.drawLine(3, 5, 6, 8);
     p.drawLine(6, 8, 9, 5);
     m_dropdownIcon->setPixmap(arrow);
+}
+
+void TitleBar::loadAvatarAsync(const QString &url)
+{
+    // 先显示默认图标
+    m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    QNetworkRequest req{QUrl(url)};
+    req.setTransferTimeout(5000);
+    QNetworkReply *reply = m_nam->get(req);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        if (reply->error() == QNetworkReply::NoError) {
+            QPixmap pixmap;
+            if (pixmap.loadFromData(reply->readAll())) {
+                QPixmap scaled = pixmap.scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QPixmap rounded(24, 24);
+                rounded.fill(Qt::transparent);
+                QPainter p(&rounded);
+                p.setRenderHint(QPainter::Antialiasing);
+                QPainterPath path;
+                path.addRoundedRect(0, 0, 24, 24, 12, 12);
+                p.setClipPath(path);
+                p.drawPixmap(0, 0, scaled);
+                m_avatarIcon->setPixmap(rounded);
+            }
+        }
+    });
 }
 
 void TitleBar::paintEvent(QPaintEvent *)
