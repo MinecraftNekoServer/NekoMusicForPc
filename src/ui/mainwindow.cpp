@@ -182,6 +182,10 @@ void MainWindow::setupUi()
         if (m_favoritesPage) m_favoritesPage->refresh();
         loadFavoritesCache();
     });
+    // 启动时可能错过了信号，手动检查一次
+    if (UserManager::instance().isLoggedIn()) {
+        loadFavoritesCache();
+    }
     connect(m_recentPage, &RecentPage::playRequested, this, &MainWindow::playMusicById);
     connect(m_sidebar, &Sidebar::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
     connect(m_sidebar, &Sidebar::playlistCreateRequested, this, &MainWindow::createPlaylist);
@@ -736,7 +740,18 @@ void MainWindow::loadFavoritesCache()
         return;
     }
 
-    m_apiClient->fetchFavorites([this](bool success, const QList<QVariantMap>& favorites) {
+    // 记录当前正在播放的音乐ID（如果有）
+    int currentPlayingId = 0;
+    if (m_engine && m_engine->playbackState() != PlayerEngine::Stopped) {
+        // 尝试从播放队列获取当前音乐ID
+        const auto& playlist = PlaylistManager::instance().playlist();
+        int currentIndex = PlaylistManager::instance().currentIndex();
+        if (currentIndex >= 0 && currentIndex < playlist.size()) {
+            currentPlayingId = playlist[currentIndex].id;
+        }
+    }
+
+    m_apiClient->fetchFavorites([this, currentPlayingId](bool success, const QList<QVariantMap>& favorites) {
         qDebug() << "[收藏] 获取收藏列表: success =" << success << ", 数量 =" << favorites.size();
         if (success) {
             for (const auto &fav : favorites) {
@@ -746,6 +761,12 @@ void MainWindow::loadFavoritesCache()
                 }
             }
             qDebug() << "[收藏] 缓存加载完成, 共" << m_favoritesCache.size() << "条";
+
+            // 如果当前有播放音乐且已在缓存中，更新收藏状态
+            if (currentPlayingId > 0 && m_favoritesCache.contains(currentPlayingId)) {
+                m_playerBar->setFavoriteStatus(true);
+                qDebug() << "[收藏] 缓存加载后发现当前音乐已收藏, id =" << currentPlayingId;
+            }
         }
     });
 }

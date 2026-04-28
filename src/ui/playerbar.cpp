@@ -290,8 +290,7 @@ void PlayerBar::setCurrentMusicId(int musicId)
 {
     qDebug() << "[播放栏] 设置当前音乐ID:" << musicId;
     m_currentMusicId = musicId;
-    m_isFavorited = false;
-    setFavoriteStatus(false);
+    // 不重置状态，由调用方自行检查收藏状态后设置
 }
 
 void PlayerBar::setFavoriteStatus(bool isFavorited)
