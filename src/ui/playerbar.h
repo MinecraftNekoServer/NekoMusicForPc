@@ -32,6 +32,7 @@ public:
     void setSongInfo(const QString &title, const QString &artist, const QString &coverUrl = QString());
     void setCoverVisible(bool visible);
     void setCurrentMusicId(int musicId);
+    int currentMusicId() const { return m_currentMusicId; }
     void setFavoriteStatus(bool isFavorited);
 
 protected:

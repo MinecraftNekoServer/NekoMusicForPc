@@ -184,7 +184,9 @@ void PlayerBar::setupUi()
     m_heartBtn = new QPushButton(this);
     m_heartBtn->setObjectName("pbHeartBtn");
     m_heartBtn->setFixedSize(28, 28);
-    m_heartBtn->setIcon(Icons::render(Icons::kHeart, 18, QColor(150, 150, 150)));  // 默认灰色
+    m_heartBtn->setIconSize(QSize(20, 20));
+    m_heartBtn->setFlat(true);
+    m_heartBtn->setIcon(QIcon(":/icons/heart_gray.png"));
     m_heartBtn->setCursor(Qt::PointingHandCursor);
     m_heartBtn->setToolTip(I18n::instance().tr("addToFavorites"));
     connect(m_heartBtn, &QPushButton::clicked, this, [this]() {
@@ -295,10 +297,10 @@ void PlayerBar::setCurrentMusicId(int musicId)
 
 void PlayerBar::setFavoriteStatus(bool isFavorited)
 {
+    qDebug() << "[播放栏] setFavoriteStatus:" << isFavorited;
     m_isFavorited = isFavorited;
     if (m_heartBtn) {
-        QColor iconColor = isFavorited ? QColor(255, 70, 70) : QColor(150, 150, 150);
-        m_heartBtn->setIcon(Icons::render(Icons::kHeart, 18, iconColor));
+        m_heartBtn->setIcon(QIcon(isFavorited ? ":/icons/heart_red.png" : ":/icons/heart_gray.png"));
         m_heartBtn->setToolTip(isFavorited ? I18n::instance().tr("removeFromFavorites") : I18n::instance().tr("addToFavorites"));
     }
 }
