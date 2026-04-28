@@ -135,11 +135,62 @@ configure_file(
 )
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/generated)
 
-# Install
-install(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION bin
-    BUNDLE DESTINATION .
-)
+# Install - platform-specific rules
+if(LINUX)
+    # Linux: install to /opt/Neko云音乐 (matches auto-update code)
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION opt/Neko云音乐
+    )
+    
+    # Desktop entry file
+    install(FILES "${CMAKE_SOURCE_DIR}/packaging/nekomusic.desktop"
+        DESTINATION share/applications
+    )
+    
+    # Icon theme (hicolor)
+    install(DIRECTORY "${CMAKE_SOURCE_DIR}/packaging/icons/hicolor/"
+        DESTINATION share/icons/hicolor
+        PATTERN ".*" EXCLUDE
+    )
+elseif(WIN32)
+    # Windows: install to root (NSIS handles packaging)
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION .
+    )
+else()
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        BUNDLE DESTINATION .
+    )
+endif()
+
+# CPack configuration
+set(CPACK_PACKAGE_NAME "Neko云音乐")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION}${PROJECT_VERSION_SUFFIX})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Neko Music Player")
+set(CPACK_PACKAGE_VENDOR "Neko")
+set(CPACK_PACKAGE_CONTACT "neko@example.com")
+set(CPACK_PACKAGE_FILE_NAME "Neko云音乐-${CPACK_PACKAGE_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
+
+if(LINUX)
+    # Debian package settings
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Neko")
+    set(CPACK_DEBIAN_PACKAGE_SECTION "multimedia")
+    set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6core6, libqt6gui6, libqt6widgets6, libqt6multimedia6, libqt6network6, libqt6sql6")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    set(CPACK_DEBIAN_PACKAGE_POSTINST "${CMAKE_SOURCE_DIR}/packaging/debian/postinst")
+    
+    # Output filename format matching version.json URL pattern
+    set(CPACK_PACKAGE_FILE_NAME "Neko云音乐-${CPACK_PACKAGE_VERSION}-linux-amd64")
+    
+elseif(WIN32)
+    # Windows uses NSIS (external script, not CPack)
+    # CPack not used for Windows - build_windows.ps1 handles NSIS directly
+endif()
+
+include(CPack)
 
 # Tests
 if(BUILD_TESTING)

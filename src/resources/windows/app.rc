@@ -1,0 +1,33 @@
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 2026,417,0,0
+PRODUCTVERSION 2026,417,0,0
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "Neko"
+            VALUE "FileDescription", "Neko云音乐"
+            VALUE "FileVersion", "2026.417.0-beta"
+            VALUE "InternalName", "NekoMusic"
+            VALUE "LegalCopyright", "Copyright (C) Neko"
+            VALUE "OriginalFilename", "NekoMusic.exe"
+            VALUE "ProductName", "Neko云音乐"
+            VALUE "ProductVersion", "2026.417.0-beta"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+// Icon resource
+IDI_ICON1 ICON "app.ico"
