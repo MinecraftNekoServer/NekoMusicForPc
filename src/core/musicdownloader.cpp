@@ -17,11 +17,11 @@ void MusicDownloader::download(const QUrl &url)
 {
     cancel();
 
-    // Generate cache path from URL hash
+    // Generate cache path from URL hash (no extension - FFmpeg detects format from content)
     QString hash = QCryptographicHash::hash(url.toEncoded(), QCryptographicHash::Md5).toHex();
     QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/nekomusic-cache";
     QDir().mkpath(cacheDir);
-    m_tempPath = cacheDir + "/" + hash + ".mp3";
+    m_tempPath = cacheDir + "/" + hash;
 
     // Check if already cached
     if (QFile::exists(m_tempPath)) {
