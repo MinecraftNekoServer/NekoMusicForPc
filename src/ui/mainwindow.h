@@ -31,6 +31,7 @@ class PlaylistDetailPage;
 class AddToPlaylistDialog;
 class PlaylistPanel;
 class ApiClient;
+class SearchPage;
 
 class MainWindow : public QMainWindow
 {
@@ -82,6 +83,7 @@ private:
     PlayerPage *m_playerPage = nullptr;
     PlaylistDetailPage *m_playlistDetailPage = nullptr;
     PlaylistPanel *m_playlistPanel = nullptr;
+    SearchPage *m_searchPage = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QWidget *m_midWidget = nullptr;
     QStackedWidget *m_stack = nullptr;

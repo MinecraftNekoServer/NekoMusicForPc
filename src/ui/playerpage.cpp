@@ -15,6 +15,7 @@
 #include <QDateTime>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
+#include <QDebug>
 
 PlayerPage::PlayerPage(PlayerEngine *engine, QWidget *parent)
     : QWidget(parent), m_engine(engine)
@@ -132,6 +133,7 @@ void PlayerPage::setupUi()
     m_lyricsScroll->setFrameShape(QFrame::NoFrame);
 
     m_lyricsContainer = new QWidget();
+    m_lyricsContainer->setMinimumWidth(500);
     m_lyricsLayout = new QVBoxLayout(m_lyricsContainer);
     m_lyricsLayout->setAlignment(Qt::AlignTop);
     m_lyricsLayout->setSpacing(12);
@@ -298,17 +300,25 @@ void PlayerPage::loadLyrics(int musicId)
     QString url = QString::fromUtf8("%1/api/music/lyrics/%2?t=%3")
         .arg(Theme::kApiBase).arg(musicId).arg(QDateTime::currentMSecsSinceEpoch());
     QNetworkReply *reply = nam->get(QNetworkRequest(QUrl(url)));
-    connect(reply, &QNetworkReply::finished, this, [this, reply, nam]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, nam, musicId]() {
         if (reply->error() == QNetworkReply::NoError) {
-            QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+            QByteArray response = reply->readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(response);
             QJsonObject obj = doc.object();
-            if (obj.value("success").toBool()) {
+            bool success = obj.value("success").toBool();
+            if (success) {
                 QString lrc = obj.value("data").toString();
                 if (!lrc.isEmpty()) {
                     parseLrc(lrc);
                     rebuildLyricLabels();
+                } else {
+                    qDebug() << "歌词API返回空歌词内容，musicId:" << musicId;
                 }
+            } else {
+                qDebug() << "歌词API返回失败，musicId:" << musicId << "message:" << obj.value("message").toString();
             }
+        } else {
+            qDebug() << "歌词API请求失败，musicId:" << musicId << "error:" << reply->errorString();
         }
         reply->deleteLater();
         nam->deleteLater();
