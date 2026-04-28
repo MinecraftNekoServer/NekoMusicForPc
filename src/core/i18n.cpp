@@ -96,6 +96,7 @@ static QMap<QString, QString> zhCN()
     m["favoritePlaylists"] = QStringLiteral("收藏的歌单");
     m["favoritePlaylistsTitle"] = QStringLiteral("收藏的歌单");
     m["recentPlay"] = QStringLiteral("最近播放");
+    m["emptyRecent"] = QStringLiteral("暂无最近播放记录");
     m["ranking"] = QStringLiteral("排行榜");
     m["latest"] = QStringLiteral("最新音乐");
     m["library"] = QStringLiteral("音乐库");
@@ -391,6 +392,7 @@ static QMap<QString, QString> nyaCN()
     m["favoritePlaylists"] = QStringLiteral("收藏的歌单喵~");
     m["favoritePlaylistsTitle"] = QStringLiteral("收藏的歌单喵~");
     m["recentPlay"] = QStringLiteral("最近播放喵~");
+    m["emptyRecent"] = QStringLiteral("暂无最近播放记录喵~");
     m["ranking"] = QStringLiteral("排行榜喵~");
     m["latest"] = QStringLiteral("最新音乐喵~");
     m["library"] = QStringLiteral("音乐库喵~");
@@ -577,6 +579,7 @@ static QMap<QString, QString> enUS()
     m["favoritePlaylists"] = "Favorite Playlists";
     m["favoritePlaylistsTitle"] = "Favorite Playlists";
     m["recentPlay"] = "Recently Played";
+    m["emptyRecent"] = "No recently played records";
     m["ranking"] = "Ranking";
     m["latest"] = "Latest";
     m["library"] = "Library";

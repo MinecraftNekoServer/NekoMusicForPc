@@ -5,6 +5,8 @@
 #include <QAudioOutput>
 #include <QUrl>
 
+#include "core/musicinfo.h"
+
 class QTimer;
 
 class PlayerEngine : public QObject
@@ -31,6 +33,7 @@ public:
     void setPosition(qint64 position);
     void fadeIn();
     void fadeOut();
+    void setCurrentMusic(const MusicInfo& music);
 
     PlaybackState playbackState() const;
     qint64 duration() const;
@@ -41,6 +44,7 @@ signals:
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
     void fadeComplete();
+    void musicStarted(const MusicInfo& music);
 
 private:
     void onMediaStateChanged(QMediaPlayer::PlaybackState state);
@@ -53,4 +57,5 @@ private:
     QTimer *m_fadeTimer = nullptr;
     bool m_fadingIn = false;
     bool m_fadingOut = false;
+    MusicInfo m_currentMusic;
 };

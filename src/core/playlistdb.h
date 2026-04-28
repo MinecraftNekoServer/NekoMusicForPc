@@ -50,6 +50,11 @@ public:
     QString getQueuePlayMode();
     void setQueuePlayMode(const QString& mode);
 
+    // Recent Play Operations
+    void recordRecentPlay(const MusicInfo& music);
+    QList<MusicInfo> getRecentPlays(int limit = 65535);
+    void clearRecentPlays();
+
 private:
     PlaylistDatabase() = default;
     ~PlaylistDatabase() = default;

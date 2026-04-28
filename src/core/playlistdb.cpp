@@ -112,6 +112,24 @@ bool PlaylistDatabase::createTables() {
         return false;
     }
 
+    // Recent Play table
+    QString recentSql = R"(
+        CREATE TABLE IF NOT EXISTS recent_play (
+            music_id    INTEGER PRIMARY KEY,
+            title       TEXT NOT NULL DEFAULT '',
+            artist      TEXT NOT NULL DEFAULT '',
+            album       TEXT NOT NULL DEFAULT '',
+            duration    INTEGER NOT NULL DEFAULT 0,
+            cover_url   TEXT NOT NULL DEFAULT '',
+            played_at   TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    )";
+
+    if (!query.exec(recentSql)) {
+        qWarning() << "Failed to create recent_play table:" << query.lastError().text();
+        return false;
+    }
+
     return true;
 }
 
@@ -455,5 +473,69 @@ void PlaylistDatabase::setQueuePlayMode(const QString& mode) {
 
     if (!query.exec()) {
         qWarning() << "Failed to set queue play mode:" << query.lastError().text();
+    }
+}
+
+// ─── Recent Play Methods ──────────────────────────────────────────────
+
+void PlaylistDatabase::recordRecentPlay(const MusicInfo& music) {
+    QMutexLocker locker(&m_mutex);
+
+    QString title = music.title.isEmpty() ? "" : music.title;
+    QString artist = music.artist.isEmpty() ? "" : music.artist;
+    QString album = music.album.isEmpty() ? "" : music.album;
+    QString cover = music.coverUrl.isEmpty() ? "" : music.coverUrl;
+
+    QSqlQuery query;
+    query.prepare("INSERT OR REPLACE INTO recent_play (music_id, title, artist, album, duration, cover_url, played_at) VALUES (:mid, :title, :artist, :album, :duration, :cover, datetime('now'))");
+    query.bindValue(":mid", music.id);
+    query.bindValue(":title", title);
+    query.bindValue(":artist", artist);
+    query.bindValue(":album", album);
+    query.bindValue(":duration", music.duration);
+    query.bindValue(":cover", cover);
+
+    if (!query.exec()) {
+        qWarning() << "Failed to record recent play:" << query.lastError().text();
+        return;
+    }
+
+    // Keep only last 65535 records
+    QSqlQuery cleanupQuery("DELETE FROM recent_play WHERE music_id NOT IN (SELECT music_id FROM recent_play ORDER BY played_at DESC LIMIT 65535)");
+    cleanupQuery.exec();
+}
+
+QList<MusicInfo> PlaylistDatabase::getRecentPlays(int limit) {
+    QMutexLocker locker(&m_mutex);
+
+    QList<MusicInfo> musicList;
+    QSqlQuery query;
+    query.prepare("SELECT music_id, title, artist, album, duration, cover_url FROM recent_play ORDER BY played_at DESC LIMIT :limit");
+    query.bindValue(":limit", limit);
+
+    if (query.exec()) {
+        while (query.next()) {
+            MusicInfo info;
+            info.id = query.value(0).toInt();
+            info.title = query.value(1).toString();
+            info.artist = query.value(2).toString();
+            info.album = query.value(3).toString();
+            info.duration = query.value(4).toInt();
+            info.coverUrl = query.value(5).toString();
+            musicList.append(info);
+        }
+    } else {
+        qWarning() << "Failed to get recent plays:" << query.lastError().text();
+    }
+
+    return musicList;
+}
+
+void PlaylistDatabase::clearRecentPlays() {
+    QMutexLocker locker(&m_mutex);
+
+    QSqlQuery query("DELETE FROM recent_play");
+    if (!query.exec()) {
+        qWarning() << "Failed to clear recent plays:" << query.lastError().text();
     }
 }

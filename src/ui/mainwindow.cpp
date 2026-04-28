@@ -149,9 +149,13 @@ void MainWindow::setupUi()
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
         if (key == "home") switchPage(m_homePage);
         else if (key == "favorites") switchPage(m_favoritesPage);
-        else if (key == "recent") switchPage(m_recentPage);
+        else if (key == "recent") {
+            m_recentPage->refresh();
+            switchPage(m_recentPage);
+        }
         else if (key == "upload") switchPage(m_uploadPage);
     });
+    connect(m_recentPage, &RecentPage::playRequested, this, &MainWindow::playMusicById);
     connect(m_sidebar, &Sidebar::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
     connect(m_sidebar, &Sidebar::playlistCreateRequested, this, &MainWindow::createPlaylist);
     connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
@@ -169,6 +173,11 @@ void MainWindow::setupUi()
     });
     connect(m_downloader, &MusicDownloader::downloadError, this, [](const QString &err) {
         qDebug() << "Music download error:" << err;
+    });
+
+    // 记录最近播放
+    connect(m_engine, &PlayerEngine::musicStarted, this, [](const MusicInfo& music) {
+        PlaylistDatabase::instance().recordRecentPlay(music);
     });
 
     // 头像点击 - 显示登录/登出菜单
@@ -466,7 +475,7 @@ void MainWindow::playNext()
 
     int nextIdx = manager.nextIndex();
     manager.setCurrentIndex(nextIdx);
-    const auto& info = manager.playlist()[nextIdx];
+    MusicInfo info = manager.playlist()[nextIdx];  // Copy by value to avoid use-after-free
     playMusicById(info.id, info.title, info.artist, info.coverUrl);
 }
 
@@ -477,7 +486,7 @@ void MainWindow::playPrevious()
 
     int prevIdx = manager.previousIndex();
     manager.setCurrentIndex(prevIdx);
-    const auto& info = manager.playlist()[prevIdx];
+    MusicInfo info = manager.playlist()[prevIdx];  // Copy by value to avoid use-after-free
     playMusicById(info.id, info.title, info.artist, info.coverUrl);
 }
 
@@ -515,6 +524,9 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Update player page
     m_playerPage->setMusicInfo(musicId, title, artist, QString(), coverUrl);
     m_playerPage->loadLyrics(musicId);
+
+    // Set current music info for recent play tracking
+    m_engine->setCurrentMusic(mInfo);
 
     // Build music URL and start buffered download
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));

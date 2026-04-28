@@ -137,6 +137,9 @@ void PlayerEngine::onMediaStateChanged(QMediaPlayer::PlaybackState state)
     switch (state) {
     case QMediaPlayer::PlayingState:
         m_state = Playing;
+        if (m_currentMusic.id > 0) {
+            emit musicStarted(m_currentMusic);
+        }
         break;
     case QMediaPlayer::PausedState:
         m_state = Paused;
@@ -146,4 +149,9 @@ void PlayerEngine::onMediaStateChanged(QMediaPlayer::PlaybackState state)
         break;
     }
     emit stateChanged(m_state);
+}
+
+void PlayerEngine::setCurrentMusic(const MusicInfo& music)
+{
+    m_currentMusic = music;
 }
