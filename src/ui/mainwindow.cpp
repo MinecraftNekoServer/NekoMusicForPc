@@ -142,10 +142,10 @@ void MainWindow::setupUi()
 
     // 音乐列表页面播放
     connect(m_hotMusicPage, &MusicListPage::playMusic, this, [this](const MusicListPage::MusicInfo &info) {
-        playMusicById(info.id, info.title, info.artist);
+        playMusicById(info.id, info.title, info.artist, info.coverUrl);
     });
     connect(m_latestMusicPage, &MusicListPage::playMusic, this, [this](const MusicListPage::MusicInfo &info) {
-        playMusicById(info.id, info.title, info.artist);
+        playMusicById(info.id, info.title, info.artist, info.coverUrl);
     });
 
     // 语言切换
@@ -231,12 +231,12 @@ void MainWindow::showMusicListPage(bool isHot)
     }
 }
 
-void MainWindow::playMusicById(int musicId, const QString &title, const QString &artist)
+void MainWindow::playMusicById(int musicId, const QString &title, const QString &artist, const QString &coverUrl)
 {
     if (musicId <= 0) return;
 
     // Update player bar
-    m_playerBar->setSongInfo(title, artist);
+    m_playerBar->setSongInfo(title, artist, coverUrl);
 
     // 构建音乐URL
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
