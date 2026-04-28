@@ -14,8 +14,12 @@
 #include "ui/favoritespage.h"
 #include "ui/recentpage.h"
 #include "ui/playerbar.h"
+#include "ui/logindialog.h"
+#include "ui/musiclistpage.h"
+#include "ui/uploadpage.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
+#include "core/usermanager.h"
 #include "theme/theme.h"
 
 #include <QApplication>
@@ -26,10 +30,9 @@
 #include <QFile>
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
-#include <QSystemTrayIcon>
-#include <QMenu>
 #include <QCloseEvent>
 #include <QAction>
+#include <QUrl>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -39,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_engine = new PlayerEngine(this);
     setupUi();
     loadStyleSheet();
-    setupTray();
 
     setWindowTitle(QStringLiteral("NekoMusic"));
     resize(1200, 800);
@@ -76,10 +78,16 @@ void MainWindow::setupUi()
     m_settingsPage = new SettingsPage(this);
     m_favoritesPage = new FavoritesPage(this);
     m_recentPage = new RecentPage(this);
+    m_hotMusicPage = new MusicListPage(MusicListPage::Hot, this);
+    m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
+    m_uploadPage = new UploadPage(this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
     m_stack->addWidget(m_recentPage);
+    m_stack->addWidget(m_hotMusicPage);
+    m_stack->addWidget(m_latestMusicPage);
+    m_stack->addWidget(m_uploadPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addLayout(midH, 1);
@@ -93,6 +101,7 @@ void MainWindow::setupUi()
         if (key == "home") switchPage(m_homePage);
         else if (key == "favorites") switchPage(m_favoritesPage);
         else if (key == "recent") switchPage(m_recentPage);
+        else if (key == "upload") switchPage(m_uploadPage);
     });
     connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
         switchPage(m_settingsPage);
@@ -101,6 +110,53 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_sidebar, &Sidebar::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_titleBar, &TitleBar::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playerBar, &PlayerBar::retranslate);
+
+    // 头像点击 - 显示登录对话框
+    connect(m_titleBar, &TitleBar::avatarClicked, this, [this]() {
+        if (UserManager::instance().isLoggedIn()) {
+            // 已登录，显示登出确认
+            // TODO: 可以添加用户菜单
+            UserManager::instance().logout();
+        } else {
+            // 未登录，显示登录对话框
+            LoginDialog dlg(this);
+            dlg.exec();
+        }
+    });
+
+    // 音乐列表页面导航
+    connect(m_homePage, &HomePage::navigateToMusicList, this, &MainWindow::showMusicListPage);
+
+    // 音乐列表页面返回
+    connect(m_hotMusicPage, &MusicListPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+    connect(m_latestMusicPage, &MusicListPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+
+    // 上传页面返回
+    connect(m_uploadPage, &UploadPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+
+    // 音乐列表页面播放
+    connect(m_hotMusicPage, &MusicListPage::playMusic, this, [this](int musicId) {
+        playMusicById(musicId);
+    });
+    connect(m_latestMusicPage, &MusicListPage::playMusic, this, [this](int musicId) {
+        playMusicById(musicId);
+    });
+
+    // 语言切换
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_hotMusicPage, &MusicListPage::retranslate);
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_latestMusicPage, &MusicListPage::retranslate);
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_uploadPage, &UploadPage::retranslate);
+
+    // 登录状态变化 - 控制上传导航项可见性
+    connect(&UserManager::instance(), &UserManager::loginStateChanged, this, [this]() {
+        m_sidebar->setUploadVisible(UserManager::instance().isLoggedIn());
+    });
 }
 
 void MainWindow::loadStyleSheet()
@@ -164,40 +220,29 @@ void MainWindow::switchPage(QWidget *target)
     fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void MainWindow::setupTray()
+void MainWindow::showMusicListPage(bool isHot)
 {
-    if (!QSystemTrayIcon::isSystemTrayAvailable())
-        return;
-
-    m_trayMenu = new QMenu(this);
-    auto *showAction = m_trayMenu->addAction(I18n::instance().showWindow());
-    connect(showAction, &QAction::triggered, this, [this]() {
-        if (isVisible()) hide(); else show();
-    });
-    m_trayMenu->addSeparator();
-    auto *exitAction = m_trayMenu->addAction(I18n::instance().exitApp());
-    connect(exitAction, &QAction::triggered, qApp, &QApplication::quit);
-
-    m_tray = new QSystemTrayIcon(this);
-    m_tray->setIcon(QIcon(QStringLiteral(":/icons/app.png")));
-    m_tray->setContextMenu(m_trayMenu);
-    m_tray->setToolTip(QStringLiteral("NekoMusic"));
-
-    connect(m_tray, &QSystemTrayIcon::activated,
-            this, &MainWindow::onTrayActivated);
-
-    m_tray->show();
+    if (isHot) {
+        m_hotMusicPage->refresh();  // 触发懒加载
+        switchPage(m_hotMusicPage);
+    } else {
+        m_latestMusicPage->refresh();  // 触发懒加载
+        switchPage(m_latestMusicPage);
+    }
 }
 
-void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
+void MainWindow::playMusicById(int musicId)
 {
-    if (reason == QSystemTrayIcon::DoubleClick) {
-        if (isVisible()) hide(); else show();
-    }
+    if (musicId <= 0) return;
+
+    // 构建音乐URL
+    QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
+    m_engine->play(url);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    hide();
-    event->ignore();
+    // Directly close the application
+    event->accept();
+    QApplication::quit();
 }

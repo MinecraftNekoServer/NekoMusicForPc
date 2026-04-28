@@ -136,6 +136,7 @@ static QMap<QString, QString> zhCN()
     m["accountSettings"] = QStringLiteral("账号设置");
     m["notLoggedIn"] = QStringLiteral("未登录");
     m["goToLogin"] = QStringLiteral("去登录");
+    m["forgotPassword"] = QStringLiteral("忘记密码?");
     m["welcome"] = QStringLiteral("欢迎回来");
     m["welcomeSubtitle"] = QStringLiteral("发现好音乐，享受每一刻");
     m["goodMorning"] = QStringLiteral("早上好");
@@ -260,6 +261,8 @@ static QMap<QString, QString> zhCN()
     m["fillUsernameAndPassword"] = QStringLiteral("请填写用户名和密码");
     m["fillEmail"] = QStringLiteral("请填写邮箱");
     m["fillVerificationCode"] = QStringLiteral("请填写验证码");
+    m["fillAllFields"] = QStringLiteral("请填写所有字段");
+    m["pleaseEnterEmail"] = QStringLiteral("请先输入邮箱地址");
     m["pleaseLoginFirst"] = QStringLiteral("请先登录");
     m["deleteConfirm"] = QStringLiteral("确定要删除吗？");
     m["confirmRemove"] = QStringLiteral("确认移除");
@@ -270,6 +273,56 @@ static QMap<QString, QString> zhCN()
     m["passwordPlaceholder"] = QStringLiteral("请输入密码");
     m["namePlaceholder"] = QStringLiteral("请输入名称（昵称）");
     m["inputKeywordToSearch"] = QStringLiteral("输入关键词开始搜索");
+
+    // --- 上传音乐 ---
+    m["uploadMusic"] = QStringLiteral("上传音乐");
+    m["uploadMusicTitle"] = QStringLiteral("上传音乐");
+    m["uploadMusicDesc"] = QStringLiteral("上传你的音乐作品，等待管理员审核后发布");
+    m["selectMusicFile"] = QStringLiteral("选择音乐文件");
+    m["selectCoverFile"] = QStringLiteral("选择封面图片");
+    m["selectLyricsFile"] = QStringLiteral("选择歌词文件");
+    m["musicTitle"] = QStringLiteral("歌曲标题");
+    m["artistName"] = QStringLiteral("歌手名称");
+    m["uploadLanguageLabel"] = QStringLiteral("语言");
+    m["albumName"] = QStringLiteral("专辑名称（可选）");
+    m["tagsLabel"] = QStringLiteral("标签（可选）");
+    m["durationLabel"] = QStringLiteral("时长（秒）");
+    m["uploadBtn"] = QStringLiteral("上传");
+    m["uploading"] = QStringLiteral("上传中...");
+    m["uploadSuccess"] = QStringLiteral("上传成功，等待审核");
+    m["uploadFailed"] = QStringLiteral("上传失败");
+    m["uploadDuplicate"] = QStringLiteral("已有重复音乐，请检查后重新上传");
+    m["uploadUnauthorized"] = QStringLiteral("请先登录");
+    m["musicFileRequired"] = QStringLiteral("请选择音乐文件");
+    m["titleRequired"] = QStringLiteral("请输入歌曲标题");
+    m["artistRequired"] = QStringLiteral("请输入歌手名称");
+    m["languageRequired"] = QStringLiteral("请选择语言");
+    m["durationRequired"] = QStringLiteral("请输入时长");
+    m["durationInvalid"] = QStringLiteral("时长必须是正整数");
+    m["noMusicFileSelected"] = QStringLiteral("未选择音乐文件");
+    m["noCoverSelected"] = QStringLiteral("未选择封面");
+    m["noLyricsSelected"] = QStringLiteral("未选择歌词");
+    m["musicFileFormat"] = QStringLiteral("支持 MP3、FLAC、WAV 格式");
+    m["coverFileFormat"] = QStringLiteral("支持 JPG、PNG、GIF 等格式");
+    m["lyricsFileFormat"] = QStringLiteral("支持 LRC 格式");
+    m["fillRequiredFields"] = QStringLiteral("请填写必填项");
+    m["langChinese"] = QStringLiteral("中文");
+    m["langCantonese"] = QStringLiteral("粤语");
+    m["langShanghainese"] = QStringLiteral("上海语");
+    m["langEnglish"] = QStringLiteral("英文");
+    m["langJapanese"] = QStringLiteral("日语");
+    m["langKorean"] = QStringLiteral("韩语");
+    m["langFrench"] = QStringLiteral("法语");
+    m["langGerman"] = QStringLiteral("德语");
+    m["langRussian"] = QStringLiteral("俄语");
+    m["langInstrumental"] = QStringLiteral("纯音乐");
+    m["required"] = QStringLiteral("*");
+    m["optional"] = QStringLiteral("可选");
+    m["musicFileInfo"] = QStringLiteral("音乐文件");
+    m["coverInfo"] = QStringLiteral("封面图片");
+    m["lyricsInfo"] = QStringLiteral("歌词文件");
+    m["basicInfo"] = QStringLiteral("基本信息");
+    m["uploadNote"] = QStringLiteral("上传的音乐会进入待审核状态，审核通过后发布");
 
     // --- 异常与调试 ---
     m["emptyMusic"] = QStringLiteral("音乐数据为空");
@@ -374,6 +427,9 @@ static QMap<QString, QString> nyaCN()
     m["playlistDescription"] = QStringLiteral("歌单描述喵~");
     m["musicCount"] = QStringLiteral("首歌曲喵~");
     m["goToLogin"] = QStringLiteral("去登录喵~");
+    m["forgotPassword"] = QStringLiteral("忘记密码喵?");
+    m["fillAllFields"] = QStringLiteral("请填写所有字段喵~");
+    m["pleaseEnterEmail"] = QStringLiteral("请先输入邮箱地址喵~");
     m["unknown"] = QStringLiteral("未知喵~");
     m["playModeList"] = QStringLiteral("列表循环喵~");
     m["playModeSingle"] = QStringLiteral("单曲循环喵~");
@@ -381,6 +437,53 @@ static QMap<QString, QString> nyaCN()
     m["playModeOff"] = QStringLiteral("不循环喵~");
     m["showWindow"] = QStringLiteral("显示窗口喵~");
     m["exitApp"] = QStringLiteral("退出喵~");
+
+    // --- 上传音乐喵~ ---
+    m["uploadMusic"] = QStringLiteral("上传音乐喵~");
+    m["uploadMusicTitle"] = QStringLiteral("上传音乐喵~");
+    m["uploadMusicDesc"] = QStringLiteral("上传你的音乐作品喵~，等待管理员审核后发布的说");
+    m["selectMusicFile"] = QStringLiteral("选择音乐文件喵~");
+    m["selectCoverFile"] = QStringLiteral("选择封面图片喵~");
+    m["selectLyricsFile"] = QStringLiteral("选择歌词文件喵~");
+    m["musicTitle"] = QStringLiteral("歌曲标题喵~");
+    m["artistName"] = QStringLiteral("歌手名称喵~");
+    m["uploadLanguageLabel"] = QStringLiteral("语言喵~");
+    m["albumName"] = QStringLiteral("专辑名称喵~（可选）");
+    m["tagsLabel"] = QStringLiteral("标签喵~（可选）");
+    m["durationLabel"] = QStringLiteral("时长喵~（秒）");
+    m["uploadBtn"] = QStringLiteral("上传喵~");
+    m["uploading"] = QStringLiteral("上传中喵~...");
+    m["uploadSuccess"] = QStringLiteral("上传成功喵~，等待审核的说");
+    m["uploadFailed"] = QStringLiteral("上传失败喵~");
+    m["uploadDuplicate"] = QStringLiteral("已有重复音乐喵~，请检查后重新上传的说");
+    m["uploadUnauthorized"] = QStringLiteral("请先登录喵~");
+    m["musicFileRequired"] = QStringLiteral("请选择音乐文件喵~");
+    m["titleRequired"] = QStringLiteral("请输入歌曲标题喵~");
+    m["artistRequired"] = QStringLiteral("请输入歌手名称喵~");
+    m["languageRequired"] = QStringLiteral("请选择语言喵~");
+    m["durationRequired"] = QStringLiteral("请输入时长喵~");
+    m["durationInvalid"] = QStringLiteral("时长必须是正整数喵~");
+    m["musicFileFormat"] = QStringLiteral("支持 MP3、FLAC、WAV 格式喵~");
+    m["coverFileFormat"] = QStringLiteral("支持 JPG、PNG、GIF 等格式喵~");
+    m["lyricsFileFormat"] = QStringLiteral("支持 LRC 格式喵~");
+    m["fillRequiredFields"] = QStringLiteral("请填写必填项喵~");
+    m["langChinese"] = QStringLiteral("中文喵~");
+    m["langCantonese"] = QStringLiteral("粤语喵~");
+    m["langShanghainese"] = QStringLiteral("上海语喵~");
+    m["langEnglish"] = QStringLiteral("英文喵~");
+    m["langJapanese"] = QStringLiteral("日语喵~");
+    m["langKorean"] = QStringLiteral("韩语喵~");
+    m["langFrench"] = QStringLiteral("法语喵~");
+    m["langGerman"] = QStringLiteral("德语喵~");
+    m["langRussian"] = QStringLiteral("俄语喵~");
+    m["langInstrumental"] = QStringLiteral("纯音乐喵~");
+    m["required"] = QStringLiteral("*喵~");
+    m["optional"] = QStringLiteral("可选喵~");
+    m["musicFileInfo"] = QStringLiteral("音乐文件喵~");
+    m["coverInfo"] = QStringLiteral("封面图片喵~");
+    m["lyricsInfo"] = QStringLiteral("歌词文件喵~");
+    m["basicInfo"] = QStringLiteral("基本信息喵~");
+    m["uploadNote"] = QStringLiteral("上传的音乐会进入待审核状态喵~，审核通过后发布的说");
     return m;
 }
 
@@ -503,6 +606,7 @@ static QMap<QString, QString> enUS()
     m["accountSettings"] = "Account Settings";
     m["notLoggedIn"] = "Not Logged In";
     m["goToLogin"] = "Go to Login";
+    m["forgotPassword"] = "Forgot Password?";
     m["welcome"] = "Welcome Back";
     m["welcomeSubtitle"] = "Discover great music, enjoy every moment";
     m["goodMorning"] = "Good Morning";
@@ -625,6 +729,8 @@ static QMap<QString, QString> enUS()
     m["fillUsernameAndPassword"] = "Please fill username and password";
     m["fillEmail"] = "Please fill email";
     m["fillVerificationCode"] = "Please fill verification code";
+    m["fillAllFields"] = "Please fill all fields";
+    m["pleaseEnterEmail"] = "Please enter email address first";
     m["pleaseLoginFirst"] = "Please login first";
     m["deleteConfirm"] = "Are you sure you want to delete?";
     m["confirmRemove"] = "Confirm Removal";
@@ -649,6 +755,56 @@ static QMap<QString, QString> enUS()
 
     m["showWindow"] = "Show Window";
     m["exitApp"] = "Exit";
+
+    // --- Upload Music ---
+    m["uploadMusic"] = "Upload Music";
+    m["uploadMusicTitle"] = "Upload Music";
+    m["uploadMusicDesc"] = "Upload your music, waiting for admin review and publish";
+    m["selectMusicFile"] = "Select Music File";
+    m["selectCoverFile"] = "Select Cover Image";
+    m["selectLyricsFile"] = "Select Lyrics File";
+    m["musicTitle"] = "Song Title";
+    m["artistName"] = "Artist Name";
+    m["uploadLanguageLabel"] = "Language";
+    m["albumName"] = "Album Name (Optional)";
+    m["tagsLabel"] = "Tags (Optional)";
+    m["durationLabel"] = "Duration (seconds)";
+    m["uploadBtn"] = "Upload";
+    m["uploading"] = "Uploading...";
+    m["uploadSuccess"] = "Uploaded successfully, pending review";
+    m["uploadFailed"] = "Upload failed";
+    m["uploadDuplicate"] = "Duplicate music exists, please check and re-upload";
+    m["uploadUnauthorized"] = "Please login first";
+    m["musicFileRequired"] = "Please select a music file";
+    m["titleRequired"] = "Please enter song title";
+    m["artistRequired"] = "Please enter artist name";
+    m["languageRequired"] = "Please select language";
+    m["durationRequired"] = "Please enter duration";
+    m["durationInvalid"] = "Duration must be a positive integer";
+    m["noMusicFileSelected"] = "No music file selected";
+    m["noCoverSelected"] = "No cover selected";
+    m["noLyricsSelected"] = "No lyrics selected";
+    m["musicFileFormat"] = "Supports MP3, FLAC, WAV formats";
+    m["coverFileFormat"] = "Supports JPG, PNG, GIF formats";
+    m["lyricsFileFormat"] = "Supports LRC format";
+    m["fillRequiredFields"] = "Please fill required fields";
+    m["langChinese"] = "Chinese";
+    m["langCantonese"] = "Cantonese";
+    m["langShanghainese"] = "Shanghainese";
+    m["langEnglish"] = "English";
+    m["langJapanese"] = "Japanese";
+    m["langKorean"] = "Korean";
+    m["langFrench"] = "French";
+    m["langGerman"] = "German";
+    m["langRussian"] = "Russian";
+    m["langInstrumental"] = "Instrumental";
+    m["required"] = "*";
+    m["optional"] = "Optional";
+    m["musicFileInfo"] = "Music File";
+    m["coverInfo"] = "Cover Image";
+    m["lyricsInfo"] = "Lyrics File";
+    m["basicInfo"] = "Basic Info";
+    m["uploadNote"] = "Uploaded music will be pending review, published after approval";
 
     return m;
 }

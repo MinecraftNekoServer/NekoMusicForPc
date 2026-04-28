@@ -25,6 +25,7 @@ public:
 signals:
     void searchRequested(const QString &query);
     void settingsClicked();
+    void avatarClicked();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -33,7 +34,9 @@ protected:
 
 private:
     void setupUi();
+    void updateAvatar();
     QLineEdit *m_search = nullptr;
     QLabel *m_logo = nullptr;
     QLabel *m_name = nullptr;
+    QLabel *m_avatar = nullptr;
 };

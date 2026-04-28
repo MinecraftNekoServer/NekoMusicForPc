@@ -22,6 +22,7 @@ public:
     explicit Sidebar(QWidget *parent = nullptr);
     void setActiveNav(const QString &key);
     void retranslate();
+    void setUploadVisible(bool visible);
 
 signals:
     void navigationRequested(const QString &key);
@@ -37,4 +38,5 @@ private:
     QString m_activeKey;
     QPushButton *m_favBtn = nullptr;
     QPushButton *m_recBtn = nullptr;
+    QPushButton *m_uploadBtn = nullptr;
 };
