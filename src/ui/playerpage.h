@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QPropertyAnimation>
 #include "../core/playerengine.h"
 
 struct LyricLine {
@@ -57,4 +58,5 @@ private:
     QString m_coverUrl;
     QVector<LyricLine> m_lyrics;
     int m_currentLyricLine = -1;
+    QPropertyAnimation *m_scrollAnim = nullptr;
 };
