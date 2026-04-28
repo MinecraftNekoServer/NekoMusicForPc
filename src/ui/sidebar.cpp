@@ -139,19 +139,32 @@ void Sidebar::loadPlaylists()
                 info.name = pl.value("name").toString();
                 info.description = pl.value("description").toString();
                 info.musicCount = pl.value("musicCount").toInt();
-                // Try firstMusicCover first, fallback to constructing from firstMusicId
-                QString coverUrl = pl.value("firstMusicCover").toString();
-                if (coverUrl.isEmpty()) {
-                    int firstMusicId = pl.value("firstMusicId").toInt();
-                    if (firstMusicId > 0) {
-                        coverUrl = QString::fromUtf8("/api/music/cover/%1").arg(firstMusicId);
-                    }
-                }
-                info.coverUrl = coverUrl;
-                qDebug() << "[歌单] 加载歌单: id =" << info.id << ", name =" << info.name << ", coverUrl =" << coverUrl << ", musicCount =" << info.musicCount;
                 m_apiPlaylists.append(info);
             }
             qDebug() << "[歌单] 共加载" << m_apiPlaylists.size() << "个歌单";
+
+            // 为每个歌单获取封面（通过获取歌单内第一首音乐的封面，空歌单用musicId=0）
+            for (int i = 0; i < m_apiPlaylists.size(); ++i) {
+                int playlistId = m_apiPlaylists[i].id;
+                qDebug() << "[歌单封面] 开始请求歌单封面, playlistId =" << playlistId;
+                m_apiClient->fetchPlaylistMusic(playlistId, [this, playlistId](bool ok, int total, const QList<QVariantMap> &musicList) {
+                    qDebug() << "[歌单封面] 歌单音乐回调, playlistId =" << playlistId << ", ok =" << ok << ", total =" << total << ", size =" << musicList.size();
+                    int firstMusicId = 0;
+                    if (ok && !musicList.isEmpty()) {
+                        firstMusicId = musicList.first().value("id").toInt();
+                    }
+                    QString coverUrl = QString::fromUtf8("%1/api/music/cover/%2").arg(Theme::kApiBase).arg(firstMusicId);
+                    // 在缓存中找到对应的歌单并更新封面
+                    for (auto &info : m_apiPlaylists) {
+                        if (info.id == playlistId) {
+                            info.coverUrl = coverUrl;
+                            qDebug() << "[歌单封面] id =" << playlistId << ", musicId =" << firstMusicId << ", coverUrl =" << coverUrl;
+                            break;
+                        }
+                    }
+                    refreshPlaylistList();
+                });
+            }
         } else {
             m_apiPlaylists.clear();
             qDebug() << "[歌单] 加载失败";

@@ -481,14 +481,19 @@ void ApiClient::deletePlaylist(int playlistId, DeletePlaylistCb cb) {
 void ApiClient::fetchPlaylistMusic(int playlistId, PlaylistMusicCb cb) {
     QUrl url(QString::fromUtf8("%1/api/user/playlist/music/%2").arg(Theme::kApiBase).arg(playlistId));
     QNetworkRequest req(url);
+    if (UserManager::instance().isLoggedIn()) {
+        req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    }
     auto *reply = m_nam.get(req);
-    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+    connect(reply, &QNetworkReply::finished, this, [reply, cb, playlistId]() {
         reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << "[歌单音乐] playlistId =" << playlistId << ", 网络错误:" << reply->errorString();
             if (cb) cb(false, 0, {});
             return;
         }
-        auto doc = QJsonDocument::fromJson(reply->readAll());
+        auto body = reply->readAll();
+        auto doc = QJsonDocument::fromJson(body);
         bool ok = doc.object().value("success").toBool();
         QList<QVariantMap> res;
         int total = 0;
@@ -496,6 +501,9 @@ void ApiClient::fetchPlaylistMusic(int playlistId, PlaylistMusicCb cb) {
             total = doc.object().value("total").toInt();
             for (const auto &v : doc.object().value("musicList").toArray())
                 res.append(v.toObject().toVariantMap());
+            qDebug() << "[歌单音乐] playlistId =" << playlistId << ", total =" << total << ", 实际获取 =" << res.size();
+        } else {
+            qDebug() << "[歌单音乐] playlistId =" << playlistId << ", API返回success=false, body:" << body;
         }
         if (cb) cb(ok, total, res);
     });
