@@ -232,6 +232,14 @@ void TitleBar::retranslate()
     if (settingsBtn) settingsBtn->setToolTip(I18n::instance().tr("settings"));
 }
 
+QPoint TitleBar::avatarPos() const
+{
+    if (m_avatarWidget) {
+        return m_avatarWidget->mapToGlobal(QPoint(m_avatarWidget->width() / 2, m_avatarWidget->height()));
+    }
+    return mapToGlobal(QPoint(width() - 40, height()));
+}
+
 void TitleBar::updateAvatar()
 {
     if (!m_avatarIcon || !m_usernameLabel || !m_dropdownIcon) return;

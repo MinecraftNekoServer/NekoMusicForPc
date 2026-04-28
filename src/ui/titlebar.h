@@ -23,6 +23,7 @@ public:
     explicit TitleBar(QWidget *parent = nullptr);
     ~TitleBar() override;
     void retranslate();
+    QPoint avatarPos() const;
 
 signals:
     void searchRequested(const QString &query);

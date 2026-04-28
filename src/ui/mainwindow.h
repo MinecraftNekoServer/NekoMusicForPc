@@ -24,7 +24,6 @@ class PlayerEngine;
 class MusicDownloader;
 class MusicListPage;
 class UploadPage;
-class SearchPage;
 class QMenu;
 
 class MainWindow : public QMainWindow

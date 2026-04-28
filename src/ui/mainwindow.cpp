@@ -137,16 +137,31 @@ void MainWindow::setupUi()
         qDebug() << "Music download error:" << err;
     });
 
-    // 头像点击 - 显示登录对话框
+    // 头像点击 - 显示登录/登出菜单
     connect(m_titleBar, &TitleBar::avatarClicked, this, [this]() {
         if (UserManager::instance().isLoggedIn()) {
-            // 已登录，显示登出确认
-            auto reply = QMessageBox::question(this, tr("Logout"),
-                tr("Are you sure you want to logout?"),
-                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-            if (reply == QMessageBox::Yes) {
+            // 已登录，弹出用户菜单
+            QMenu *menu = new QMenu(this);
+            menu->setAttribute(Qt::WA_DeleteOnClose);
+
+            QString username = UserManager::instance().userInfo().value("username").toString();
+            if (username.isEmpty()) username = "User";
+            menu->addAction(username)->setEnabled(false);
+            menu->addSeparator();
+
+            auto *favAction = menu->addAction(tr("My Favorites"));
+            connect(favAction, &QAction::triggered, this, [this]() {
+                switchPage(m_favoritesPage);
+            });
+
+            menu->addSeparator();
+            auto *logoutAction = menu->addAction(tr("Logout"));
+            connect(logoutAction, &QAction::triggered, this, [this, menu]() {
                 UserManager::instance().logout();
-            }
+                menu->close();
+            });
+
+            menu->popup(m_titleBar->avatarPos());
         } else {
             // 未登录，显示登录对话框
             LoginDialog dlg(this);
