@@ -40,6 +40,22 @@ PlayerBar::PlayerBar(PlayerEngine *engine, QWidget *parent)
     setFixedHeight(Theme::kPlayerBarH);
     setAttribute(Qt::WA_StyledBackground, false);
     setupUi();
+    
+    if (m_engine) {
+        connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 position) {
+            if (m_progress && m_engine) {
+                qint64 duration = m_engine->duration();
+                if (duration > 0) {
+                    int value = static_cast<int>((position * 1000) / duration);
+                    m_progress->setValue(value);
+                }
+            }
+        });
+        
+        connect(m_engine, &PlayerEngine::durationChanged, this, [this](qint64 duration) {
+            // 可以更新总时长显示
+        });
+    }
 }
 
 void PlayerBar::setupUi()
