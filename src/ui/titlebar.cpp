@@ -149,15 +149,8 @@ void TitleBar::setupUi()
     m_avatar->setObjectName("tbAvatar");
     m_avatar->setFixedSize(30, 30);
     m_avatar->setCursor(Qt::PointingHandCursor);
-    updateAvatar();
-
-    // 头像点击事件
-    connect(m_avatar, &QLabel::customContextMenuRequested, this, [this]() {
-        emit avatarClicked();
-    });
-    // 使能鼠标事件
-    m_avatar->setContextMenuPolicy(Qt::CustomContextMenu);
-
+    m_avatar->setPixmap(QPixmap(":/icons/app.png").scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    m_avatar->setToolTip(I18n::instance().tr("goToLogin"));
     lay->addWidget(m_avatar);
 
     auto *settingsBtn = new QPushButton(this);

@@ -25,6 +25,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QMessageBox>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -126,8 +127,12 @@ void MainWindow::setupUi()
     connect(m_titleBar, &TitleBar::avatarClicked, this, [this]() {
         if (UserManager::instance().isLoggedIn()) {
             // 已登录，显示登出确认
-            // TODO: 可以添加用户菜单
-            UserManager::instance().logout();
+            auto reply = QMessageBox::question(this, tr("Logout"),
+                tr("Are you sure you want to logout?"),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (reply == QMessageBox::Yes) {
+                UserManager::instance().logout();
+            }
         } else {
             // 未登录，显示登录对话框
             LoginDialog dlg(this);

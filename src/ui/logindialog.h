@@ -36,7 +36,9 @@ private:
     void onLoginResult(bool success, const QString &message,
                        const QString &token, const QVariantMap &user);
     void showForgotPassword();
+    void setMsg(const QString &text, const QColor &color);
 
+    QTimer *m_countdownTimer = nullptr;
     QStackedWidget *m_stack = nullptr;
     QLineEdit *m_loginUserEdit = nullptr;
     QLineEdit *m_loginPassEdit = nullptr;
