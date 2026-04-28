@@ -33,7 +33,6 @@ void MusicDownloader::download(const QUrl &url)
     }
     m_file = nullptr;
     m_reply = nullptr;
-    m_bufferEmitted = false;
 
     // Generate cache path from URL hash (no extension - FFmpeg detects format from content)
     QString hash = QCryptographicHash::hash(url.toEncoded(), QCryptographicHash::Md5).toHex();
@@ -77,34 +76,11 @@ void MusicDownloader::onReadyRead()
 
 void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    if (m_bufferEmitted) return;
-
-    bool ready = false;
     if (bytesTotal > 0) {
-        // Known size: 30% threshold
         int percent = static_cast<int>(bytesReceived * 100 / bytesTotal);
         emit downloadProgress(percent);
-        ready = (percent >= 30);
     } else {
-        // Unknown size: 500KB threshold
         emit downloadProgress(-1); // unknown
-        ready = (bytesReceived >= 500 * 1024);
-    }
-
-    if (ready) {
-        m_bufferEmitted = true;
-        // Close and rename partial file to final path
-        if (m_file) {
-            m_file->flush();
-            m_file->close();
-            QFile::rename(m_tempPath + ".part", m_tempPath);
-        }
-        emit bufferReady(m_tempPath);
-        // Reopen file for continued writing
-        m_file = new QFile(m_tempPath);
-        if (m_file->open(QIODevice::Append)) {
-            m_file->seek(m_file->size());
-        }
     }
 }
 

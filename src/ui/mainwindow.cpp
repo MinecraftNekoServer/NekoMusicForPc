@@ -130,7 +130,7 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playerBar, &PlayerBar::retranslate);
 
     // 音乐下载器连接
-    connect(m_downloader, &MusicDownloader::bufferReady, this, [this](const QString &localPath) {
+    connect(m_downloader, &MusicDownloader::downloadFinished, this, [this](const QString &localPath) {
         m_engine->play(QUrl::fromLocalFile(localPath));
     });
     connect(m_downloader, &MusicDownloader::downloadError, this, [](const QString &err) {
