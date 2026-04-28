@@ -478,6 +478,30 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
 {
     if (musicId <= 0) return;
 
+    // 自动添加到播放队列（去重）
+    MusicInfo mInfo;
+    mInfo.id = musicId;
+    mInfo.title = title;
+    mInfo.artist = artist;
+    mInfo.album = QString();
+    mInfo.duration = 0;
+    mInfo.coverUrl = coverUrl;
+    PlaylistManager::instance().addToPlaylist(mInfo);
+
+    // 更新当前索引到刚添加的音乐
+    const auto& playlist = PlaylistManager::instance().playlist();
+    for (int i = 0; i < playlist.size(); ++i) {
+        if (playlist[i].id == musicId) {
+            PlaylistManager::instance().setCurrentIndex(i);
+            break;
+        }
+    }
+
+    // 刷新播放列表面板（如果可见）
+    if (m_playlistPanel && m_playlistPanel->isVisible()) {
+        m_playlistPanel->refresh();
+    }
+
     // Update player bar
     m_playerBar->setSongInfo(title, artist, coverUrl);
 

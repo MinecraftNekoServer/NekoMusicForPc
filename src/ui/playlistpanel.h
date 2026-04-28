@@ -35,7 +35,6 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void showEvent(QShowEvent *event) override;
 
 private:
     void setupUi();
@@ -49,5 +48,4 @@ private:
     QVBoxLayout *m_listLayout = nullptr;
     QWidget *m_listContainer = nullptr;
     QList<QWidget *> m_items;
-    bool m_isVisible = false;
 };

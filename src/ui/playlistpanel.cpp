@@ -306,19 +306,17 @@ void PlaylistPanel::retranslate() {
 }
 
 void PlaylistPanel::showPanel() {
-    m_isVisible = true;
     refresh();
     show();
     raise();
 }
 
 void PlaylistPanel::hidePanel() {
-    m_isVisible = false;
     hide();
 }
 
 void PlaylistPanel::togglePanel() {
-    if (m_isVisible) {
+    if (isVisible()) {
         hidePanel();
     } else {
         showPanel();
@@ -337,9 +335,4 @@ void PlaylistPanel::paintEvent(QPaintEvent *event) {
     // 边框
     p.setPen(QPen(QColor(196, 167, 231, 40), 1));
     p.drawPath(path);
-}
-
-void PlaylistPanel::showEvent(QShowEvent *event) {
-    QWidget::showEvent(event);
-    m_isVisible = true;
 }
