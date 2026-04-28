@@ -73,6 +73,29 @@ void ApiClient::fetchLatest(int limit, MusicListCb cb)
     });
 }
 
+void ApiClient::fetchFavorites(MusicListCb cb)
+{
+    QUrl url(QString::fromUtf8("%1/api/user/favorites").arg(Theme::kApiBase));
+    QNetworkRequest req(url);
+
+    // Add auth token
+    if (UserManager::instance().isLoggedIn()) {
+        req.setRawHeader("Authorization", UserManager::instance().token().toUtf8());
+    }
+
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [reply, cb]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) { cb(false, {}); return; }
+        auto doc = QJsonDocument::fromJson(reply->readAll());
+        bool ok = doc.object().value("success").toBool();
+        QList<QVariantMap> res;
+        if (ok) for (const auto &v : doc.object().value("favorites").toArray())
+            res.append(v.toObject().toVariantMap());
+        cb(ok, res);
+    });
+}
+
 // ─── 用户认证 API ────────────────────────────────────
 
 void ApiClient::login(const QString &username, const QString &password, AuthCb cb)
