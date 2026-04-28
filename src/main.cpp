@@ -5,9 +5,14 @@
 
 #include <QApplication>
 #include <QSettings>
+#include <QLocalSocket>
+#include <QLocalServer>
 #include "ui/mainwindow.h"
 #include "core/i18n.h"
 #include "core/playlistdb.h"
+
+// 单实例服务器名称
+static const QString kServerName = QStringLiteral("NekoMusicSingleInstance");
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +20,16 @@ int main(int argc, char *argv[])
     // Linux: 使用 PulseAudio 后端避免 PipeWire 初始化阻塞
     qputenv("QT_MULTIMEDIA_BACKEND", "pulse");
 #endif
+
+    // 检查是否已有实例在运行
+    QLocalSocket socket;
+    socket.connectToServer(kServerName);
+    if (socket.waitForConnected(500)) {
+        // 已有实例在运行，发送消息激活它然后退出
+        socket.write("SHOW");
+        socket.waitForBytesWritten(1000);
+        return 0;
+    }
 
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("NekoMusic"));
@@ -37,8 +52,28 @@ int main(int argc, char *argv[])
 
     QApplication::setQuitOnLastWindowClosed(false);
 
-    MainWindow window;
-    window.show();
+    MainWindow *window = new MainWindow;
+
+    // 创建单实例服务器
+    QLocalServer::removeServer(kServerName);
+    QLocalServer *server = new QLocalServer(&app);
+    if (server->listen(kServerName)) {
+        QObject::connect(server, &QLocalServer::newConnection, [server, window]() {
+            QLocalSocket *clientSocket = server->nextPendingConnection();
+            QObject::connect(clientSocket, &QLocalSocket::readyRead, [clientSocket, window]() {
+                QByteArray data = clientSocket->readAll();
+                if (data == "SHOW") {
+                    // 激活主窗口
+                    window->show();
+                    window->raise();
+                    window->activateWindow();
+                }
+            });
+            QObject::connect(clientSocket, &QLocalSocket::disconnected, clientSocket, &QLocalSocket::deleteLater);
+        });
+    }
+
+    window->show();
 
     int result = app.exec();
 
