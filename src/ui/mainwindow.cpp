@@ -33,6 +33,7 @@
 #include <QPainter>
 #include <QFile>
 #include <QPropertyAnimation>
+#include <QEasingCurve>
 #include <QGraphicsOpacityEffect>
 #include <QCloseEvent>
 #include <QAction>
@@ -205,14 +206,31 @@ void MainWindow::setupUi()
     connect(m_playerBar, &PlayerBar::coverClicked, this, [this]() {
         m_playerBar->setCoverVisible(false);
         m_playerPage->setGeometry(m_midWidget->rect());
+        m_playerPage->move(0, m_midWidget->height());
         m_playerPage->show();
         m_playerPage->raise();
+
+        auto *anim = new QPropertyAnimation(m_playerPage, "pos");
+        anim->setDuration(Theme::kAnimNormal);
+        anim->setStartValue(QPoint(0, m_midWidget->height()));
+        anim->setEndValue(QPoint(0, 0));
+        anim->setEasingCurve(QEasingCurve::OutCubic);
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
     });
 
     // 播放页面返回
     connect(m_playerPage, &PlayerPage::backRequested, this, [this]() {
-        m_playerBar->setCoverVisible(true);
-        m_playerPage->hide();
+        auto *anim = new QPropertyAnimation(m_playerPage, "pos");
+        anim->setDuration(Theme::kAnimNormal);
+        anim->setStartValue(QPoint(0, 0));
+        anim->setEndValue(QPoint(0, m_midWidget->height()));
+        anim->setEasingCurve(QEasingCurve::InCubic);
+        connect(anim, &QPropertyAnimation::finished, this, [this]() {
+            m_playerBar->setCoverVisible(true);
+            m_playerPage->hide();
+            m_playerPage->move(0, 0);
+        });
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
     });
 
     // 语言切换
