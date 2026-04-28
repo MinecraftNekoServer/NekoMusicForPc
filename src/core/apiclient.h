@@ -22,6 +22,7 @@ public:
     using MusicListCb = std::function<void(bool, const QList<QVariantMap>&)>;
     void fetchRanking(MusicListCb cb);
     void fetchLatest(int limit, MusicListCb cb);
+    void fetchFavorites(MusicListCb cb);
 
     // ─── 用户认证 ────────────────────────────────────
     using AuthCb = std::function<void(bool success, const QString &message,

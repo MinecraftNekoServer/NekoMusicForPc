@@ -30,6 +30,7 @@ class QMenu;
 class PlaylistDetailPage;
 class AddToPlaylistDialog;
 class PlaylistPanel;
+class ApiClient;
 
 class MainWindow : public QMainWindow
 {
@@ -86,6 +87,7 @@ private:
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;
     MusicDownloader *m_downloader = nullptr;
+    ApiClient *m_apiClient = nullptr;
     QSystemTrayIcon *m_trayIcon = nullptr;
     QMenu *m_trayMenu = nullptr;
 };

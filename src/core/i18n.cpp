@@ -273,6 +273,8 @@ static QMap<QString, QString> zhCN()
     m["deleteConfirm"] = QStringLiteral("确定要删除吗？");
     m["confirmRemove"] = QStringLiteral("确认移除");
     m["confirmRemoveMessage"] = QStringLiteral("确定要从歌单中移除这首音乐吗？");
+    m["emptyFavorites"] = QStringLiteral("暂无收藏音乐");
+    m["removeFavorite"] = QStringLiteral("取消收藏");
     m["deleteConfirmWithPlaylistName"] = QStringLiteral("确定要删除歌单\"{name}\"吗？此操作不可恢复。");
     m["invalidEmail"] = QStringLiteral("邮箱格式不正确");
     m["emailPlaceholder"] = QStringLiteral("请输入邮箱");
@@ -754,6 +756,8 @@ static QMap<QString, QString> enUS()
     m["deleteConfirm"] = "Are you sure you want to delete?";
     m["confirmRemove"] = "Confirm Removal";
     m["confirmRemoveMessage"] = "Are you sure you want to remove this music from the playlist?";
+    m["emptyFavorites"] = "No favorite music yet";
+    m["removeFavorite"] = "Remove favorite";
     m["deleteConfirmWithPlaylistName"] = "Are you sure you want to delete playlist \"{name}\"? This cannot be undone.";
     m["invalidEmail"] = "Invalid email format";
     m["emailPlaceholder"] = "Enter email";

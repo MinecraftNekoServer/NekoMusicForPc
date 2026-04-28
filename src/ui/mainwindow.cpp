@@ -23,6 +23,7 @@
 #include "ui/playlistpanel.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
+#include "core/apiclient.h"
 #include "core/musicdownloader.h"
 #include "core/usermanager.h"
 #include "core/playlistdb.h"
@@ -103,11 +104,12 @@ void MainWindow::setupUi()
     m_sidebar = new Sidebar(this);
     midH->addWidget(m_sidebar);
 
+    m_apiClient = new ApiClient(this);
     m_stack = new QStackedWidget(this);
     m_stack->setObjectName("pageStack");
     m_homePage = new HomePage(this);
     m_settingsPage = new SettingsPage(this);
-    m_favoritesPage = new FavoritesPage(this);
+    m_favoritesPage = new FavoritesPage(m_apiClient, this);
     m_recentPage = new RecentPage(this);
     m_hotMusicPage = new MusicListPage(MusicListPage::Hot, this);
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
@@ -164,12 +166,19 @@ void MainWindow::setupUi()
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
         if (key == "home") switchPage(m_homePage);
-        else if (key == "favorites") switchPage(m_favoritesPage);
+        else if (key == "favorites") {
+            m_favoritesPage->refresh();
+            switchPage(m_favoritesPage);
+        }
         else if (key == "recent") {
             m_recentPage->refresh();
             switchPage(m_recentPage);
         }
         else if (key == "upload") switchPage(m_uploadPage);
+    });
+    connect(m_favoritesPage, &FavoritesPage::playRequested, this, &MainWindow::playMusicById);
+    connect(&UserManager::instance(), &UserManager::loginStateChanged, this, [this]() {
+        if (m_favoritesPage) m_favoritesPage->refresh();
     });
     connect(m_recentPage, &RecentPage::playRequested, this, &MainWindow::playMusicById);
     connect(m_sidebar, &Sidebar::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
