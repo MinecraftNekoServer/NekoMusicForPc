@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
+#include "core/musicinfo.h"
 
 class QCloseEvent;
 class TitleBar;
@@ -26,6 +27,9 @@ class MusicListPage;
 class UploadPage;
 class PlayerPage;
 class QMenu;
+class PlaylistDetailPage;
+class AddToPlaylistDialog;
+class PlaylistPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -53,8 +57,16 @@ private:
     void loadStyleSheet();
     void switchPage(QWidget *target);
     void showMusicListPage(bool isHot);
+    void showPlaylistDetailPage(int localId);
     void playMusicById(int musicId, const QString &title, const QString &artist, const QString &coverUrl = QString());
+    void playMusicFromInfo(const MusicInfo &info);
     void createTrayIcon();
+    void createPlaylist();
+    void showAddToPlaylistDialog(const MusicInfo &music);
+    void togglePlaylistPanel();
+    void playMusicFromPlaylist(int musicId);
+    void playNext();
+    void playPrevious();
 
     bool m_switching = false;
     TitleBar *m_titleBar = nullptr;
@@ -67,6 +79,8 @@ private:
     MusicListPage *m_latestMusicPage = nullptr;
     UploadPage *m_uploadPage = nullptr;
     PlayerPage *m_playerPage = nullptr;
+    PlaylistDetailPage *m_playlistDetailPage = nullptr;
+    PlaylistPanel *m_playlistPanel = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QWidget *m_midWidget = nullptr;
     QStackedWidget *m_stack = nullptr;

@@ -1,10 +1,10 @@
 /**
- * @file musiclistpage.cpp
- * @brief 音乐列表页面实现
+ * @file playlistdetailpage.cpp
+ * @brief 播放列表详情页实现
  */
 
-#include "musiclistpage.h"
-#include "core/apiclient.h"
+#include "playlistdetailpage.h"
+#include "core/playlistdb.h"
 #include "core/i18n.h"
 #include "core/covercache.h"
 #include "theme/theme.h"
@@ -17,16 +17,15 @@
 #include <QPushButton>
 #include <QPainter>
 #include <QPainterPath>
-#include <QTimer>
 #include <QMouseEvent>
 #include <QMenu>
 
-// ─── 音乐列表项卡片 ──────────────────────────────────────
-class MusicItemCard : public QWidget
+// ─── 播放列表音乐项卡片 ──────────────────────────────────────
+class PlaylistMusicCard : public QWidget
 {
 public:
-    explicit MusicItemCard(const MusicListPage::MusicInfo &info, QWidget *parent = nullptr)
-        : QWidget(parent), m_musicId(info.id), m_info(info)
+    explicit PlaylistMusicCard(const MusicInfo &info, int musicId, QWidget *parent = nullptr)
+        : QWidget(parent), m_musicId(musicId), m_info(info)
     {
         setFixedHeight(70);
         setCursor(Qt::PointingHandCursor);
@@ -70,10 +69,9 @@ public:
     }
 
     int musicId() const { return m_musicId; }
-    const MusicListPage::MusicInfo& info() const { return m_info; }
 
     std::function<void(int)> onClicked;
-    std::function<void()> onAddToQueue;
+    std::function<void(int)> onRemoveRequested;
 
 protected:
     void paintEvent(QPaintEvent *event) override
@@ -103,10 +101,10 @@ protected:
             "QMenu::item:selected { background-color: rgba(255, 255, 255, 0.1); }"
         );
 
-        QAction *addAction = menu.addAction(I18n::instance().tr("addToPlaylist"));
+        QAction *removeAction = menu.addAction(I18n::instance().tr("removeFromPlaylist"));
         QAction *selected = menu.exec(event->globalPos());
-        if (selected == addAction && onAddToQueue) {
-            onAddToQueue();
+        if (selected == removeAction && onRemoveRequested) {
+            onRemoveRequested(m_musicId);
         }
     }
 
@@ -153,27 +151,22 @@ private:
     }
 
     int m_musicId;
-    MusicListPage::MusicInfo m_info;
+    MusicInfo m_info;
     QLabel *m_coverLbl = nullptr;
     QLabel *m_titleLbl = nullptr;
     QLabel *m_artistLbl = nullptr;
 };
 
-// ─── MusicListPage ──────────────────────────────────────
+// ─── PlaylistDetailPage ──────────────────────────────────────
 
-MusicListPage::MusicListPage(Type type, QWidget *parent)
+PlaylistDetailPage::PlaylistDetailPage(QWidget *parent)
     : QWidget(parent)
-    , m_type(type)
-    , m_api(new ApiClient(this))
-    , m_dataFetched(false)
 {
     setAttribute(Qt::WA_StyledBackground, false);
     setupUi();
-
-    // 不自动加载,等用户第一次导航到该页面时才加载
 }
 
-void MusicListPage::setupUi()
+void PlaylistDetailPage::setupUi()
 {
     auto *mainLay = new QVBoxLayout(this);
     mainLay->setContentsMargins(0, 0, 0, 0);
@@ -195,16 +188,14 @@ void MusicListPage::setupUi()
         "color: " + QString(Theme::kTextMain) + "; font-size: 18px; }"
         "QPushButton:hover { background: rgba(196,167,231,40); color: " + QString(Theme::kLavender) + "; }"
     );
-    connect(backBtn, &QPushButton::clicked, this, &MusicListPage::backRequested);
+    connect(backBtn, &QPushButton::clicked, this, &PlaylistDetailPage::backRequested);
     headerLay->addWidget(backBtn);
 
-    m_titleLabel = new QLabel(
-        m_type == Hot ? I18n::instance().tr("hotMusic") : I18n::instance().tr("latestMusic"),
-        header);
-    m_titleLabel->setStyleSheet(
+    m_headerLabel = new QLabel(header);
+    m_headerLabel->setStyleSheet(
         "QLabel { font-size: 18px; font-weight: 700; color: " + QString(Theme::kLavender) + "; }"
     );
-    headerLay->addWidget(m_titleLabel);
+    headerLay->addWidget(m_headerLabel);
 
     headerLay->addStretch();
     mainLay->addWidget(header);
@@ -214,145 +205,80 @@ void MusicListPage::setupUi()
     m_scroll->setWidgetResizable(true);
     m_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scroll->setFrameShape(QFrame::NoFrame);
-    m_scroll->setObjectName("hpScroll");
+    m_scroll->setObjectName("playlistScroll");
 
     m_listContainer = new QWidget(m_scroll);
-    m_listContainer->setObjectName("hpContainer");
+    m_listContainer->setObjectName("playlistContainer");
     m_listLayout = new QVBoxLayout(m_listContainer);
     m_listLayout->setContentsMargins(16, 16, 16, 16);
     m_listLayout->setSpacing(8);
-
-    m_loadingLabel = new QLabel(I18n::instance().tr("loading"), m_listContainer);
-    m_loadingLabel->setObjectName("hpLoading");
-    m_loadingLabel->setAlignment(Qt::AlignCenter);
-    m_loadingLabel->setStyleSheet(
-        "QLabel { color: " + QString(Theme::kTextSub) + "; font-size: 14px; padding: 40px; }"
-    );
-    m_listLayout->addWidget(m_loadingLabel);
-    m_listLayout->addStretch();
 
     m_scroll->setWidget(m_listContainer);
     mainLay->addWidget(m_scroll, 1);
 }
 
-void MusicListPage::refresh()
+void PlaylistDetailPage::loadPlaylist(int localId)
 {
-    // 如果已经加载过数据,不重复加载
-    if (m_dataFetched) return;
+    m_playlistId = localId;
+    auto playlist = PlaylistDatabase::instance().getPlaylist(localId);
+    m_playlistName = playlist.name;
+    m_musicList = PlaylistDatabase::instance().getPlaylistMusic(localId);
 
-    m_loaded = false;
-    m_musicList.clear();
-
-    // 清空列表,但保留loading label和stretch
-    QLayoutItem *item;
-    while ((item = m_listLayout->takeAt(0)) != nullptr) {
-        QWidget *w = item->widget();
-        // 保留loading label,其他都删除
-        if (w && w != m_loadingLabel) {
-            delete w;
-        }
-        delete item;
-    }
-
-    // 确保loading label在布局中
-    m_loadingLabel->show();
-    fetchData();
-    m_dataFetched = true;
+    updateHeader();
+    buildList();
 }
 
-void MusicListPage::fetchData()
+void PlaylistDetailPage::updateHeader()
 {
-    if (m_type == Hot) {
-        m_api->fetchRanking([this](bool success, const QList<QVariantMap> &results) {
-            QTimer::singleShot(0, this, [this, success, results]() {
-                if (success) {
-                    for (const auto &item : results) {
-                        MusicInfo info;
-                        info.id = item.value("id").toInt();
-                        info.title = item.value("title").toString();
-                        info.artist = item.value("artist").toString();
-                        info.album = item.value("album").toString();
-                        info.duration = item.value("duration").toInt();
-                        info.coverUrl = QString::fromUtf8("%1/api/music/cover/%2")
-                                            .arg(Theme::kApiBase).arg(info.id);
-                        m_musicList.append(info);
-                    }
-                }
-                m_loaded = true;
-                buildList();
-            });
-        });
-    } else {
-        m_api->fetchLatest(300, [this](bool success, const QList<QVariantMap> &results) {
-            QTimer::singleShot(0, this, [this, success, results]() {
-                if (success) {
-                    for (const auto &item : results) {
-                        MusicInfo info;
-                        info.id = item.value("id").toInt();
-                        info.title = item.value("title").toString();
-                        info.artist = item.value("artist").toString();
-                        info.album = item.value("album").toString();
-                        info.duration = item.value("duration").toInt();
-                        info.coverUrl = QString::fromUtf8("%1/api/music/cover/%2")
-                                            .arg(Theme::kApiBase).arg(info.id);
-                        m_musicList.append(info);
-                    }
-                }
-                m_loaded = true;
-                buildList();
-            });
-        });
+    if (m_headerLabel) {
+        m_headerLabel->setText(m_playlistName);
     }
 }
 
-void MusicListPage::buildList()
+void PlaylistDetailPage::buildList()
 {
-    // 移除loading和stretch
-    QLayoutItem *item;
-    while ((item = m_listLayout->takeAt(0)) != nullptr) {
-        delete item->widget();
-        delete item;
+    // 清除现有项
+    for (auto *widget : m_musicItems) {
+        m_listLayout->removeWidget(widget);
+        widget->deleteLater();
     }
-
-    // 清除loading标签引用
-    m_loadingLabel = nullptr;
+    m_musicItems.clear();
 
     if (m_musicList.isEmpty()) {
-        auto *emptyLbl = new QLabel(I18n::instance().tr("noData"), m_listContainer);
+        auto *emptyLbl = new QLabel(I18n::instance().tr("noMusicInPlaylist"), m_listContainer);
         emptyLbl->setAlignment(Qt::AlignCenter);
         emptyLbl->setStyleSheet(
             "QLabel { color: " + QString(Theme::kTextSub) + "; font-size: 14px; padding: 40px; }"
         );
         m_listLayout->addWidget(emptyLbl);
-        m_listLayout->addStretch();
-        return;
-    }
-
-    for (const auto &info : m_musicList) {
-        auto *card = new MusicItemCard(info, m_listContainer);
-        card->onClicked = [this, info](int) {
-            emit playMusic(info);
-        };
-        card->onAddToQueue = [this, info]() {
-            emit addToQueue(info);
-        };
-        m_listLayout->addWidget(card);
+        m_musicItems.append(emptyLbl);
+    } else {
+        for (const auto &info : m_musicList) {
+            auto *card = new PlaylistMusicCard(info, info.id, m_listContainer);
+            card->onClicked = [this, info](int) {
+                emit playMusic(info);
+            };
+            card->onRemoveRequested = [this, musicId = info.id](int) {
+                PlaylistDatabase::instance().removeMusic(m_playlistId, musicId);
+                loadPlaylist(m_playlistId);
+                emit refreshSidebarPlaylists();
+            };
+            m_listLayout->addWidget(card);
+            m_musicItems.append(card);
+        }
     }
 
     m_listLayout->addStretch();
 }
 
-void MusicListPage::retranslate()
+void PlaylistDetailPage::retranslate()
 {
-    if (m_titleLabel) {
-        m_titleLabel->setText(
-            m_type == Hot ? I18n::instance().tr("hotMusic") : I18n::instance().tr("latestMusic")
-        );
+    if (m_headerLabel) {
+        m_headerLabel->setText(m_playlistName);
     }
-    // 不再重新设置"加载中"文本，因为加载完成后标签已被移除
 }
 
-void MusicListPage::paintEvent(QPaintEvent *event)
+void PlaylistDetailPage::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     // 透明背景，由父窗口渐变透出

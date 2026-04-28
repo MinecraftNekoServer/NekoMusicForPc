@@ -169,6 +169,11 @@ static QMap<QString, QString> zhCN()
     m["selectPlaylist"] = QStringLiteral("选择歌单");
     m["orCreateNewPlaylist"] = QStringLiteral("或创建新歌单");
     m["addMusicToPlaylist"] = QStringLiteral("添加音乐到歌单");
+    m["newPlaylist"] = QStringLiteral("新歌单");
+    m["ok"] = QStringLiteral("确定");
+    m["musicAdded"] = QStringLiteral("音乐已添加到歌单");
+    m["musicAddFailed"] = QStringLiteral("添加音乐失败");
+    m["noMusicInPlaylist"] = QStringLiteral("该歌单暂无音乐");
 
     // --- 系统设置 & 缓存 & 更新 ---
     m["settings"] = QStringLiteral("设置");
@@ -645,6 +650,11 @@ static QMap<QString, QString> enUS()
     m["selectPlaylist"] = "Select Playlist";
     m["orCreateNewPlaylist"] = "Or create new playlist";
     m["addMusicToPlaylist"] = "Add music to playlist";
+    m["newPlaylist"] = "New Playlist";
+    m["ok"] = "OK";
+    m["musicAdded"] = "Music added to playlist";
+    m["musicAddFailed"] = "Failed to add music to playlist";
+    m["noMusicInPlaylist"] = "No music in this playlist";
 
     // --- Settings & Cache & Update ---
     m["settings"] = "Settings";

@@ -13,19 +13,11 @@
 #include <QNetworkAccessManager>
 #include <QMouseEvent>
 #include "playlistcard.h"
+#include "core/musicinfo.h"
 
 class GlassWidget;
 class QScrollArea;
 class QHBoxLayout;
-
-struct MusicInfo {
-    int id = -1;
-    QString title;
-    QString artist;
-    QString album;
-    int duration = 0;
-    QString coverUrl;
-};
 
 class HomePage : public QWidget
 {
@@ -38,6 +30,7 @@ signals:
     void navigateToPlaylist(int id);
     void playMusic(int id);
     void navigateToMusicList(bool isHot);  // 导航到音乐列表页面
+    void addToQueue(const MusicInfo &info);
 
 public slots:
     void refreshData();

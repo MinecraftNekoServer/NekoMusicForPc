@@ -14,7 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Multimedia Network SvgWidgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Multimedia Network SvgWidgets Sql)
 
 # Platform-specific settings
 if(WIN32)
@@ -54,6 +54,12 @@ set(SOURCES
     src/core/covercache.cpp
     src/core/usermanager.cpp
     src/core/musicdownloader.cpp
+    src/core/playlistdb.cpp
+    src/core/playlistmanager.cpp
+    src/ui/playlistlistitem.cpp
+    src/ui/playlistdetailpage.cpp
+    src/ui/addtoplaylistdialog.cpp
+    src/ui/playlistpanel.cpp
 )
 
 set(HEADERS
@@ -80,6 +86,13 @@ set(HEADERS
     src/core/covercache.h
     src/core/usermanager.h
     src/theme/theme.h
+    src/core/musicinfo.h
+    src/core/playlistdb.h
+    src/core/playlistmanager.h
+    src/ui/playlistlistitem.h
+    src/ui/playlistdetailpage.h
+    src/ui/addtoplaylistdialog.h
+    src/ui/playlistpanel.h
 )
 
 # Resources
@@ -103,6 +116,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Multimedia
     Qt6::Network
     Qt6::SvgWidgets
+    Qt6::Sql
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

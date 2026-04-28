@@ -9,8 +9,10 @@
 #include "sidebar.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
+#include "ui/playlistlistitem.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
+#include "core/playlistdb.h"
 
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -33,6 +35,7 @@ Sidebar::Sidebar(QWidget *parent) : QWidget(parent)
     setActiveNav("home");
     // Upload nav only visible when logged in
     setUploadVisible(UserManager::instance().isLoggedIn());
+    refreshPlaylists();
 }
 
 void Sidebar::setupUi()
@@ -80,11 +83,22 @@ void Sidebar::setupUi()
     plHeader->setObjectName("sbPlaylistTitle");
     lay->addWidget(plHeader);
 
-    // 占位
-    auto *empty = new QLabel(I18n::instance().tr("goToLogin"), container);
-    empty->setObjectName("sbEmpty");
-    empty->setAlignment(Qt::AlignCenter);
-    lay->addWidget(empty);
+    // 播放列表容器
+    m_playlistContainer = new QWidget(container);
+    m_playlistLayout = new QVBoxLayout(m_playlistContainer);
+    m_playlistLayout->setContentsMargins(0, 0, 0, 0);
+    m_playlistLayout->setSpacing(4);
+    lay->addWidget(m_playlistContainer);
+
+    // 创建歌单按钮
+    m_createPlaylistBtn = new QPushButton(I18n::instance().tr("createPlaylist"), container);
+    m_createPlaylistBtn->setObjectName("sbCreatePlaylist");
+    m_createPlaylistBtn->setFixedHeight(36);
+    m_createPlaylistBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_createPlaylistBtn, &QPushButton::clicked, this, [this]() {
+        emit playlistCreateRequested();
+    });
+    lay->addWidget(m_createPlaylistBtn);
 
     lay->addStretch();
 
@@ -93,6 +107,49 @@ void Sidebar::setupUi()
     auto *outer = new QVBoxLayout(this);
     outer->setContentsMargins(0, 0, 0, 0);
     outer->addWidget(scroll);
+}
+
+void Sidebar::refreshPlaylists()
+{
+    refreshPlaylistList();
+}
+
+void Sidebar::refreshPlaylistList()
+{
+    // 清除现有项
+    for (auto *item : m_playlistItems) {
+        m_playlistLayout->removeWidget(item);
+        item->deleteLater();
+    }
+    m_playlistItems.clear();
+
+    auto playlists = PlaylistDatabase::instance().getAllPlaylists();
+
+    if (playlists.isEmpty()) {
+        auto *empty = new QLabel(I18n::instance().tr("noPlaylists"), m_playlistContainer);
+        empty->setObjectName("sbEmptyPlaylist");
+        empty->setAlignment(Qt::AlignCenter);
+        empty->setWordWrap(true);
+        m_playlistLayout->addWidget(empty);
+        m_playlistItems.append(nullptr); // 标记空状态
+    } else {
+        for (const auto &pl : playlists) {
+            int count = PlaylistDatabase::instance().getPlaylistMusicCount(pl.localId);
+            auto *item = new PlaylistListItem(pl.localId, pl.name, count, m_playlistContainer);
+            connect(item, &PlaylistListItem::clicked, this, [this, localId = pl.localId]() {
+                emit playlistClicked(localId);
+            });
+            connect(item, &PlaylistListItem::renameRequested, this, [this, localId = pl.localId]() {
+                emit playlistClicked(localId); // 暂时通过点击信号处理
+            });
+            connect(item, &PlaylistListItem::deleteRequested, this, [this, localId = pl.localId]() {
+                PlaylistDatabase::instance().deletePlaylist(localId);
+                refreshPlaylistList();
+            });
+            m_playlistLayout->addWidget(item);
+            m_playlistItems.append(item);
+        }
+    }
 }
 
 QPushButton *Sidebar::createNavItem(const QString &key, const QString &label, const QIcon &icon)
@@ -146,8 +203,7 @@ void Sidebar::retranslate()
     auto *plHeader = findChild<QLabel *>("sbPlaylistTitle");
     if (plHeader) plHeader->setText(I18n::instance().tr("myPlaylistsTitle"));
 
-    auto *empty = findChild<QLabel *>("sbEmpty");
-    if (empty) empty->setText(I18n::instance().tr("goToLogin"));
+    if (m_createPlaylistBtn) m_createPlaylistBtn->setText(I18n::instance().tr("createPlaylist"));
 }
 
 void Sidebar::paintEvent(QPaintEvent *)

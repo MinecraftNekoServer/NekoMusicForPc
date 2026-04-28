@@ -13,6 +13,9 @@
 #include <QIcon>
 
 class QPushButton;
+class QVBoxLayout;
+class QWidget;
+class PlaylistListItem;
 
 class Sidebar : public QWidget
 {
@@ -23,9 +26,12 @@ public:
     void setActiveNav(const QString &key);
     void retranslate();
     void setUploadVisible(bool visible);
+    void refreshPlaylists();
 
 signals:
     void navigationRequested(const QString &key);
+    void playlistClicked(int localId);
+    void playlistCreateRequested();
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -33,10 +39,16 @@ protected:
 private:
     void setupUi();
     QPushButton *createNavItem(const QString &key, const QString &label, const QIcon &icon);
+    void refreshPlaylistList();
 
     QMap<QString, QPushButton *> m_navBtns;
     QString m_activeKey;
     QPushButton *m_favBtn = nullptr;
     QPushButton *m_recBtn = nullptr;
     QPushButton *m_uploadBtn = nullptr;
+
+    QWidget *m_playlistContainer = nullptr;
+    QVBoxLayout *m_playlistLayout = nullptr;
+    QList<PlaylistListItem *> m_playlistItems;
+    QPushButton *m_createPlaylistBtn = nullptr;
 };
