@@ -195,8 +195,8 @@ void PlayerBar::setupUi()
             m_engine->setVolume(v / 100.0f);
         });
         connect(m_playBtn, &QPushButton::clicked, this, [this]() {
-            if (m_engine->playbackState() == PlayerEngine::Playing) m_engine->pause();
-            else m_engine->play();
+            if (m_engine->playbackState() == PlayerEngine::Playing) m_engine->fadeOut();
+            else m_engine->fadeIn();
         });
         connect(m_engine, &PlayerEngine::stateChanged, this, [this]() { updateState(); });
         // 进度条跟随播放位置

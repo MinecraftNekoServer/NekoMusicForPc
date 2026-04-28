@@ -1,4 +1,5 @@
 #include "playerengine.h"
+#include <QTimer>
 
 PlayerEngine::PlayerEngine(QObject *parent)
     : QObject(parent)
@@ -40,7 +41,70 @@ void PlayerEngine::stop()
 
 void PlayerEngine::setVolume(float volume)
 {
-    m_audioOutput->setVolume(qBound(0.0f, volume, 1.0f));
+    m_targetVolume = qBound(0.0f, volume, 1.0f);
+    m_audioOutput->setVolume(m_targetVolume);
+}
+
+void PlayerEngine::fadeIn()
+{
+    if (m_fadeTimer) { m_fadeTimer->stop(); delete m_fadeTimer; m_fadeTimer = nullptr; }
+    m_fadingIn = true;
+    m_fadingOut = false;
+    m_audioOutput->setVolume(0.0f);
+    m_player->play();
+
+    m_fadeTimer = new QTimer(this);
+    connect(m_fadeTimer, &QTimer::timeout, this, &PlayerEngine::onFadeTick);
+    m_fadeTimer->start(20); // ~50 ticks for 1s fade
+}
+
+void PlayerEngine::fadeOut()
+{
+    if (m_fadeTimer) { m_fadeTimer->stop(); delete m_fadeTimer; m_fadeTimer = nullptr; }
+    m_fadingOut = true;
+    m_fadingIn = false;
+
+    // Immediately update state so UI shows paused
+    m_state = Paused;
+    emit stateChanged(m_state);
+
+    m_fadeTimer = new QTimer(this);
+    connect(m_fadeTimer, &QTimer::timeout, this, &PlayerEngine::onFadeTick);
+    m_fadeTimer->start(20);
+}
+
+void PlayerEngine::onFadeTick()
+{
+    if (!m_audioOutput) return;
+
+    const float step = 0.04f;
+
+    if (m_fadingIn) {
+        float vol = m_audioOutput->volume() + step;
+        if (vol >= m_targetVolume) {
+            vol = m_targetVolume;
+            m_fadingIn = false;
+            m_fadeTimer->stop();
+            delete m_fadeTimer;
+            m_fadeTimer = nullptr;
+            emit fadeComplete();
+        }
+        m_audioOutput->setVolume(vol);
+    } else if (m_fadingOut) {
+        float vol = m_audioOutput->volume() - step;
+        if (vol <= 0.0f) {
+            vol = 0.0f;
+            m_audioOutput->setVolume(vol);
+            m_player->pause();
+            m_fadingOut = false;
+            m_fadeTimer->stop();
+            delete m_fadeTimer;
+            m_fadeTimer = nullptr;
+            emit fadeComplete();
+        } else {
+            m_audioOutput->setVolume(vol);
+        }
+    }
 }
 
 PlayerEngine::PlaybackState PlayerEngine::playbackState() const

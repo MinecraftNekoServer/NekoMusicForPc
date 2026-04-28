@@ -5,6 +5,8 @@
 #include <QAudioOutput>
 #include <QUrl>
 
+class QTimer;
+
 class PlayerEngine : public QObject
 {
     Q_OBJECT
@@ -27,6 +29,8 @@ public:
     void setVolume(float volume);
     float volume() const;
     void setPosition(qint64 position);
+    void fadeIn();
+    void fadeOut();
 
     PlaybackState playbackState() const;
     qint64 duration() const;
@@ -36,11 +40,17 @@ signals:
     void stateChanged(PlaybackState state);
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
+    void fadeComplete();
 
 private:
     void onMediaStateChanged(QMediaPlayer::PlaybackState state);
+    void onFadeTick();
 
     QMediaPlayer *m_player;
     QAudioOutput *m_audioOutput;
     PlaybackState m_state = Stopped;
+    float m_targetVolume = 1.0f;
+    QTimer *m_fadeTimer = nullptr;
+    bool m_fadingIn = false;
+    bool m_fadingOut = false;
 };
