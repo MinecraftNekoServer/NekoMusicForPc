@@ -39,9 +39,6 @@ public:
 
 signals:
     void loginStateChanged();
-    void loginSuccess();
-    void loginFailed(const QString &message);
-    void logoutRequested();
 
 private:
     void saveToSettings();

@@ -21,6 +21,7 @@
 #include <QPainterPath>
 #include <QGraphicsDropShadowEffect>
 #include <QTimer>
+#include <QMessageBox>
 
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent)
@@ -152,7 +153,10 @@ void LoginDialog::setupUi()
     m_submitBtn = new QPushButton(I18n::instance().tr("login"), this);
     m_submitBtn->setObjectName("dialogBtn");
     m_submitBtn->setFixedHeight(44);
-    connect(m_submitBtn, &QPushButton::clicked, this, &LoginDialog::doLogin);
+    connect(m_submitBtn, &QPushButton::clicked, this, [this]() {
+        if (m_isLoginMode) doLogin();
+        else doRegister();
+    });
     mainLayout->addWidget(m_submitBtn);
 
     m_switchBtn = new QPushButton(I18n::instance().tr("register"), this);
@@ -192,17 +196,13 @@ void LoginDialog::switchMode()
     if (m_isLoginMode) {
         m_stack->setCurrentIndex(0);
         m_submitBtn->setText(I18n::instance().tr("login"));
-        m_submitBtn->disconnect();
-        connect(m_submitBtn, &QPushButton::clicked, this, &LoginDialog::doLogin);
         m_switchBtn->setText(I18n::instance().tr("register"));
-        m_forgotBtn->show();  // 登录模式显示忘记密码
+        m_forgotBtn->show();
     } else {
         m_stack->setCurrentIndex(1);
         m_submitBtn->setText(I18n::instance().tr("register"));
-        m_submitBtn->disconnect();
-        connect(m_submitBtn, &QPushButton::clicked, this, &LoginDialog::doRegister);
         m_switchBtn->setText(I18n::instance().tr("login"));
-        m_forgotBtn->hide();  // 注册模式隐藏忘记密码
+        m_forgotBtn->hide();
     }
 }
 
@@ -212,14 +212,11 @@ void LoginDialog::doLogin()
     QString password = m_loginPassEdit->text();
 
     if (username.isEmpty() || password.isEmpty()) {
-        m_msgLabel->setText(I18n::instance().tr("fillUsernameAndPassword"));
-        m_msgLabel->setStyleSheet(
-            "QLabel { color: " + QString(Theme::kSakura) + "; font-size: 13px; min-height: 20px; }"
-        );
+        setMsg(I18n::instance().tr("fillUsernameAndPassword"), Theme::kSakura);
         return;
     }
 
-    m_msgLabel->setText("");
+    setMsg("", Qt::transparent);
     m_submitBtn->setEnabled(false);
     m_submitBtn->setText("...");
 
@@ -239,14 +236,11 @@ void LoginDialog::doRegister()
     QString code = m_regCodeEdit->text().trimmed();
 
     if (username.isEmpty() || password.isEmpty() || email.isEmpty() || code.isEmpty()) {
-        m_msgLabel->setText(I18n::instance().tr("fillAllFields"));
-        m_msgLabel->setStyleSheet(
-            "QLabel { color: " + QString(Theme::kSakura) + "; font-size: 13px; min-height: 20px; }"
-        );
+        setMsg(I18n::instance().tr("fillAllFields"), Theme::kSakura);
         return;
     }
 
-    m_msgLabel->setText("");
+    setMsg("", Qt::transparent);
     m_submitBtn->setEnabled(false);
     m_submitBtn->setText("...");
 
@@ -263,7 +257,7 @@ void LoginDialog::doSendVerificationCode()
 {
     QString email = m_regEmailEdit->text().trimmed();
     if (email.isEmpty()) {
-        m_msgLabel->setText(I18n::instance().tr("pleaseEnterEmail"));
+        setMsg(I18n::instance().tr("pleaseEnterEmail"), Theme::kSakura);
         return;
     }
 
@@ -271,29 +265,28 @@ void LoginDialog::doSendVerificationCode()
     m_api->sendVerificationCode(email, [this](bool success, const QString &message) {
         QTimer::singleShot(0, this, [this, success, message]() {
             if (success) {
-                m_msgLabel->setText(message);
-                m_msgLabel->setStyleSheet(
-                    "QLabel { color: " + QString(Theme::kMint) + "; font-size: 13px; min-height: 20px; }"
-                );
-                // 60秒倒计时
+                setMsg(message, Theme::kMint);
+                // 60秒倒计时 - 先停止旧定时器防止泄漏
+                if (m_countdownTimer) {
+                    m_countdownTimer->stop();
+                    m_countdownTimer->deleteLater();
+                }
                 m_countdown = 60;
-                auto *timer = new QTimer(this);
-                connect(timer, &QTimer::timeout, this, [this, timer]() {
+                m_countdownTimer = new QTimer(this);
+                connect(m_countdownTimer, &QTimer::timeout, this, [this]() {
                     m_countdown--;
                     m_sendCodeBtn->setText(QString("%1s").arg(m_countdown));
                     if (m_countdown <= 0) {
-                        timer->stop();
-                        timer->deleteLater();
+                        m_countdownTimer->stop();
+                        m_countdownTimer->deleteLater();
+                        m_countdownTimer = nullptr;
                         m_sendCodeBtn->setEnabled(true);
                         m_sendCodeBtn->setText(I18n::instance().tr("sendCode"));
                     }
                 });
-                timer->start(1000);
+                m_countdownTimer->start(1000);
             } else {
-                m_msgLabel->setText(message);
-                m_msgLabel->setStyleSheet(
-                    "QLabel { color: " + QString(Theme::kSakura) + "; font-size: 13px; min-height: 20px; }"
-                );
+                setMsg(message, Theme::kSakura);
                 m_sendCodeBtn->setEnabled(true);
             }
         });
@@ -314,10 +307,7 @@ void LoginDialog::onLoginResult(bool success, const QString &message,
         UserManager::instance().setLoginInfo(token, user);
         accept();
     } else {
-        m_msgLabel->setText(message);
-        m_msgLabel->setStyleSheet(
-            "QLabel { color: " + QString(Theme::kSakura) + "; font-size: 13px; min-height: 20px; }"
-        );
+        setMsg(message, Theme::kSakura);
     }
 }
 
@@ -326,6 +316,14 @@ void LoginDialog::showForgotPassword()
     // 显示忘记密码对话框
     ForgotPasswordDialog dlg(this);
     dlg.exec();
+}
+
+void LoginDialog::setMsg(const QString &text, const QColor &color)
+{
+    m_msgLabel->setText(text);
+    m_msgLabel->setStyleSheet(
+        "QLabel { color: " + QString(color.name()) + "; font-size: 13px; min-height: 20px; }"
+    );
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)

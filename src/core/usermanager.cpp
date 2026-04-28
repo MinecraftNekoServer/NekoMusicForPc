@@ -24,7 +24,6 @@ void UserManager::setLoginInfo(const QString &token, const QVariantMap &userInfo
     m_token = token;
     m_userInfo = userInfo;
     saveToSettings();
-    emit loginSuccess();
     emit loginStateChanged();
 }
 
@@ -33,7 +32,6 @@ void UserManager::logout()
     m_token.clear();
     m_userInfo.clear();
     saveToSettings();
-    emit logoutRequested();
     emit loginStateChanged();
 }
 
