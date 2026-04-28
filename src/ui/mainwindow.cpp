@@ -17,6 +17,7 @@
 #include "ui/logindialog.h"
 #include "ui/musiclistpage.h"
 #include "ui/uploadpage.h"
+#include "ui/searchpage.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
@@ -33,6 +34,12 @@
 #include <QCloseEvent>
 #include <QAction>
 #include <QUrl>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -42,13 +49,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_engine = new PlayerEngine(this);
     setupUi();
     loadStyleSheet();
+    createTrayIcon();
 
     setWindowTitle(QStringLiteral("NekoMusic"));
     resize(1200, 800);
     setMinimumSize(960, 640);
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    // 清理托盘图标
+    if (m_trayIcon) {
+        m_trayIcon->hide();
+        delete m_trayIcon;
+    }
+}
 
 void MainWindow::setupUi()
 {
@@ -81,6 +96,7 @@ void MainWindow::setupUi()
     m_hotMusicPage = new MusicListPage(MusicListPage::Hot, this);
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
     m_uploadPage = new UploadPage(this);
+    m_searchPage = new SearchPage(this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
@@ -88,6 +104,7 @@ void MainWindow::setupUi()
     m_stack->addWidget(m_hotMusicPage);
     m_stack->addWidget(m_latestMusicPage);
     m_stack->addWidget(m_uploadPage);
+    m_stack->addWidget(m_searchPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addLayout(midH, 1);
@@ -105,6 +122,11 @@ void MainWindow::setupUi()
     });
     connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
         switchPage(m_settingsPage);
+    });
+    // 连接搜索信号
+    connect(m_titleBar, &TitleBar::searchRequested, this, [this](const QString &query) {
+        m_searchPage->search(query);
+        switchPage(m_searchPage);
     });
     connect(m_settingsPage, &SettingsPage::languageChanged, m_homePage, &HomePage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_sidebar, &Sidebar::retranslate);
@@ -138,6 +160,11 @@ void MainWindow::setupUi()
     // 上传页面返回
     connect(m_uploadPage, &UploadPage::backRequested, this, [this]() {
         switchPage(m_homePage);
+    });
+
+    // 搜索页面返回
+    connect(m_searchPage, &SearchPage::playMusic, this, [this](int musicId) {
+        playMusicById(musicId);
     });
 
     // 音乐列表页面播放
@@ -235,14 +262,128 @@ void MainWindow::playMusicById(int musicId)
 {
     if (musicId <= 0) return;
 
-    // 构建音乐URL
-    QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
-    m_engine->play(url);
+    // 先获取音乐信息
+    QUrl infoUrl(QString::fromUtf8("%1/api/music/info/%2").arg(Theme::kApiBase).arg(musicId));
+    QNetworkRequest req(infoUrl);
+    req.setTransferTimeout(3000);
+    
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    QNetworkReply *reply = nam->get(req);
+    
+    connect(reply, &QNetworkReply::finished, this, [this, reply, musicId, nam]() {
+        reply->deleteLater();
+        nam->deleteLater();
+        
+        QString title = I18n::instance().tr("unknown");
+        QString artist = I18n::instance().tr("unknown");
+        
+        if (reply->error() == QNetworkReply::NoError) {
+            auto doc = QJsonDocument::fromJson(reply->readAll());
+            if (doc.object().value("success").toBool()) {
+                auto data = doc.object().value("data").toObject();
+                title = data.value("title").toString();
+                artist = data.value("artist").toString();
+            }
+        }
+        
+        // 更新播放栏显示
+        if (m_playerBar) {
+            m_playerBar->setSongInfo(title, artist);
+        }
+        
+        // 构建音乐URL并播放
+        QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
+        m_engine->play(url);
+    });
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // Directly close the application
-    event->accept();
+    // 最小化到托盘而不是直接退出
+    hide();
+    event->ignore();
+}
+
+void MainWindow::createTrayIcon()
+{
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        m_trayIcon = new QSystemTrayIcon(this);
+        m_trayMenu = new QMenu(this);
+        
+        // 设置托盘图标
+        QIcon trayIcon(":/icons/app_icon.png");
+        if (trayIcon.isNull()) {
+            // 如果资源图标不存在，使用默认图标
+            trayIcon = QApplication::windowIcon();
+        }
+        m_trayIcon->setIcon(trayIcon);
+        m_trayIcon->setToolTip("Neko云音乐");
+        
+        // 创建托盘菜单
+        QAction *previousAction = new QAction("上一首", this);
+        QAction *playPauseAction = new QAction("播放/暂停", this);
+        QAction *nextAction = new QAction("下一首", this);
+        QAction *showAction = new QAction("显示主窗口", this);
+        QAction *quitAction = new QAction("退出", this);
+        
+        connect(previousAction, &QAction::triggered, this, &MainWindow::onTrayPrevious);
+        connect(playPauseAction, &QAction::triggered, this, &MainWindow::onTrayPlayPause);
+        connect(nextAction, &QAction::triggered, this, &MainWindow::onTrayNext);
+        connect(showAction, &QAction::triggered, this, &MainWindow::onTrayShow);
+        connect(quitAction, &QAction::triggered, this, &MainWindow::onTrayQuit);
+        
+        m_trayMenu->addAction(previousAction);
+        m_trayMenu->addAction(playPauseAction);
+        m_trayMenu->addAction(nextAction);
+        m_trayMenu->addSeparator();
+        m_trayMenu->addAction(showAction);
+        m_trayMenu->addSeparator();
+        m_trayMenu->addAction(quitAction);
+        
+        m_trayIcon->setContextMenu(m_trayMenu);
+        
+        // 连接托盘图标激活信号
+        connect(m_trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::onTrayIconActivated);
+        
+        // 显示托盘图标
+        m_trayIcon->show();
+    }
+}
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
+        onTrayShow();
+    }
+}
+
+void MainWindow::onTrayPrevious()
+{
+    // TODO: 实现上一首功能
+    // 暂时留空，后续可以连接到播放器
+}
+
+void MainWindow::onTrayPlayPause()
+{
+    // TODO: 实现播放/暂停功能
+    // 暂时留空，后续可以连接到播放器
+}
+
+void MainWindow::onTrayNext()
+{
+    // TODO: 实现下一首功能
+    // 暂时留空，后续可以连接到播放器
+}
+
+void MainWindow::onTrayShow()
+{
+    show();
+    raise();
+    activateWindow();
+}
+
+void MainWindow::onTrayQuit()
+{
+    // 真正退出应用
     QApplication::quit();
 }

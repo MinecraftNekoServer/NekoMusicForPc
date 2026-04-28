@@ -47,6 +47,7 @@ set(SOURCES
     src/ui/forgotpassworddialog.cpp
     src/ui/musiclistpage.cpp
     src/ui/uploadpage.cpp
+    src/ui/searchpage.cpp
     src/core/playerengine.cpp
     src/core/apiclient.cpp
     src/core/i18n.cpp
@@ -71,6 +72,7 @@ set(HEADERS
     src/ui/forgotpassworddialog.h
     src/ui/musiclistpage.h
     src/ui/uploadpage.h
+    src/ui/searchpage.h
     src/core/playerengine.h
     src/core/apiclient.h
     src/core/i18n.h
