@@ -36,6 +36,12 @@
 #include <QCloseEvent>
 #include <QAction>
 #include <QUrl>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -46,13 +52,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_downloader = new MusicDownloader(this);
     setupUi();
     loadStyleSheet();
+    createTrayIcon();
 
     setWindowTitle(QStringLiteral("NekoMusic"));
     resize(1200, 800);
     setMinimumSize(960, 640);
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    // 清理托盘图标
+    if (m_trayIcon) {
+        m_trayIcon->hide();
+        delete m_trayIcon;
+    }
+}
 
 void MainWindow::setupUi()
 {
@@ -261,7 +275,91 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // Directly close the application
-    event->accept();
+    // 最小化到托盘而不是直接退出
+    hide();
+    event->ignore();
+}
+
+void MainWindow::createTrayIcon()
+{
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        m_trayIcon = new QSystemTrayIcon(this);
+        m_trayMenu = new QMenu(this);
+        
+        // 设置托盘图标
+        QIcon trayIcon(":/icons/app_icon.png");
+        if (trayIcon.isNull()) {
+            // 如果资源图标不存在，使用默认图标
+            trayIcon = QApplication::windowIcon();
+        }
+        m_trayIcon->setIcon(trayIcon);
+        m_trayIcon->setToolTip("Neko云音乐");
+        
+        // 创建托盘菜单
+        QAction *previousAction = new QAction("上一首", this);
+        QAction *playPauseAction = new QAction("播放/暂停", this);
+        QAction *nextAction = new QAction("下一首", this);
+        QAction *showAction = new QAction("显示主窗口", this);
+        QAction *quitAction = new QAction("退出", this);
+        
+        connect(previousAction, &QAction::triggered, this, &MainWindow::onTrayPrevious);
+        connect(playPauseAction, &QAction::triggered, this, &MainWindow::onTrayPlayPause);
+        connect(nextAction, &QAction::triggered, this, &MainWindow::onTrayNext);
+        connect(showAction, &QAction::triggered, this, &MainWindow::onTrayShow);
+        connect(quitAction, &QAction::triggered, this, &MainWindow::onTrayQuit);
+        
+        m_trayMenu->addAction(previousAction);
+        m_trayMenu->addAction(playPauseAction);
+        m_trayMenu->addAction(nextAction);
+        m_trayMenu->addSeparator();
+        m_trayMenu->addAction(showAction);
+        m_trayMenu->addSeparator();
+        m_trayMenu->addAction(quitAction);
+        
+        m_trayIcon->setContextMenu(m_trayMenu);
+        
+        // 连接托盘图标激活信号
+        connect(m_trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::onTrayIconActivated);
+        
+        // 显示托盘图标
+        m_trayIcon->show();
+    }
+}
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
+        onTrayShow();
+    }
+}
+
+void MainWindow::onTrayPrevious()
+{
+    // TODO: 实现上一首功能
+    // 暂时留空，后续可以连接到播放器
+}
+
+void MainWindow::onTrayPlayPause()
+{
+    // TODO: 实现播放/暂停功能
+    // 暂时留空，后续可以连接到播放器
+}
+
+void MainWindow::onTrayNext()
+{
+    // TODO: 实现下一首功能
+    // 暂时留空，后续可以连接到播放器
+}
+
+void MainWindow::onTrayShow()
+{
+    show();
+    raise();
+    activateWindow();
+}
+
+void MainWindow::onTrayQuit()
+{
+    // 真正退出应用
     QApplication::quit();
 }
