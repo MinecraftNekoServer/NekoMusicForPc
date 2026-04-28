@@ -212,8 +212,24 @@ void PlaylistPanel::setupUi() {
         "QPushButton { background: rgba(255, 100, 100, 0.2); border: 1px solid rgba(255, 100, 100, 0.3); border-radius: 14px; color: #ff6464; font-size: 11px; padding: 0 12px; }"
         "QPushButton:hover { background: rgba(255, 100, 100, 0.4); }"
     );
-    connect(m_clearBtn, &QPushButton::clicked, this, []() {
-        PlaylistManager::instance().clearPlaylist();
+    connect(m_clearBtn, &QPushButton::clicked, this, [this]() {
+        auto& manager = PlaylistManager::instance();
+        int currentIndex = manager.currentIndex();
+        MusicInfo currentMusic;
+        bool hasCurrent = (currentIndex >= 0 && currentIndex < manager.count());
+        if (hasCurrent) {
+            currentMusic = manager.playlist()[currentIndex];
+        }
+
+        // 清空后保留当前音乐
+        if (hasCurrent) {
+            manager.clearPlaylist();
+            manager.addToPlaylist(currentMusic);
+            manager.setCurrentIndex(0);
+        } else {
+            manager.clearPlaylist();
+        }
+        refresh();
     });
     headerLay->addWidget(m_clearBtn);
 
