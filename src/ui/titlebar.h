@@ -41,4 +41,5 @@ private:
     QWidget *m_avatarWidget = nullptr;
     QLabel *m_avatarIcon = nullptr;
     QLabel *m_usernameLabel = nullptr;
+    QLabel *m_dropdownIcon = nullptr;
 };
