@@ -58,12 +58,17 @@ private:
     QLabel *m_typeLbl = nullptr;
     QLabel *m_nameLbl = nullptr;
     QLabel *m_descLbl = nullptr;
+    QLabel *m_creatorAvatarLbl = nullptr;
+    QLabel *m_creatorNameLbl = nullptr;
     QLabel *m_countLbl = nullptr;
     
     // List header
     QWidget *m_listHeaderWidget = nullptr;
     QLabel *m_listTitleLbl = nullptr;
     QLabel *m_listCountLbl = nullptr;
+    
+    int m_creatorId = 0;
+    QString m_creatorUsername;
     
     QList<MusicInfo> m_musicList;
     QList<QWidget *> m_musicItems;

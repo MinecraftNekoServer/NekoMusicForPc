@@ -307,6 +307,33 @@ void PlaylistDetailPage::setupUi()
     m_descLbl->setWordWrap(true);
     infoLay->addWidget(m_descLbl);
 
+    // 创建者信息：头像 + 昵称
+    auto *creatorWidget = new QWidget(infoWidget);
+    auto *creatorLay = new QHBoxLayout(creatorWidget);
+    creatorLay->setContentsMargins(0, 0, 0, 0);
+    creatorLay->setSpacing(8);
+
+    m_creatorAvatarLbl = new QLabel(creatorWidget);
+    m_creatorAvatarLbl->setFixedSize(20, 20);
+    m_creatorAvatarLbl->setScaledContents(true);
+    m_creatorAvatarLbl->setStyleSheet(
+        "QLabel { border-radius: 10px; background: rgba(102, 126, 234, 0.3); }"
+    );
+    creatorLay->addWidget(m_creatorAvatarLbl);
+
+    m_creatorNameLbl = new QLabel(creatorWidget);
+    m_creatorNameLbl->setObjectName("creatorName");
+    m_creatorNameLbl->setStyleSheet(
+        "QLabel#creatorName { "
+        "  font-size: 12px; color: rgba(255, 255, 255, 0.8); "
+        "  font-weight: 500; "
+        "}"
+    );
+    creatorLay->addWidget(m_creatorNameLbl);
+    creatorLay->addStretch();
+
+    infoLay->addWidget(creatorWidget);
+
     m_countLbl = new QLabel(infoWidget);
     m_countLbl->setObjectName("playlistCount");
     m_countLbl->setStyleSheet(
@@ -390,11 +417,18 @@ void PlaylistDetailPage::loadPlaylist(int playlistId)
             m_playlistDesc = detail.value("description").toString();
             // 获取firstMusicId用于封面
             m_firstMusicId = detail.value("firstMusicId").toInt();
-            qDebug() << "[PlaylistDetailPage] name:" << m_playlistName << "firstMusicId:" << m_firstMusicId;
+            // 获取创建者信息
+            auto creatorObj = detail.value("creator").toMap();
+            m_creatorId = creatorObj.value("id").toInt();
+            m_creatorUsername = creatorObj.value("username").toString();
+            qDebug() << "[PlaylistDetailPage] name:" << m_playlistName << "firstMusicId:" << m_firstMusicId
+                     << "creatorId:" << m_creatorId << "creatorUsername:" << m_creatorUsername;
         } else {
             m_playlistName = QStringLiteral("歌单详情");
             m_playlistDesc = QString();
             m_firstMusicId = 0;
+            m_creatorId = 0;
+            m_creatorUsername = QString();
         }
 
         // 然后获取音乐列表
@@ -434,6 +468,28 @@ void PlaylistDetailPage::updateHeader()
     }
     if (m_listCountLbl) {
         m_listCountLbl->setText(QString("%1 %2").arg(m_musicList.size()).arg(I18n::instance().tr("songs")));
+    }
+    // 创建者信息
+    if (m_creatorNameLbl) {
+        m_creatorNameLbl->setText(m_creatorUsername);
+    }
+    if (m_creatorAvatarLbl && m_creatorId > 0) {
+        QString avatarUrl = QString::fromUtf8("%1/api/user/avatar/%2").arg(Theme::kApiBase).arg(m_creatorId);
+        QUrl url(avatarUrl);
+        auto *nam = new QNetworkAccessManager(this);
+        auto *reply = nam->get(QNetworkRequest(url));
+        QObject::connect(reply, &QNetworkReply::finished, this, [this, reply, nam]() {
+            reply->deleteLater();
+            nam->deleteLater();
+            if (reply->error() == QNetworkReply::NoError) {
+                QPixmap pix;
+                pix.loadFromData(reply->readAll());
+                if (!pix.isNull()) {
+                    pix = pix.scaled(20, 20, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                    m_creatorAvatarLbl->setPixmap(pix);
+                }
+            }
+        });
     }
     // 加载封面
     if (m_coverLbl) {
