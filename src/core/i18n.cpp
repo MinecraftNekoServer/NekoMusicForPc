@@ -321,6 +321,9 @@ static QMap<QString, QString> zhCN()
     m["musicFileInfo"] = QStringLiteral("音乐文件");
     m["coverInfo"] = QStringLiteral("封面图片");
     m["lyricsInfo"] = QStringLiteral("歌词文件");
+    m["lyrics"] = QStringLiteral("歌词");
+    m["unknownArtist"] = QStringLiteral("未知艺术家");
+    m["noLyrics"] = QStringLiteral("暂无歌词");
     m["basicInfo"] = QStringLiteral("基本信息");
     m["uploadNote"] = QStringLiteral("上传的音乐会进入待审核状态，审核通过后发布");
 
@@ -482,6 +485,9 @@ static QMap<QString, QString> nyaCN()
     m["musicFileInfo"] = QStringLiteral("音乐文件喵~");
     m["coverInfo"] = QStringLiteral("封面图片喵~");
     m["lyricsInfo"] = QStringLiteral("歌词文件喵~");
+    m["lyrics"] = QStringLiteral("歌词喵~");
+    m["unknownArtist"] = QStringLiteral("未知艺术家喵~");
+    m["noLyrics"] = QStringLiteral("暂无歌词喵~");
     m["basicInfo"] = QStringLiteral("基本信息喵~");
     m["uploadNote"] = QStringLiteral("上传的音乐会进入待审核状态喵~，审核通过后发布的说");
     return m;
@@ -803,6 +809,9 @@ static QMap<QString, QString> enUS()
     m["musicFileInfo"] = "Music File";
     m["coverInfo"] = "Cover Image";
     m["lyricsInfo"] = "Lyrics File";
+    m["lyrics"] = "Lyrics";
+    m["unknownArtist"] = "Unknown Artist";
+    m["noLyrics"] = "No Lyrics";
     m["basicInfo"] = "Basic Info";
     m["uploadNote"] = "Uploaded music will be pending review, published after approval";
 

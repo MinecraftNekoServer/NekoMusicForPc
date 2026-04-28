@@ -1,5 +1,6 @@
 #include "playerpage.h"
 #include "../core/playerengine.h"
+#include "../core/i18n.h"
 #include "../theme/theme.h"
 
 #include <QPainter>
@@ -79,13 +80,13 @@ void PlayerPage::setupUi()
     m_coverLabel->setAlignment(Qt::AlignCenter);
     m_coverLabel->setObjectName("playerCoverLabel");
 
-    m_titleLabel = new QLabel(QStringLiteral("Unknown"), this);
+    m_titleLabel = new QLabel(I18n::instance().tr("unknown"), this);
     m_titleLabel->setObjectName("playerSongTitleLabel");
     m_titleLabel->setAlignment(Qt::AlignCenter);
     m_titleLabel->setWordWrap(true);
     m_titleLabel->setMaximumWidth(340);
 
-    m_artistLabel = new QLabel(QStringLiteral("Unknown Artist"), this);
+    m_artistLabel = new QLabel(I18n::instance().tr("unknownArtist"), this);
     m_artistLabel->setObjectName("playerArtistLabel");
     m_artistLabel->setAlignment(Qt::AlignCenter);
 
@@ -109,7 +110,7 @@ void PlayerPage::setupUi()
     lyricsCol->setSpacing(0);
 
     // 歌词标题
-    auto *lyricsTitle = new QLabel(QString::fromUtf8("歌词"), this);
+    auto *lyricsTitle = new QLabel(I18n::instance().tr("lyrics"), this);
     lyricsTitle->setObjectName("lyricsTitleLabel");
     lyricsTitle->setMaximumWidth(500);
 
@@ -206,8 +207,8 @@ void PlayerPage::setMusicInfo(int id, const QString &title, const QString &artis
                               const QString &album, const QString &coverUrl)
 {
     m_musicId = id;
-    m_titleLabel->setText(title.isEmpty() ? QStringLiteral("Unknown") : title);
-    m_artistLabel->setText(artist.isEmpty() ? QStringLiteral("Unknown Artist") : artist);
+    m_titleLabel->setText(title.isEmpty() ? I18n::instance().tr("unknown") : title);
+    m_artistLabel->setText(artist.isEmpty() ? I18n::instance().tr("unknownArtist") : artist);
     m_albumLabel->setText(album);
 
     if (!coverUrl.isEmpty()) {
@@ -218,6 +219,25 @@ void PlayerPage::setMusicInfo(int id, const QString &title, const QString &artis
 
 void PlayerPage::retranslate()
 {
+    // Update labels only if they show default values
+    if (m_titleLabel->text() == I18n::instance().tr("unknown") || m_titleLabel->text().isEmpty()) {
+        m_titleLabel->setText(I18n::instance().tr("unknown"));
+    }
+    if (m_artistLabel->text() == I18n::instance().tr("unknownArtist") || m_artistLabel->text().isEmpty()) {
+        m_artistLabel->setText(I18n::instance().tr("unknownArtist"));
+    }
+
+    // Update lyrics title - find it by object name
+    auto *lyricsTitle = findChild<QLabel *>("lyricsTitleLabel");
+    if (lyricsTitle) {
+        lyricsTitle->setText(I18n::instance().tr("lyrics"));
+    }
+
+    // Update no lyrics message if visible
+    auto *noLyricsText = findChild<QLabel *>("noLyricsText");
+    if (noLyricsText) {
+        noLyricsText->setText(I18n::instance().tr("noLyrics"));
+    }
 }
 
 void PlayerPage::showEvent(QShowEvent *event)
@@ -350,7 +370,7 @@ void PlayerPage::rebuildLyricLabels()
         ).arg(Theme::kTextMuted));
         m_lyricsLayout->addWidget(noData);
 
-        auto *noDataLabel = new QLabel(tr("No Lyrics"), m_lyricsContainer);
+        auto *noDataLabel = new QLabel(I18n::instance().tr("noLyrics"), m_lyricsContainer);
         noDataLabel->setAlignment(Qt::AlignCenter);
         noDataLabel->setObjectName("noLyricsText");
         noDataLabel->setStyleSheet(QString::fromUtf8(
