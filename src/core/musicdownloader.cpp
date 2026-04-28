@@ -41,11 +41,27 @@ void MusicDownloader::download(const QUrl &url)
     QDir().mkpath(cacheDir);
     m_tempPath = cacheDir + "/" + hash;
 
-    // Check if already cached
+    // Check if already cached and valid
     if (QFile::exists(m_tempPath)) {
-        emit bufferReady(m_tempPath);
-        emit downloadFinished(m_tempPath);
-        return;
+        QFile file(m_tempPath);
+        if (file.open(QIODevice::ReadOnly)) {
+            // Check if file has reasonable size (at least 1KB)
+            if (file.size() > 1024) {
+                // Try to read first few bytes to check if file is readable
+                char buffer[1024];
+                qint64 bytesRead = file.read(buffer, sizeof(buffer));
+                file.close();
+                
+                if (bytesRead > 0) {
+                    emit bufferReady(m_tempPath);
+                    emit downloadFinished(m_tempPath);
+                    return;
+                }
+            }
+            file.close();
+        }
+        // File exists but is invalid, remove it
+        QFile::remove(m_tempPath);
     }
 
     // Remove old partial file if exists

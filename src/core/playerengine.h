@@ -25,6 +25,7 @@ public:
     void pause();
     void stop();
     void setVolume(float volume);
+    void setPosition(qint64 position);
 
     PlaybackState playbackState() const;
     qint64 duration() const;
@@ -34,6 +35,7 @@ signals:
     void stateChanged(PlaybackState state);
     void positionChanged(qint64 position);
     void durationChanged(qint64 duration);
+    void errorOccurred(const QString &error);
 
 private:
     void onMediaStateChanged(QMediaPlayer::PlaybackState state);

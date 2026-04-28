@@ -1,4 +1,6 @@
 #include "playerengine.h"
+#include <QTimer>
+#include <QDebug>
 
 PlayerEngine::PlayerEngine(QObject *parent)
     : QObject(parent)
@@ -13,6 +15,14 @@ PlayerEngine::PlayerEngine(QObject *parent)
             this, &PlayerEngine::positionChanged);
     connect(m_player, &QMediaPlayer::durationChanged,
             this, &PlayerEngine::durationChanged);
+    connect(m_player, &QMediaPlayer::errorOccurred,
+            this, [this](QMediaPlayer::Error error, const QString &errorString) {
+                qDebug() << "Media player error:" << error << errorString;
+                // Stop playback on error to prevent hanging
+                m_player->stop();
+                emit stateChanged(Stopped);
+                emit errorOccurred(errorString);
+            });
 }
 
 PlayerEngine::~PlayerEngine() = default;
@@ -21,6 +31,17 @@ void PlayerEngine::play(const QUrl &url)
 {
     m_player->setSource(url);
     m_player->play();
+    
+    // Set a timeout to prevent hanging on corrupted files
+    QTimer::singleShot(5000, this, [this]() {
+        if (m_player->playbackState() == QMediaPlayer::StoppedState && 
+            m_player->mediaStatus() == QMediaPlayer::LoadingMedia) {
+            qDebug() << "Playback timeout - stopping player";
+            m_player->stop();
+            emit stateChanged(Stopped);
+            emit errorOccurred("播放超时，文件可能已损坏");
+        }
+    });
 }
 
 void PlayerEngine::play()
@@ -41,6 +62,11 @@ void PlayerEngine::stop()
 void PlayerEngine::setVolume(float volume)
 {
     m_audioOutput->setVolume(qBound(0.0f, volume, 1.0f));
+}
+
+void PlayerEngine::setPosition(qint64 position)
+{
+    m_player->setPosition(position);
 }
 
 PlayerEngine::PlaybackState PlayerEngine::playbackState() const

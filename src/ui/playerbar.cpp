@@ -202,6 +202,13 @@ void PlayerBar::setupUi()
         connect(m_engine, &PlayerEngine::durationChanged, this, [this](qint64 dur) {
             if (m_durTime) m_durTime->setText(formatTime(dur));
         });
+        // 进度条拖动时改变播放位置
+        connect(m_progress, &QSlider::valueChanged, this, [this](int value) {
+            if (m_engine && m_engine->duration() > 0) {
+                qint64 position = static_cast<qint64>(value * m_engine->duration() / 1000);
+                m_engine->setPosition(position);
+            }
+        });
     }
 }
 
