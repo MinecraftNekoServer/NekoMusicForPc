@@ -58,6 +58,16 @@ qint64 PlayerEngine::position() const
     return m_player->position();
 }
 
+float PlayerEngine::volume() const
+{
+    return m_audioOutput ? m_audioOutput->volume() : 0.0f;
+}
+
+void PlayerEngine::setPosition(qint64 position)
+{
+    if (m_player) m_player->setPosition(position);
+}
+
 void PlayerEngine::onMediaStateChanged(QMediaPlayer::PlaybackState state)
 {
     switch (state) {

@@ -257,6 +257,11 @@ void PlayerBar::setSongInfo(const QString &title, const QString &artist, const Q
     }
 }
 
+void PlayerBar::setCoverVisible(bool visible)
+{
+    if (m_cover) m_cover->setVisible(visible);
+}
+
 void PlayerBar::setCoverPixmap(const QPixmap &pm)
 {
     auto *btn = qobject_cast<QPushButton *>(m_cover);

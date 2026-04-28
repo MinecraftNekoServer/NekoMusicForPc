@@ -17,6 +17,7 @@
 #include "ui/logindialog.h"
 #include "ui/musiclistpage.h"
 #include "ui/uploadpage.h"
+#include "ui/playerpage.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
 #include "core/musicdownloader.h"
@@ -83,7 +84,10 @@ void MainWindow::setupUi()
     mainV->addWidget(m_titleBar);
 
     // 中间区域：侧边栏 + 页面
-    auto *midH = new QHBoxLayout();
+    m_midWidget = new QWidget(this);
+    m_midWidget->setObjectName("midWidget");
+    m_midWidget->setAttribute(Qt::WA_StyledBackground, true);
+    auto *midH = new QHBoxLayout(m_midWidget);
     midH->setContentsMargins(0, 0, 0, 0);
     midH->setSpacing(0);
 
@@ -108,11 +112,15 @@ void MainWindow::setupUi()
     m_stack->addWidget(m_uploadPage);
     midH->addWidget(m_stack, 1);
 
-    mainV->addLayout(midH, 1);
+    mainV->addWidget(m_midWidget, 1);
 
     // 播放栏（横跨整个窗口底部）
     m_playerBar = new PlayerBar(m_engine, this);
     mainV->addWidget(m_playerBar);
+
+    // 播放页面 — 全屏覆盖层（覆盖侧边栏和标题栏，不覆盖播放栏）
+    m_playerPage = new PlayerPage(m_engine, m_midWidget);
+    m_playerPage->hide();
 
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
@@ -193,10 +201,18 @@ void MainWindow::setupUi()
         playMusicById(info.id, info.title, info.artist, info.coverUrl);
     });
 
-    // 封面点击切换到播放页面
+    // 封面点击切换到播放页面（全屏覆盖侧边栏和标题栏）
     connect(m_playerBar, &PlayerBar::coverClicked, this, [this]() {
-        // TODO: 切换到播放页面（待实现 PlayerPage 后启用）
-        // switchPage(m_playerPage);
+        m_playerBar->setCoverVisible(false);
+        m_playerPage->setGeometry(m_midWidget->rect());
+        m_playerPage->show();
+        m_playerPage->raise();
+    });
+
+    // 播放页面返回
+    connect(m_playerPage, &PlayerPage::backRequested, this, [this]() {
+        m_playerBar->setCoverVisible(true);
+        m_playerPage->hide();
     });
 
     // 语言切换
@@ -292,6 +308,12 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Build music URL and start buffered download
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
     m_downloader->download(url);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    if (m_playerPage && m_midWidget) m_playerPage->setGeometry(m_midWidget->rect());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

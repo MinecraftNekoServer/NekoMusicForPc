@@ -26,6 +26,7 @@ public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
     void retranslate();
     void setSongInfo(const QString &title, const QString &artist, const QString &coverUrl = QString());
+    void setCoverVisible(bool visible);
 
 protected:
     void paintEvent(QPaintEvent *) override;
