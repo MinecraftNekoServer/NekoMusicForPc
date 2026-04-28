@@ -217,6 +217,16 @@ void PlayerBar::updateState()
     m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
 }
 
+void PlayerBar::setSongInfo(const QString &title, const QString &artist)
+{
+    if (m_songName) {
+        m_songName->setText(title.isEmpty() ? I18n::instance().tr("notPlaying") : title);
+    }
+    if (m_artist) {
+        m_artist->setText(artist.isEmpty() ? I18n::instance().tr("unknown") : artist);
+    }
+}
+
 void PlayerBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);

@@ -295,6 +295,9 @@ void MusicListPage::buildList()
         delete item;
     }
 
+    // 清除loading标签引用
+    m_loadingLabel = nullptr;
+
     if (m_musicList.isEmpty()) {
         auto *emptyLbl = new QLabel(I18n::instance().tr("noData"), m_listContainer);
         emptyLbl->setAlignment(Qt::AlignCenter);
@@ -329,9 +332,7 @@ void MusicListPage::retranslate()
             m_type == Hot ? I18n::instance().tr("hotMusic") : I18n::instance().tr("latestMusic")
         );
     }
-    if (m_loadingLabel && !m_loaded) {
-        m_loadingLabel->setText(I18n::instance().tr("loading"));
-    }
+    // 不再重新设置"加载中"文本，因为加载完成后标签已被移除
 }
 
 void MusicListPage::paintEvent(QPaintEvent *event)

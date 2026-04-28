@@ -22,6 +22,7 @@ class PlayerBar : public QWidget
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
     void retranslate();
+    void setSongInfo(const QString &title, const QString &artist);
 
 protected:
     void paintEvent(QPaintEvent *) override;
