@@ -430,6 +430,13 @@ void HomePage::rebuildRecommendSection()
 {
     if (!m_hotReady || !m_playlistReady || !m_latestReady) return;
 
+    // 移除"加载中"标签
+    auto *loadingLabel = findChild<QLabel *>("hpLoading");
+    if (loadingLabel) {
+        loadingLabel->hide();
+        loadingLabel->deleteLater();
+    }
+
     QLayoutItem *item;
     while ((item = m_cardLayout->takeAt(0)) != nullptr) {
         delete item->widget();

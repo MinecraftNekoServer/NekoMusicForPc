@@ -10,6 +10,7 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include <QSystemTrayIcon>
 
 class QCloseEvent;
 class TitleBar;
@@ -23,6 +24,8 @@ class PlayerEngine;
 class MusicDownloader;
 class MusicListPage;
 class UploadPage;
+class SearchPage;
+class QMenu;
 
 class MainWindow : public QMainWindow
 {
@@ -36,12 +39,21 @@ protected:
     void paintEvent(QPaintEvent *) override;
     void closeEvent(QCloseEvent *event) override;
 
+private slots:
+    void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void onTrayPrevious();
+    void onTrayPlayPause();
+    void onTrayNext();
+    void onTrayShow();
+    void onTrayQuit();
+
 private:
     void setupUi();
     void loadStyleSheet();
     void switchPage(QWidget *target);
     void showMusicListPage(bool isHot);
     void playMusicById(int musicId, const QString &title, const QString &artist, const QString &coverUrl = QString());
+    void createTrayIcon();
 
     bool m_switching = false;
     TitleBar *m_titleBar = nullptr;
@@ -57,4 +69,6 @@ private:
     QStackedWidget *m_stack = nullptr;
     PlayerEngine *m_engine = nullptr;
     MusicDownloader *m_downloader = nullptr;
+    QSystemTrayIcon *m_trayIcon = nullptr;
+    QMenu *m_trayMenu = nullptr;
 };
