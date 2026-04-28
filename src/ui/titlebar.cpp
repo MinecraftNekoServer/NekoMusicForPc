@@ -145,12 +145,12 @@ void TitleBar::setupUi()
     lay->addStretch(1);
 
     // ─── 右侧控制 ────────────────────────────────────
-    // 头像区域：左边头像图标 + 右边用户名
+    // 头像区域：左边头像图标 + 右边用户名 + 下拉箭头
     m_avatarWidget = new QWidget(this);
     m_avatarWidget->setObjectName("tbAvatarWidget");
     m_avatarWidget->setCursor(Qt::PointingHandCursor);
     auto *avatarLay = new QHBoxLayout(m_avatarWidget);
-    avatarLay->setContentsMargins(8, 4, 8, 4);
+    avatarLay->setContentsMargins(8, 4, 6, 4);
     avatarLay->setSpacing(6);
 
     m_avatarIcon = new QLabel(m_avatarWidget);
@@ -161,7 +161,14 @@ void TitleBar::setupUi()
     m_usernameLabel = new QLabel(m_avatarWidget);
     m_usernameLabel->setObjectName("tbUsername");
     m_usernameLabel->setCursor(Qt::PointingHandCursor);
+    m_usernameLabel->setMaximumWidth(100);
     avatarLay->addWidget(m_usernameLabel);
+
+    // 下拉箭头
+    m_dropdownIcon = new QLabel(m_avatarWidget);
+    m_dropdownIcon->setFixedSize(12, 12);
+    m_dropdownIcon->setCursor(Qt::PointingHandCursor);
+    avatarLay->addWidget(m_dropdownIcon);
 
     updateAvatar();
     lay->addWidget(m_avatarWidget);
@@ -221,7 +228,7 @@ void TitleBar::retranslate()
 
 void TitleBar::updateAvatar()
 {
-    if (!m_avatarIcon || !m_usernameLabel) return;
+    if (!m_avatarIcon || !m_usernameLabel || !m_dropdownIcon) return;
 
     if (UserManager::instance().isLoggedIn()) {
         // 已登录，显示用户名
@@ -246,7 +253,9 @@ void TitleBar::updateAvatar()
         p.drawText(rect, Qt::AlignCenter, letter);
         m_avatarIcon->setPixmap(pixmap);
 
-        m_usernameLabel->setText(username);
+        // 用户名截断
+        QFontMetrics fm(m_usernameLabel->font());
+        m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, 100));
         m_usernameLabel->setToolTip(username);
     } else {
         // 未登录，显示默认图标和点击登录
@@ -254,6 +263,16 @@ void TitleBar::updateAvatar()
         m_usernameLabel->setText(I18n::instance().tr("goToLogin"));
         m_usernameLabel->setToolTip(I18n::instance().tr("goToLogin"));
     }
+
+    // 绘制下拉箭头
+    QPixmap arrow(12, 12);
+    arrow.fill(Qt::transparent);
+    QPainter p(&arrow);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setPen(QPen(QColor(245, 240, 255, 150), 1.5, Qt::SolidLine, Qt::RoundCap));
+    p.drawLine(3, 5, 6, 8);
+    p.drawLine(6, 8, 9, 5);
+    m_dropdownIcon->setPixmap(arrow);
 }
 
 void TitleBar::paintEvent(QPaintEvent *)
