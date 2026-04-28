@@ -6,6 +6,7 @@
 #include "toast.h"
 #include "theme/theme.h"
 
+#include <QDebug>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -27,11 +28,18 @@ Toast::Toast(QWidget *parent, const QString &message, Type type, int durationMs)
 
 void Toast::show(QWidget *parent, const QString &message, Type type, int durationMs)
 {
+    qDebug() << "[Toast] 创建Toast:" << message << ", type =" << type << ", duration =" << durationMs;
+    qDebug() << "[Toast] parent =" << parent << ", parent->width() =" << parent->width();
     auto *toast = new Toast(parent, message, type, durationMs);
+
+    // 确保窗口大小已计算
+    toast->adjustSize();
+    qDebug() << "[Toast] toast->size() =" << toast->size();
 
     // 定位到右上角（相对于父窗口）
     QPoint pos = parent->mapToGlobal(QPoint(parent->width() - toast->width() - 24, 80));
     toast->move(pos);
+    qDebug() << "[Toast] 位置 =" << pos;
 
     // 淡入动画
     auto *effect = new QGraphicsOpacityEffect(toast);
@@ -52,16 +60,20 @@ void Toast::show(QWidget *parent, const QString &message, Type type, int duratio
     fadeOut->setEasingCurve(QEasingCurve::InCubic);
 
     QObject::connect(fadeOut, &QPropertyAnimation::finished, toast, [toast]() {
+        qDebug() << "[Toast] 动画结束，销毁Toast";
         toast->deleteLater();
     });
 
     auto *timer = new QTimer(toast);
     timer->setSingleShot(true);
     QObject::connect(timer, &QTimer::timeout, toast, [fadeOut, toast]() {
+        qDebug() << "[Toast] 定时器触发，开始淡出";
         fadeOut->start();
     });
 
     fadeIn->start();
+    static_cast<QWidget *>(toast)->show();
+    qDebug() << "[Toast] Toast已show";
     timer->start(durationMs);
 }
 
