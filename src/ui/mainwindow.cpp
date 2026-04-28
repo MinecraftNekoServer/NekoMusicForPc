@@ -24,6 +24,7 @@
 #include "theme/theme.h"
 
 #include <QApplication>
+#include <QDebug>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -112,6 +113,14 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_sidebar, &Sidebar::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_titleBar, &TitleBar::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playerBar, &PlayerBar::retranslate);
+
+    // 音乐下载器连接
+    connect(m_downloader, &MusicDownloader::bufferReady, this, [this](const QString &localPath) {
+        m_engine->play(QUrl::fromLocalFile(localPath));
+    });
+    connect(m_downloader, &MusicDownloader::downloadError, this, [](const QString &err) {
+        qDebug() << "Music download error:" << err;
+    });
 
     // 头像点击 - 显示登录对话框
     connect(m_titleBar, &TitleBar::avatarClicked, this, [this]() {
@@ -240,14 +249,9 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Update player bar
     m_playerBar->setSongInfo(title, artist, coverUrl);
 
-    // Build music URL
+    // Build music URL and start buffered download
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
-
-    // Use downloader for buffered playback
     m_downloader->download(url);
-    connect(m_downloader, &MusicDownloader::bufferReady, this, [this](const QString &localPath) {
-        m_engine->play(QUrl::fromLocalFile(localPath));
-    }, Qt::UniqueConnection);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

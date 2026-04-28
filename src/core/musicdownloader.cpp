@@ -72,12 +72,21 @@ void MusicDownloader::cancel()
 
 void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    if (bytesTotal <= 0) return;
+    if (m_bufferEmitted) return;
 
-    int percent = static_cast<int>(bytesReceived * 100 / bytesTotal);
-    emit downloadProgress(percent);
+    bool ready = false;
+    if (bytesTotal > 0) {
+        // Known size: 30% threshold
+        int percent = static_cast<int>(bytesReceived * 100 / bytesTotal);
+        emit downloadProgress(percent);
+        ready = (percent >= 30);
+    } else {
+        // Unknown size: 500KB threshold
+        emit downloadProgress(-1); // unknown
+        ready = (bytesReceived >= 500 * 1024);
+    }
 
-    if (!m_bufferEmitted && percent >= 30) {
+    if (ready) {
         m_bufferEmitted = true;
         // Close and rename partial file to final path
         if (m_file) {
