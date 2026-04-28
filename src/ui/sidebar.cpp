@@ -153,8 +153,10 @@ void Sidebar::refreshPlaylistList()
 {
     // 清除现有项
     for (auto *item : m_playlistItems) {
-        m_playlistLayout->removeWidget(item);
-        item->deleteLater();
+        if (item) {
+            m_playlistLayout->removeWidget(item);
+            item->deleteLater();
+        }
     }
     m_playlistItems.clear();
 
@@ -164,7 +166,6 @@ void Sidebar::refreshPlaylistList()
         empty->setAlignment(Qt::AlignCenter);
         empty->setWordWrap(true);
         m_playlistLayout->addWidget(empty);
-        m_playlistItems.append(nullptr); // 标记空状态
     } else {
         for (const auto &pl : m_apiPlaylists) {
             auto *item = new PlaylistListItem(pl.id, pl.name, pl.musicCount, pl.coverUrl, m_playlistContainer);
