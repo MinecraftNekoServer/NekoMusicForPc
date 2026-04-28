@@ -7,6 +7,7 @@
 #include "core/i18n.h"
 #include "theme/theme.h"
 #include "ui/glasswidget.h"
+#include "version.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -84,7 +85,7 @@ void SettingsPage::setupUi()
     cardLay->addWidget(line);
 
     // 版本 & 系统
-    m_versionLabel = new QLabel(QString("%1: 0.1.0").arg(I18n::instance().version()), card);
+    m_versionLabel = new QLabel(QString("%1: %2").arg(I18n::instance().version(), QString::fromUtf8(APP_VERSION)), card);
     m_versionLabel->setObjectName("settingsInfo");
     cardLay->addWidget(m_versionLabel);
 
@@ -109,7 +110,7 @@ void SettingsPage::retranslate()
     m_langCombo->setItemText(0, I18n::instance().languageChinese());
     m_langCombo->setItemText(1, I18n::instance().languageNya());
     m_langCombo->setItemText(2, I18n::instance().languageEnglish());
-    m_versionLabel->setText(QString("%1: 0.1.0").arg(I18n::instance().version()));
+    m_versionLabel->setText(QString("%1: %2").arg(I18n::instance().version(), QString::fromUtf8(APP_VERSION)));
     m_systemLabel->setText(QString("%1: %2").arg(I18n::instance().system()).arg(QSysInfo::prettyProductName()));
 }
 
