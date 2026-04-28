@@ -22,6 +22,7 @@ struct ApiPlaylistInfo {
     int id = 0;
     QString name;
     QString description;
+    QString coverUrl;
     int musicCount = 0;
 };
 

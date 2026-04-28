@@ -138,6 +138,7 @@ void Sidebar::loadPlaylists()
                 info.id = pl.value("id").toInt();
                 info.name = pl.value("name").toString();
                 info.description = pl.value("description").toString();
+                info.coverUrl = pl.value("firstMusicCover").toString();
                 info.musicCount = pl.value("musicCount").toInt();
                 m_apiPlaylists.append(info);
             }
@@ -166,7 +167,7 @@ void Sidebar::refreshPlaylistList()
         m_playlistItems.append(nullptr); // 标记空状态
     } else {
         for (const auto &pl : m_apiPlaylists) {
-            auto *item = new PlaylistListItem(pl.id, pl.name, pl.musicCount, m_playlistContainer);
+            auto *item = new PlaylistListItem(pl.id, pl.name, pl.musicCount, pl.coverUrl, m_playlistContainer);
             connect(item, &PlaylistListItem::clicked, this, [this, playlistId = pl.id]() {
                 emit playlistClicked(playlistId);
             });

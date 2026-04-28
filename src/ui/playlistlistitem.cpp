@@ -5,22 +5,76 @@
 #include <QMenu>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QPainterPath>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
-PlaylistListItem::PlaylistListItem(int localId, const QString& name, int musicCount, QWidget *parent)
-    : QWidget(parent), m_localId(localId), m_name(name), m_musicCount(musicCount)
+PlaylistListItem::PlaylistListItem(int playlistId, const QString& name, int musicCount, const QString& coverUrl, QWidget *parent)
+    : QWidget(parent), m_playlistId(playlistId), m_name(name), m_musicCount(musicCount)
 {
     setCursor(Qt::PointingHandCursor);
-    setFixedHeight(40);
+    setFixedHeight(44);
+
+    auto *lay = new QHBoxLayout(this);
+    lay->setContentsMargins(8, 4, 8, 4);
+    lay->setSpacing(10);
+
+    // Cover
+    m_coverLbl = new QLabel(this);
+    m_coverLbl->setFixedSize(36, 36);
+    m_coverLbl->setScaledContents(false);
+    lay->addWidget(m_coverLbl);
+
+    if (!coverUrl.isEmpty()) {
+        QUrl url(coverUrl.startsWith("http") ? coverUrl : QString::fromUtf8("https://music.cnmsb.xin%1").arg(coverUrl));
+        auto *nam = new QNetworkAccessManager(this);
+        auto *reply = nam->get(QNetworkRequest(url));
+        QObject::connect(reply, &QNetworkReply::finished, this, [this, reply, nam]() {
+            reply->deleteLater();
+            nam->deleteLater();
+            if (reply->error() == QNetworkReply::NoError) {
+                QPixmap pix;
+                pix.loadFromData(reply->readAll());
+                if (!pix.isNull()) {
+                    pix = pix.scaled(36, 36, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                    m_coverLbl->setPixmap(pix);
+                } else {
+                    setPlaceholderCover();
+                }
+            } else {
+                setPlaceholderCover();
+            }
+        });
+    } else {
+        setPlaceholderCover();
+    }
+
+    // Name
+    m_nameLbl = new QLabel(this);
+    m_nameLbl->setStyleSheet("QLabel { font-size: 13px; color: #e0e0e0; }");
+    m_nameLbl->setAlignment(Qt::AlignVCenter);
+    m_nameLbl->setWordWrap(false);
+    lay->addWidget(m_nameLbl, 1);
 }
 
 void PlaylistListItem::setMusicCount(int count) {
     m_musicCount = count;
-    update();
+}
+
+void PlaylistListItem::setPlaceholderCover() {
+    QPixmap pix(36, 36);
+    pix.fill(Qt::transparent);
+    QPainter p(&pix);
+    p.setRenderHint(QPainter::Antialiasing);
+    QPainterPath path;
+    path.addRoundedRect(0, 0, 36, 36, 6, 6);
+    p.fillPath(path, QColor(128, 128, 128, 60));
+    m_coverLbl->setPixmap(pix);
 }
 
 void PlaylistListItem::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        emit clicked(m_localId);
+        emit clicked(m_playlistId);
     }
     QWidget::mousePressEvent(event);
 }
@@ -38,9 +92,9 @@ void PlaylistListItem::contextMenuEvent(QContextMenuEvent *event) {
 
     QAction *selected = menu.exec(event->globalPos());
     if (selected == renameAction) {
-        emit renameRequested(m_localId);
+        emit renameRequested(m_playlistId);
     } else if (selected == deleteAction) {
-        emit deleteRequested(m_localId);
+        emit deleteRequested(m_playlistId);
     }
 }
 
@@ -51,18 +105,10 @@ void PlaylistListItem::paintEvent(QPaintEvent *event) {
 
     // Background
     if (m_hovered) {
-        painter.fillRect(rect(), QColor(255, 255, 255, 15));
+        QPainterPath path;
+        path.addRoundedRect(rect().adjusted(2, 2, -2, -2), 8, 8);
+        painter.fillPath(path, QColor(255, 255, 255, 15));
     }
-
-    // Text
-    QFont font = painter.font();
-    font.setPointSize(12);
-    painter.setFont(font);
-    painter.setPen(QColor(0xe0, 0xe0, 0xe0));
-
-    QRect textRect(16, 0, width() - 32, height());
-    QString displayText = QString("%1 (%2)").arg(m_name).arg(m_musicCount);
-    painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, displayText);
 }
 
 void PlaylistListItem::enterEvent(QEnterEvent *event) {
