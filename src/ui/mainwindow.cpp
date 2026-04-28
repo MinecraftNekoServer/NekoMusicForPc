@@ -18,15 +18,21 @@
 #include "ui/musiclistpage.h"
 #include "ui/uploadpage.h"
 #include "ui/playerpage.h"
+#include "ui/playlistdetailpage.h"
+#include "ui/addtoplaylistdialog.h"
+#include "ui/playlistpanel.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
 #include "core/musicdownloader.h"
 #include "core/usermanager.h"
+#include "core/playlistdb.h"
+#include "core/playlistmanager.h"
 #include "theme/theme.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -104,6 +110,7 @@ void MainWindow::setupUi()
     m_hotMusicPage = new MusicListPage(MusicListPage::Hot, this);
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
     m_uploadPage = new UploadPage(this);
+    m_playlistDetailPage = new PlaylistDetailPage(this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
@@ -111,6 +118,7 @@ void MainWindow::setupUi()
     m_stack->addWidget(m_hotMusicPage);
     m_stack->addWidget(m_latestMusicPage);
     m_stack->addWidget(m_uploadPage);
+    m_stack->addWidget(m_playlistDetailPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addWidget(m_midWidget, 1);
@@ -123,6 +131,13 @@ void MainWindow::setupUi()
     m_playerPage = new PlayerPage(m_engine, m_midWidget);
     m_playerPage->hide();
 
+    // 播放列表面板
+    m_playlistPanel = new PlaylistPanel(this);
+    m_playlistPanel->hide();
+
+    // 加载播放队列
+    PlaylistManager::instance().load();
+
     // 连接导航
     connect(m_sidebar, &Sidebar::navigationRequested, this, [this](const QString &key) {
         if (key == "home") switchPage(m_homePage);
@@ -130,6 +145,8 @@ void MainWindow::setupUi()
         else if (key == "recent") switchPage(m_recentPage);
         else if (key == "upload") switchPage(m_uploadPage);
     });
+    connect(m_sidebar, &Sidebar::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
+    connect(m_sidebar, &Sidebar::playlistCreateRequested, this, &MainWindow::createPlaylist);
     connect(m_titleBar, &TitleBar::settingsClicked, this, [this]() {
         switchPage(m_settingsPage);
     });
@@ -203,6 +220,28 @@ void MainWindow::setupUi()
         playMusicById(info.id, info.title, info.artist, info.coverUrl);
     });
 
+    // 音乐列表页添加到播放队列
+    connect(m_hotMusicPage, &MusicListPage::addToQueue, this, [this](const MusicListPage::MusicInfo &info) {
+        MusicInfo mInfo;
+        mInfo.id = info.id;
+        mInfo.title = info.title;
+        mInfo.artist = info.artist;
+        mInfo.album = info.album;
+        mInfo.duration = info.duration;
+        mInfo.coverUrl = info.coverUrl;
+        PlaylistManager::instance().addToPlaylist(mInfo);
+    });
+    connect(m_latestMusicPage, &MusicListPage::addToQueue, this, [this](const MusicListPage::MusicInfo &info) {
+        MusicInfo mInfo;
+        mInfo.id = info.id;
+        mInfo.title = info.title;
+        mInfo.artist = info.artist;
+        mInfo.album = info.album;
+        mInfo.duration = info.duration;
+        mInfo.coverUrl = info.coverUrl;
+        PlaylistManager::instance().addToPlaylist(mInfo);
+    });
+
     // 封面点击切换到播放页面（全屏覆盖侧边栏和标题栏）
     connect(m_playerBar, &PlayerBar::coverClicked, this, [this]() {
         m_playerBar->setCoverVisible(false);
@@ -218,6 +257,13 @@ void MainWindow::setupUi()
         anim->setEasingCurve(QEasingCurve::OutCubic);
         anim->start(QAbstractAnimation::DeleteWhenStopped);
     });
+
+    // 播放队列按钮
+    connect(m_playerBar, &PlayerBar::playlistClicked, this, &MainWindow::togglePlaylistPanel);
+
+    // 上一首/下一首
+    connect(m_playerBar, &PlayerBar::previousClicked, this, &MainWindow::playPrevious);
+    connect(m_playerBar, &PlayerBar::nextClicked, this, &MainWindow::playNext);
 
     // 播放页面返回
     connect(m_playerPage, &PlayerPage::backRequested, this, [this]() {
@@ -241,6 +287,30 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_hotMusicPage, &MusicListPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_latestMusicPage, &MusicListPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_uploadPage, &UploadPage::retranslate);
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_playlistDetailPage, &PlaylistDetailPage::retranslate);
+
+    // 播放列表页面返回
+    connect(m_playlistDetailPage, &PlaylistDetailPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+
+    // 播放列表页面播放
+    connect(m_playlistDetailPage, &PlaylistDetailPage::playMusic, this, [this](const MusicInfo &info) {
+        playMusicFromInfo(info);
+    });
+
+    // 播放列表页面刷新侧边栏
+    connect(m_playlistDetailPage, &PlaylistDetailPage::refreshSidebarPlaylists, this, [this]() {
+        m_sidebar->refreshPlaylists();
+    });
+
+    // 播放列表面板
+    connect(m_playlistPanel, &PlaylistPanel::hideRequested, this, [this]() {
+        m_playlistPanel->hidePanel();
+    });
+    connect(m_playlistPanel, &PlaylistPanel::playRequested, this, [this](int musicId) {
+        playMusicFromPlaylist(musicId);
+    });
 
     // 登录状态变化 - 控制上传导航项可见性
     connect(&UserManager::instance(), &UserManager::loginStateChanged, this, [this]() {
@@ -318,6 +388,90 @@ void MainWindow::showMusicListPage(bool isHot)
         m_latestMusicPage->refresh();  // 触发懒加载
         switchPage(m_latestMusicPage);
     }
+}
+
+void MainWindow::showPlaylistDetailPage(int localId)
+{
+    m_playlistDetailPage->loadPlaylist(localId);
+    switchPage(m_playlistDetailPage);
+}
+
+void MainWindow::playMusicFromInfo(const MusicInfo &info)
+{
+    playMusicById(info.id, info.title, info.artist, info.coverUrl);
+}
+
+void MainWindow::createPlaylist()
+{
+    bool ok = false;
+    QString name = QInputDialog::getText(this,
+        I18n::instance().tr("createPlaylist"),
+        I18n::instance().tr("playlistName"),
+        QLineEdit::Normal,
+        I18n::instance().tr("newPlaylist"),
+        &ok);
+
+    if (ok && !name.isEmpty()) {
+        int playlistId = PlaylistDatabase::instance().createPlaylist(name);
+        if (playlistId > 0) {
+            m_sidebar->refreshPlaylists();
+        }
+    }
+}
+
+void MainWindow::showAddToPlaylistDialog(const MusicInfo &music)
+{
+    AddToPlaylistDialog dialog(music, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        m_sidebar->refreshPlaylists();
+    }
+}
+
+void MainWindow::togglePlaylistPanel()
+{
+    m_playlistPanel->togglePanel();
+    if (m_playlistPanel->isVisible()) {
+        // 定位到播放栏右侧上方
+        QPoint pos = mapToGlobal(QPoint(width() - m_playlistPanel->width() - 20,
+                                        height() - m_playerBar->height() - m_playlistPanel->height() - 20));
+        m_playlistPanel->move(pos);
+    }
+}
+
+void MainWindow::playMusicFromPlaylist(int musicId)
+{
+    auto& manager = PlaylistManager::instance();
+    const auto& playlist = manager.playlist();
+    for (int i = 0; i < playlist.size(); ++i) {
+        if (playlist[i].id == musicId) {
+            manager.setCurrentIndex(i);
+            const auto& info = playlist[i];
+            playMusicById(info.id, info.title, info.artist, info.coverUrl);
+            break;
+        }
+    }
+}
+
+void MainWindow::playNext()
+{
+    auto& manager = PlaylistManager::instance();
+    if (manager.count() == 0) return;
+
+    int nextIdx = manager.nextIndex();
+    manager.setCurrentIndex(nextIdx);
+    const auto& info = manager.playlist()[nextIdx];
+    playMusicById(info.id, info.title, info.artist, info.coverUrl);
+}
+
+void MainWindow::playPrevious()
+{
+    auto& manager = PlaylistManager::instance();
+    if (manager.count() == 0) return;
+
+    int prevIdx = manager.previousIndex();
+    manager.setCurrentIndex(prevIdx);
+    const auto& info = manager.playlist()[prevIdx];
+    playMusicById(info.id, info.title, info.artist, info.coverUrl);
 }
 
 void MainWindow::playMusicById(int musicId, const QString &title, const QString &artist, const QString &coverUrl)

@@ -102,6 +102,9 @@ constexpr const char *kMusic =
 constexpr const char *kVolume =
     "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05"
     "c1.48-.73 2.5-2.25 2.5-4.02z";
+// playlist / list
+constexpr const char *kPlaylist =
+    "M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z";
 
 /**
  * @brief 将 SVG path 渲染为 QPixmap

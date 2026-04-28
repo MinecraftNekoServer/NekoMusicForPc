@@ -7,6 +7,7 @@
 #include <QSettings>
 #include "ui/mainwindow.h"
 #include "core/i18n.h"
+#include "core/playlistdb.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +27,9 @@ int main(int argc, char *argv[])
     int lang = settings.value("language", static_cast<int>(I18n::ZhCN)).toInt();
     I18n::instance().setLanguage(static_cast<I18n::Language>(lang));
 
+    // 初始化播放列表数据库
+    PlaylistDatabase::instance().init();
+
     QFont font(QStringLiteral("Segoe UI"), 14);
     font.setStyleHint(QFont::SansSerif);
     app.setFont(font);
@@ -36,5 +40,10 @@ int main(int argc, char *argv[])
     MainWindow window;
     window.show();
 
-    return app.exec();
+    int result = app.exec();
+
+    // 清理数据库
+    PlaylistDatabase::instance().close();
+
+    return result;
 }

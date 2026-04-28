@@ -21,6 +21,9 @@ class PlayerBar : public QWidget
 
 signals:
     void coverClicked();
+    void playlistClicked();
+    void previousClicked();
+    void nextClicked();
 
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);

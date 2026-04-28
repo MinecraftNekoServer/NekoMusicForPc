@@ -121,6 +121,9 @@ void PlayerBar::setupUi()
     prevBtn->setIcon(Icons::icon(Icons::kPrev, 20, kCtrlNormal, kCtrlActive));
     prevBtn->setCursor(Qt::PointingHandCursor);
     prevBtn->setToolTip(I18n::instance().tr("previous"));
+    connect(prevBtn, &QPushButton::clicked, this, [this]() {
+        emit previousClicked();
+    });
     ctrlL->addWidget(prevBtn);
 
     m_playBtn = new QPushButton(this);
@@ -137,6 +140,9 @@ void PlayerBar::setupUi()
     nextBtn->setIcon(Icons::icon(Icons::kNext, 20, kCtrlNormal, kCtrlActive));
     nextBtn->setCursor(Qt::PointingHandCursor);
     nextBtn->setToolTip(I18n::instance().tr("next"));
+    connect(nextBtn, &QPushButton::clicked, this, [this]() {
+        emit nextClicked();
+    });
     ctrlL->addWidget(nextBtn);
 
     cl->addLayout(ctrlL);
@@ -179,6 +185,17 @@ void PlayerBar::setupUi()
     modeBtn->setCursor(Qt::PointingHandCursor);
     modeBtn->setToolTip(I18n::instance().tr("playModeList"));
     rl->addWidget(modeBtn);
+
+    auto *playlistBtn = new QPushButton(this);
+    playlistBtn->setObjectName("pbPlaylistBtn");
+    playlistBtn->setFixedSize(28, 28);
+    playlistBtn->setIcon(Icons::icon(Icons::kPlaylist, 18, kCtrlNormal, kCtrlActive));
+    playlistBtn->setCursor(Qt::PointingHandCursor);
+    playlistBtn->setToolTip(I18n::instance().tr("playlist"));
+    connect(playlistBtn, &QPushButton::clicked, this, [this]() {
+        emit playlistClicked();
+    });
+    rl->addWidget(playlistBtn);
 
     m_volume = new QSlider(Qt::Horizontal, this);
     m_volume->setObjectName("pbVolume");
