@@ -143,6 +143,11 @@ void MainWindow::setupUi()
         auto lastMusic = PlaylistManager::instance().lastPlayedMusic();
         m_playerBar->setSongInfo(lastMusic.title, lastMusic.artist, lastMusic.coverUrl);
         m_playerPage->setMusicInfo(lastMusic.id, lastMusic.title, lastMusic.artist, QString(), lastMusic.coverUrl);
+        m_engine->setCurrentMusic(lastMusic);
+
+        // 预加载音频文件，使播放按钮可以直接播放
+        QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
+        m_downloader->download(url);
     }
 
     // 连接导航
