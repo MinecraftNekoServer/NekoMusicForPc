@@ -485,8 +485,16 @@ void PlaylistDetailPage::updateHeader()
                 QPixmap pix;
                 pix.loadFromData(reply->readAll());
                 if (!pix.isNull()) {
-                    pix = pix.scaled(20, 20, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                    m_creatorAvatarLbl->setPixmap(pix);
+                    // 绘制圆形裁剪的头像
+                    QPixmap circularPix(20, 20);
+                    circularPix.fill(Qt::transparent);
+                    QPainter p(&circularPix);
+                    p.setRenderHint(QPainter::Antialiasing);
+                    QPainterPath path;
+                    path.addEllipse(0, 0, 20, 20);
+                    p.setClipPath(path);
+                    p.drawPixmap(0, 0, pix.scaled(20, 20, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+                    m_creatorAvatarLbl->setPixmap(circularPix);
                 }
             }
         });
