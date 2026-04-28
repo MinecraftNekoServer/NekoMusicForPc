@@ -21,6 +21,7 @@
 #include "ui/playlistdetailpage.h"
 #include "ui/addtoplaylistdialog.h"
 #include "ui/playlistpanel.h"
+#include "ui/toast.h"
 #include "core/playerengine.h"
 #include "core/i18n.h"
 #include "core/apiclient.h"
@@ -703,7 +704,10 @@ void MainWindow::toggleFavorite(int musicId)
             if (reply->error() == QNetworkReply::NoError) {
                 m_favoritesCache.removeAll(musicId);
                 m_playerBar->setFavoriteStatus(false);
+                Toast::show(this, I18n::instance().tr("cancelFavoriteSuccess"), Toast::Success);
                 qDebug() << "[收藏] 已从缓存移除并更新UI";
+            } else {
+                Toast::show(this, I18n::instance().tr("cancelFavoriteFailed"), Toast::Error);
             }
         });
     } else {
@@ -728,7 +732,10 @@ void MainWindow::toggleFavorite(int musicId)
                     m_favoritesCache.append(musicId);
                 }
                 m_playerBar->setFavoriteStatus(true);
+                Toast::show(this, I18n::instance().tr("favoriteSuccess"), Toast::Success);
                 qDebug() << "[收藏] 已加入缓存并更新UI";
+            } else {
+                Toast::show(this, I18n::instance().tr("favoriteFailed"), Toast::Error);
             }
         });
     }
