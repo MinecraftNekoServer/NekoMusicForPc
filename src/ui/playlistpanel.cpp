@@ -14,6 +14,7 @@
 #include <QPainterPath>
 #include <QMouseEvent>
 #include <QGraphicsDropShadowEffect>
+#include <QScrollBar>
 
 // ─── 播放队列项卡片 ──────────────────────────────────────
 class PlaylistItemCard : public QWidget {
@@ -62,7 +63,6 @@ public:
         m_artistLbl->setStyleSheet("QLabel { font-size: 11px; color: " + QString(Theme::kTextSub) + "; }");
         infoLay->addWidget(m_artistLbl);
 
-        infoLay->addStretch();
         lay->addWidget(infoV, 1);
 
         // 移除按钮（悬停显示）
@@ -251,7 +251,18 @@ void PlaylistPanel::setupUi() {
 }
 
 void PlaylistPanel::refresh() {
+    // 保存当前滚动位置
+    int scrollPos = 0;
+    if (m_scroll) {
+        scrollPos = m_scroll->verticalScrollBar()->value();
+    }
+
     rebuildList();
+
+    // 恢复滚动位置
+    if (m_scroll) {
+        m_scroll->verticalScrollBar()->setValue(scrollPos);
+    }
 }
 
 void PlaylistPanel::rebuildList() {
