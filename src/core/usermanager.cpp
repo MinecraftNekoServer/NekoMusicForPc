@@ -46,4 +46,7 @@ void UserManager::loadFromSettings()
 {
     m_token = m_settings->value("auth/token").toString();
     m_userInfo = m_settings->value("auth/userInfo").toMap();
+    if (!m_token.isEmpty()) {
+        emit loginStateChanged();
+    }
 }
