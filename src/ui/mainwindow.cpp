@@ -64,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground, false);
 
+    setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
+
     m_engine = new PlayerEngine(this);
     m_downloader = new MusicDownloader(this);
     setupUi();
