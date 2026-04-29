@@ -24,6 +24,8 @@
 #include <QFrame>
 #include <QStyle>
 #include <QDebug>
+#include <QInputDialog>
+#include <QLineEdit>
 
 // ─── 播放列表音乐项卡片 ──────────────────────────────────────
 class PlaylistMusicCard : public QWidget
@@ -302,9 +304,16 @@ void PlaylistDetailPage::setupUi()
         "QLabel#playlistDesc { "
         "  font-size: 14px; color: rgba(255, 255, 255, 0.7); "
         "  line-height: 1.6; "
+        "  padding: 4px; "
+        "  border-radius: 4px; "
+        "}"
+        "QLabel#playlistDesc:hover { "
+        "  background-color: rgba(255, 255, 255, 0.1); "
         "}"
     );
     m_descLbl->setWordWrap(true);
+    m_descLbl->setCursor(Qt::PointingHandCursor);
+    m_descLbl->installEventFilter(this);
     infoLay->addWidget(m_descLbl);
 
     // 创建者信息：头像 + 昵称
@@ -600,4 +609,39 @@ void PlaylistDetailPage::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     // 透明背景，由父窗口渐变透出
+}
+
+bool PlaylistDetailPage::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == m_descLbl && event->type() == QEvent::MouseButtonDblClick) {
+        auto *mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            // 弹出输入对话框修改描述
+            bool ok;
+            QString newDesc = QInputDialog::getText(this, 
+                I18n::instance().tr("editDescription"),
+                I18n::instance().tr("enterNewDescription"),
+                QLineEdit::Normal, 
+                m_playlistDesc.isEmpty() ? "" : m_playlistDesc, 
+                &ok);
+            
+            if (ok && !newDesc.isEmpty() && newDesc != m_playlistDesc) {
+                // 调用API更新歌单（名称不变，只更新描述）
+                m_apiClient->updatePlaylist(m_playlistId, m_playlistName, newDesc, [this, newDesc](bool success, const QString &message, const QVariantMap &data) {
+                    if (success) {
+                        m_playlistDesc = newDesc;
+                        if (m_descLbl) {
+                            m_descLbl->setText(newDesc);
+                        }
+                        // 刷新侧边栏歌单列表
+                        emit refreshSidebarPlaylists();
+                    } else {
+                        qDebug() << "Failed to update playlist description:" << message;
+                    }
+                });
+            }
+            return true;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }

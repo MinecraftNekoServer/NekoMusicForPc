@@ -103,7 +103,6 @@ set(SOURCES
     src/ui/playerbar.cpp
     src/ui/svgicon.cpp
     src/ui/settingspage.cpp
-    src/ui/favoritespage.cpp
     src/ui/toast.cpp
     src/ui/recentpage.cpp
     src/ui/logindialog.cpp
@@ -111,6 +110,8 @@ set(SOURCES
     src/ui/musiclistpage.cpp
     src/ui/uploadpage.cpp
     src/ui/playerpage.cpp
+    src/ui/desktoplrc.cpp
+    src/ui/favoritespage.cpp
     src/core/playerengine.cpp
     src/core/apiclient.cpp
     src/core/i18n.cpp
@@ -139,13 +140,14 @@ set(HEADERS
     src/ui/playerbar.h
     src/ui/svgicon.h
     src/ui/settingspage.h
-    src/ui/favoritespage.h
     src/ui/recentpage.h
     src/ui/logindialog.h
     src/ui/forgotpassworddialog.h
     src/ui/musiclistpage.h
     src/ui/uploadpage.h
     src/ui/playerpage.h
+    src/ui/desktoplrc.h
+    src/ui/favoritespage.h
     src/core/playerengine.h
     src/core/apiclient.h
     src/core/i18n.h

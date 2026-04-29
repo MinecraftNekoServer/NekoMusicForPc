@@ -8,6 +8,7 @@
 
 #include "playerbar.h"
 #include "core/playerengine.h"
+#include "core/playlistmanager.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
@@ -270,13 +271,6 @@ void PlayerBar::retranslate()
             if (ctrlCount == 0) btn->setToolTip(I18n::instance().tr("previous"));
             else if (ctrlCount == 1) btn->setToolTip(I18n::instance().tr("next"));
             ctrlCount++;
-        }
-    }
-
-    if (m_playModeBtn) {
-        // Re-read mode from engine if available, otherwise keep current
-        if (m_engine) {
-            // We'll refresh from PlaylistManager in mainwindow
         }
     }
 }

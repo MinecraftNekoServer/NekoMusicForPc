@@ -79,7 +79,7 @@ void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     m_bytesTotal = bytesTotal;
     emit downloadProgress(bytesReceived, bytesTotal);
 
-    if (bytesTotal > 0 && !m_bufferEmitted && (bytesReceived * 100 / bytesTotal) >= 30) {
+    if (bytesTotal > 0 && !m_bufferEmitted && (bytesReceived * 100 / bytesTotal) >= 10) {
         m_bufferEmitted = true;
         QString partPath = m_tempPath + ".part";
         if (QFile::exists(partPath)) {
@@ -92,17 +92,18 @@ void MusicDownloader::onReplyFinished()
 {
     if (!m_reply) return;
 
-    if (m_reply->error() != QNetworkReply::NoError) {
-        emit downloadError(m_reply->errorString());
-        m_reply->disconnect();
-        m_reply->deleteLater();
-        m_reply = nullptr;
+    QNetworkReply *reply = m_reply;
+    m_reply = nullptr;
+
+    if (reply->error() != QNetworkReply::NoError) {
+        emit downloadError(reply->errorString());
+        reply->deleteLater();
         return;
     }
 
     // Write remaining data
     if (m_file && m_file->isOpen()) {
-        m_file->write(m_reply->readAll());
+        m_file->write(reply->readAll());
         m_file->close();
     }
 
@@ -114,9 +115,7 @@ void MusicDownloader::onReplyFinished()
 
     emit downloadFinished(m_tempPath);
 
-    m_reply->disconnect();
-    m_reply->deleteLater();
-    m_reply = nullptr;
+    reply->deleteLater();
     if (m_file) {
         m_file->deleteLater();
         m_file = nullptr;

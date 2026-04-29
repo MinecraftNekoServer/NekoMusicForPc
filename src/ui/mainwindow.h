@@ -34,6 +34,8 @@ class SearchPage;
 class ApiClient;
 class UpdateChecker;
 class UpdateDialog;
+class SearchPage;
+class DesktopLrc;
 
 class MainWindow : public QMainWindow
 {
@@ -104,6 +106,7 @@ private:
     QList<int> m_favoritesCache;  // 缓存已收藏的音乐ID
     UpdateChecker *m_updateChecker = nullptr;
     UpdateDialog *m_updateDialog = nullptr;
+    DesktopLrc *m_desktopLrc = nullptr;
 
     // Downloader signal connections (for buffered streaming)
     QMetaObject::Connection m_bufferConn;

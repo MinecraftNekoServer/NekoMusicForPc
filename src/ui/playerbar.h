@@ -47,6 +47,7 @@ private:
     void updateState();
     void setCoverPixmap(const QPixmap &pm);
     void loadCoverAsync(const QString &url);
+    void updatePlayModeIcon();
 
     PlayerEngine *m_engine = nullptr;
     QPushButton *m_playBtn = nullptr;
