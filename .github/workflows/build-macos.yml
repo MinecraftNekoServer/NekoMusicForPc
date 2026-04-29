@@ -1,4 +1,4 @@
-name: Build macOS DMG
+name: Build macOS PKG
 
 on:
   push:
@@ -26,19 +26,15 @@ jobs:
       - name: Generate AppIcon.icns
         run: |
           cd "$GITHUB_WORKSPACE"
-          echo "PWD: $(pwd)"
           mkdir -p src/resources/macos
           ICONSET=$(mktemp -d)/AppIcon.iconset
           mkdir -p "$ICONSET"
           SRC="$GITHUB_WORKSPACE/packaging/icons/hicolor/512x512/apps/nekomusic.png"
-          echo "SRC: $SRC"
-          ls -la "$SRC"
           for size in 16 32 64 128 256 512; do
             sips -z $size $size "$SRC" --out "$ICONSET/icon_${size}x${size}.png"
             sips -z $((size*2)) $((size*2)) "$SRC" --out "$ICONSET/icon_${size}x${size}@2x.png"
           done
           iconutil -c icns "$ICONSET" -o "$GITHUB_WORKSPACE/src/resources/macos/AppIcon.icns"
-          ls -la "$GITHUB_WORKSPACE/src/resources/macos/"
 
       - name: Configure CMake
         run: |
@@ -52,28 +48,28 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           cmake --build build-macos -j$(sysctl -n hw.ncpu)
 
-      - name: Package DMG
+      - name: Package PKG
         run: |
           cd "$GITHUB_WORKSPACE"
           cd build-macos
-          cpack -G DragNDrop
+          cpack -G productbuild
 
-      - name: Find DMG
-        id: find-dmg
+      - name: Find PKG
+        id: find-pkg
         run: |
           cd "$GITHUB_WORKSPACE"
-          DMG=$(find build-macos -name "*.dmg" -type f | head -1)
-          echo "dmg_path=$DMG" >> $GITHUB_OUTPUT
-          echo "dmg_name=$(basename "$DMG")" >> $GITHUB_OUTPUT
+          PKG=$(find build-macos -name "*.pkg" -type f | head -1)
+          echo "pkg_path=$PKG" >> $GITHUB_OUTPUT
+          echo "pkg_name=$(basename "$PKG")" >> $GITHUB_OUTPUT
 
-      - name: Upload DMG artifact
+      - name: Upload PKG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.find-dmg.outputs.dmg_name }}
-          path: ${{ steps.find-dmg.outputs.dmg_path }}
+          name: ${{ steps.find-pkg.outputs.pkg_name }}
+          path: ${{ steps.find-pkg.outputs.pkg_path }}
 
       - name: Upload release asset (on tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.find-dmg.outputs.dmg_path }}
+          files: ${{ steps.find-pkg.outputs.pkg_path }}

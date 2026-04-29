@@ -267,9 +267,7 @@ elseif(WIN32)
     # CPack not used for Windows - build_windows.ps1 handles NSIS directly
 
 elseif(APPLE)
-    set(CPACK_GENERATOR "DragNDrop")
-    set(CPACK_DMG_VOLUME_NAME "Neko云音乐")
-    set(CPACK_DMG_FORMAT "UDZO")
+    set(CPACK_GENERATOR "productbuild")
     set(CPACK_PACKAGE_FILE_NAME "Neko云音乐-${CPACK_PACKAGE_VERSION}-macos-${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
