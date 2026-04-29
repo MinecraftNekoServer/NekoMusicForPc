@@ -21,7 +21,7 @@ jobs:
           host: 'mac'
           target: 'desktop'
           arch: 'clang_64'
-          modules: 'qtmultimedia qtsvg qttools'
+          modules: 'qtmultimedia'
 
       - name: Generate AppIcon.icns
         run: |
