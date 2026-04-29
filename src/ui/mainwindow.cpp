@@ -167,10 +167,10 @@ void MainWindow::setupUi()
         bool isFavorited = checkIsFavorited(lastMusic.id);
         m_playerBar->setFavoriteStatus(isFavorited);
 
-        // 预加载音频文件：缓冲30%时开始播放然后立即暂停，等待用户操作
+        // 预加载音频文件：下载完成后暂停，等待用户操作
         QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
         auto restoreConn = std::make_shared<QMetaObject::Connection>();
-        *restoreConn = connect(m_downloader, &MusicDownloader::bufferReady, this, [this, restoreConn](const QString &localPath) {
+        *restoreConn = connect(m_downloader, &MusicDownloader::downloadFinished, this, [this, restoreConn](const QString &localPath) {
             disconnect(*restoreConn);
             m_engine->play(QUrl::fromLocalFile(localPath));
             // 立即暂停，等待用户操作
@@ -218,18 +218,7 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playerBar, &PlayerBar::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playerPage, &PlayerPage::retranslate);
 
-    // 音乐加载器连接 — 使用 QMediaPlayer 直接播放网络 URL，由播放器管理缓冲
-    connect(m_downloader, &MusicDownloader::downloadFinished, this, [this](const QString &localPath) {
-        qDebug() << "[音乐加载] 缓存完成:" << localPath;
-        m_playerBar->setLoading(false);
-    });
-    connect(m_downloader, &MusicDownloader::downloadError, this, [this](const QString &err) {
-        qDebug() << "[音乐加载] 下载失败:" << err;
-        m_playerBar->setLoading(false);
-    });
-    connect(m_downloader, &MusicDownloader::downloadProgress, this, [this](int percent) {
-        if (percent >= 0) qDebug() << "[音乐加载] 下载进度:" << percent << "%";
-    });
+    // 音乐加载器连接 — 由各播放方法按需单独连接
 
     // QMediaPlayer 缓冲状态监控
     connect(m_engine, &PlayerEngine::stateChanged, this, [this](PlayerEngine::PlaybackState state) {
@@ -577,18 +566,32 @@ void MainWindow::playNext()
     m_engine->stop();
     manager.setCurrentIndex(nextIdx);
 
-    // Defer play to next event loop iteration so QMediaPlayer fully releases previous stream
+    // Defer to next event loop iteration so QMediaPlayer fully releases previous stream
     QTimer::singleShot(0, this, [this, info]() {
         m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
         m_playerBar->setCurrentMusicId(info.id);
-        m_playerBar->setLoading(true);
         m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
         m_playerPage->loadLyrics(info.id);
         m_engine->setCurrentMusic(info);
 
+        // Download file first, then play from local path
         QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
-        qDebug() << "[音乐加载] 开始播放网络流:" << url.toString();
-        m_engine->play(url);
+        qDebug() << "[音乐加载] 开始下载:" << url.toString();
+        m_playerBar->setLoading(true);
+
+        disconnect(m_downloader, nullptr, this, nullptr);
+
+        connect(m_downloader, &MusicDownloader::downloadFinished, this, [this](const QString &localPath) {
+            qDebug() << "[音乐加载] 下载完成，开始播放:" << localPath;
+            m_playerBar->setLoading(false);
+            m_engine->play(QUrl::fromLocalFile(localPath));
+        });
+        connect(m_downloader, &MusicDownloader::downloadError, this, [this](const QString &err) {
+            qDebug() << "[音乐加载] 下载失败:" << err;
+            m_playerBar->setLoading(false);
+        });
+
+        m_downloader->download(url);
     });
 }
 
@@ -605,18 +608,32 @@ void MainWindow::playPrevious()
     m_engine->stop();
     manager.setCurrentIndex(prevIdx);
 
-    // Defer play to next event loop iteration
+    // Defer to next event loop iteration
     QTimer::singleShot(0, this, [this, info]() {
         m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
         m_playerBar->setCurrentMusicId(info.id);
-        m_playerBar->setLoading(true);
         m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
         m_playerPage->loadLyrics(info.id);
         m_engine->setCurrentMusic(info);
 
+        // Download file first, then play from local path
         QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
-        qDebug() << "[音乐加载] 开始播放网络流:" << url.toString();
-        m_engine->play(url);
+        qDebug() << "[音乐加载] 开始下载:" << url.toString();
+        m_playerBar->setLoading(true);
+
+        disconnect(m_downloader, nullptr, this, nullptr);
+
+        connect(m_downloader, &MusicDownloader::downloadFinished, this, [this](const QString &localPath) {
+            qDebug() << "[音乐加载] 下载完成，开始播放:" << localPath;
+            m_playerBar->setLoading(false);
+            m_engine->play(QUrl::fromLocalFile(localPath));
+        });
+        connect(m_downloader, &MusicDownloader::downloadError, this, [this](const QString &err) {
+            qDebug() << "[音乐加载] 下载失败:" << err;
+            m_playerBar->setLoading(false);
+        });
+
+        m_downloader->download(url);
     });
 }
 
@@ -665,11 +682,25 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Set current music info for recent play tracking
     m_engine->setCurrentMusic(mInfo);
 
-    // Directly play network URL
+    // Download file first, then play from local path to avoid streaming issues
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
-    qDebug() << "[音乐加载] 开始播放网络流:" << url.toString();
+    qDebug() << "[音乐加载] 开始下载:" << url.toString();
     m_playerBar->setLoading(true);
-    m_engine->play(url);
+
+    // Disconnect previous connections
+    disconnect(m_downloader, nullptr, this, nullptr);
+
+    connect(m_downloader, &MusicDownloader::downloadFinished, this, [this](const QString &localPath) {
+        qDebug() << "[音乐加载] 下载完成，开始播放:" << localPath;
+        m_playerBar->setLoading(false);
+        m_engine->play(QUrl::fromLocalFile(localPath));
+    });
+    connect(m_downloader, &MusicDownloader::downloadError, this, [this](const QString &err) {
+        qDebug() << "[音乐加载] 下载失败:" << err;
+        m_playerBar->setLoading(false);
+    });
+
+    m_downloader->download(url);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
