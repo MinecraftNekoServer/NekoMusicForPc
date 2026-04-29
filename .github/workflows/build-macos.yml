@@ -1,0 +1,69 @@
+name: Build macOS DMG
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Qt 6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.2'
+          host: 'mac'
+          target: 'desktop'
+          arch: 'clang_64'
+          modules: 'qtmultimedia qtsvg qttools'
+
+      - name: Generate AppIcon.icns
+        run: |
+          mkdir -p src/resources/macos
+          ICONSET=$(mktemp -d)/AppIcon.iconset
+          mkdir -p "$ICONSET"
+          SRC="packaging/icons/hicolor/512x512/apps/nekomusic.png"
+          for size in 16 32 64 128 256 512; do
+            sips -z $size $size "$SRC" --out "$ICONSET/icon_${size}x${size}.png"
+            sips -z $((size*2)) $((size*2)) "$SRC" --out "$ICONSET/icon_${size}x${size}@2x.png"
+          done
+          iconutil -c icns "$ICONSET" -o src/resources/macos/AppIcon.icns
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build-macos
+          cd build-macos
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$Qt6_DIR"
+
+      - name: Build
+        run: cmake --build build-macos -j$(sysctl -n hw.ncpu)
+
+      - name: Package DMG
+        run: |
+          cd build-macos
+          cpack -G DragNDrop
+
+      - name: Find DMG
+        id: find-dmg
+        run: |
+          DMG=$(find build-macos -name "*.dmg" -type f | head -1)
+          echo "dmg_path=$DMG" >> $GITHUB_OUTPUT
+          echo "dmg_name=$(basename "$DMG")" >> $GITHUB_OUTPUT
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.find-dmg.outputs.dmg_name }}
+          path: ${{ steps.find-dmg.outputs.dmg_path }}
+
+      - name: Upload release asset (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.find-dmg.outputs.dmg_path }}

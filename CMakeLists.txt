@@ -87,7 +87,7 @@ if(APPLE)
     set(MACOSX_BUNDLE_GUI_IDENTIFIER com.nekomusic.app)
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-    set(APP_ICON_RESOURCE_MACOS "${CMAKE_SOURCE_DIR}/src/resources/macos/AppIcon.icns")
+    set(APP_ICON_RESOURCE_MACOS "${CMAKE_SOURCE_DIR}/src/resources/macos/AppIcon.png")
 endif()
 
 # Sources
@@ -265,6 +265,12 @@ if(LINUX)
 elseif(WIN32)
     # Windows uses NSIS (external script, not CPack)
     # CPack not used for Windows - build_windows.ps1 handles NSIS directly
+
+elseif(APPLE)
+    set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_DMG_VOLUME_NAME "Neko云音乐")
+    set(CPACK_DMG_FORMAT "UDZO")
+    set(CPACK_PACKAGE_FILE_NAME "Neko云音乐-${CPACK_PACKAGE_VERSION}-macos-${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 include(CPack)
