@@ -16,7 +16,7 @@ public:
 
 signals:
     void bufferReady(const QString &localPath);
-    void downloadProgress(int percent);
+    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished(const QString &localPath);
     void downloadError(const QString &error);
 
@@ -30,4 +30,6 @@ private:
     QFile *m_file = nullptr;
     QString m_tempPath;
     bool m_bufferEmitted = false;
+    qint64 m_bytesReceived = 0;
+    qint64 m_bytesTotal = 0;
 };

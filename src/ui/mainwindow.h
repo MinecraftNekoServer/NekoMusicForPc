@@ -77,6 +77,7 @@ private:
 private:
     bool checkIsFavorited(int musicId);
     void loadFavoritesCache();
+    void disconnectDownloader();
 
     bool m_switching = false;
     TitleBar *m_titleBar = nullptr;
@@ -103,4 +104,10 @@ private:
     QList<int> m_favoritesCache;  // 缓存已收藏的音乐ID
     UpdateChecker *m_updateChecker = nullptr;
     UpdateDialog *m_updateDialog = nullptr;
+
+    // Downloader signal connections (for buffered streaming)
+    QMetaObject::Connection m_bufferConn;
+    QMetaObject::Connection m_progressConn;
+    QMetaObject::Connection m_finishedConn;
+    QMetaObject::Connection m_errorConn;
 };

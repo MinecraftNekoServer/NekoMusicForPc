@@ -14,6 +14,11 @@ PlayerEngine::PlayerEngine(QObject *parent)
             this, &PlayerEngine::positionChanged);
     connect(m_player, &QMediaPlayer::durationChanged,
             this, &PlayerEngine::durationChanged);
+    connect(m_player, &QMediaPlayer::errorOccurred,
+            this, [this](QMediaPlayer::Error error, const QString &errorString) {
+                Q_UNUSED(error);
+                emit mediaError(errorString);
+            });
 }
 
 PlayerEngine::~PlayerEngine() = default;
@@ -129,7 +134,11 @@ float PlayerEngine::volume() const
 
 void PlayerEngine::setPosition(qint64 position)
 {
-    if (m_player) m_player->setPosition(position);
+    if (!m_player) return;
+    if (m_seekLimitMs >= 0 && position > m_seekLimitMs) {
+        position = m_seekLimitMs;
+    }
+    m_player->setPosition(position);
 }
 
 void PlayerEngine::onMediaStateChanged(QMediaPlayer::PlaybackState state)

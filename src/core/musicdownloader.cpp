@@ -75,20 +75,16 @@ void MusicDownloader::onReadyRead()
 
 void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    if (bytesTotal > 0) {
-        int percent = static_cast<int>(bytesReceived * 100 / bytesTotal);
-        emit downloadProgress(percent);
+    m_bytesReceived = bytesReceived;
+    m_bytesTotal = bytesTotal;
+    emit downloadProgress(bytesReceived, bytesTotal);
 
-        // Start playback at 30% buffered
-        if (!m_bufferEmitted && percent >= 30) {
-            m_bufferEmitted = true;
-            QString partPath = m_tempPath + ".part";
-            if (QFile::exists(partPath)) {
-                emit bufferReady(partPath);
-            }
+    if (bytesTotal > 0 && !m_bufferEmitted && (bytesReceived * 100 / bytesTotal) >= 30) {
+        m_bufferEmitted = true;
+        QString partPath = m_tempPath + ".part";
+        if (QFile::exists(partPath)) {
+            emit bufferReady(partPath);
         }
-    } else {
-        emit downloadProgress(-1); // unknown
     }
 }
 

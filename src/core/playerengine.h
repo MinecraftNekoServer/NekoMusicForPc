@@ -45,6 +45,7 @@ signals:
     void durationChanged(qint64 duration);
     void fadeComplete();
     void musicStarted(const MusicInfo& music);
+    void mediaError(const QString &error);
 
 private:
     void onMediaStateChanged(QMediaPlayer::PlaybackState state);
@@ -58,4 +59,9 @@ private:
     bool m_fadingIn = false;
     bool m_fadingOut = false;
     MusicInfo m_currentMusic;
+    qint64 m_seekLimitMs = -1; // -1 means no limit
+
+public:
+    void setSeekLimitMs(qint64 limitMs) { m_seekLimitMs = limitMs; }
+    qint64 seekLimitMs() const { return m_seekLimitMs; }
 };
