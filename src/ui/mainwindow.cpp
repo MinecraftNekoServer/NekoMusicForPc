@@ -21,6 +21,9 @@
 #include "ui/playlistdetailpage.h"
 #include "ui/addtoplaylistdialog.h"
 #include "ui/playlistpanel.h"
+#include "ui/searchpage.h"
+#include "ui/favoriteplaylists.h"
+#include "ui/myplaylists.h"
 #include "ui/toast.h"
 #include "ui/updatedialog.h"
 #include "core/playerengine.h"
@@ -122,6 +125,9 @@ void MainWindow::setupUi()
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
     m_uploadPage = new UploadPage(this);
     m_playlistDetailPage = new PlaylistDetailPage(m_apiClient, this);
+    m_searchPage = new SearchPage(m_apiClient, this);
+    m_favoritePlaylistsPage = new FavoritePlaylists(m_apiClient, this);
+    m_myPlaylistsPage = new MyPlaylists(m_apiClient, this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
@@ -130,6 +136,9 @@ void MainWindow::setupUi()
     m_stack->addWidget(m_latestMusicPage);
     m_stack->addWidget(m_uploadPage);
     m_stack->addWidget(m_playlistDetailPage);
+    m_stack->addWidget(m_searchPage);
+    m_stack->addWidget(m_favoritePlaylistsPage);
+    m_stack->addWidget(m_myPlaylistsPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addWidget(m_midWidget, 1);
@@ -188,6 +197,15 @@ void MainWindow::setupUi()
             switchPage(m_recentPage);
         }
         else if (key == "upload") switchPage(m_uploadPage);
+        else if (key == "search") switchPage(m_searchPage);
+        else if (key == "favoritePlaylists") {
+            m_favoritePlaylistsPage->refresh();
+            switchPage(m_favoritePlaylistsPage);
+        }
+        else if (key == "myPlaylists") {
+            m_myPlaylistsPage->refresh();
+            switchPage(m_myPlaylistsPage);
+        }
     });
     connect(m_favoritesPage, &FavoritesPage::playRequested, this, &MainWindow::playMusicById);
     connect(&UserManager::instance(), &UserManager::loginStateChanged, this, [this]() {
@@ -268,11 +286,11 @@ void MainWindow::setupUi()
         switchPage(m_homePage);
     });
 
-    // 搜索请求（SearchPage 待实现）
-    // connect(m_titleBar, &TitleBar::searchRequested, this, [this](const QString &query) {
-    //     m_searchPage->search(query);
-    //     switchPage(m_searchPage);
-    // });
+    // 搜索请求
+    connect(m_titleBar, &TitleBar::searchRequested, this, [this](const QString &query) {
+        m_searchPage->search(query);
+        switchPage(m_searchPage);
+    });
     // 上传页面返回
     connect(m_uploadPage, &UploadPage::backRequested, this, [this]() {
         switchPage(m_homePage);
@@ -373,6 +391,26 @@ void MainWindow::setupUi()
     connect(m_playlistDetailPage, &PlaylistDetailPage::refreshSidebarPlaylists, this, [this]() {
         m_sidebar->refreshPlaylists();
     });
+
+    // 搜索页面返回
+    connect(m_searchPage, &SearchPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+    connect(m_searchPage, &SearchPage::playMusic, this, [this](const MusicInfo &info) {
+        playMusicById(info.id, info.title, info.artist, info.coverUrl);
+    });
+
+    // 收藏歌单页面
+    connect(m_favoritePlaylistsPage, &FavoritePlaylists::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+    connect(m_favoritePlaylistsPage, &FavoritePlaylists::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
+
+    // 我的歌单页面
+    connect(m_myPlaylistsPage, &MyPlaylists::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+    connect(m_myPlaylistsPage, &MyPlaylists::playlistClicked, this, &MainWindow::showPlaylistDetailPage);
 
     // 播放列表面板
     connect(m_playlistPanel, &PlaylistPanel::hideRequested, this, [this]() {
