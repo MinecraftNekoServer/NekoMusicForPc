@@ -87,7 +87,7 @@ if(APPLE)
     set(MACOSX_BUNDLE_GUI_IDENTIFIER com.nekomusic.app)
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-    set(APP_ICON_RESOURCE_MACOS "${CMAKE_SOURCE_DIR}/src/resources/macos/AppIcon.png")
+    set(APP_ICON_RESOURCE_MACOS "${CMAKE_SOURCE_DIR}/src/resources/macos/AppIcon.icns")
 endif()
 
 # Sources
