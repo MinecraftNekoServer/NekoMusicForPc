@@ -17,6 +17,7 @@
 #include <QScrollArea>
 #include <QFrame>
 #include <QSettings>
+#include <QCheckBox>
 
 SettingsPage::SettingsPage(QWidget *parent) : QWidget(parent)
 {
@@ -84,6 +85,35 @@ void SettingsPage::setupUi()
     line->setFrameShape(QFrame::HLine);
     line->setObjectName("settingsDivider");
     cardLay->addWidget(line);
+
+    // 桌面歌词设置
+    auto *lyricsRow = new QHBoxLayout();
+    QLabel *lyricsLabel = new QLabel(I18n::instance().tr("desktopLyrics"), card);
+    lyricsLabel->setObjectName("settingsLabel");
+    lyricsRow->addWidget(lyricsLabel);
+    lyricsRow->addStretch();
+
+    m_desktopLyricsCheck = new QCheckBox(card);
+    m_desktopLyricsCheck->setObjectName("settingsCheck");
+    
+    // 恢复保存的桌面歌词设置
+    bool lyricsEnabled = settings.value("desktopLyrics", true).toBool();
+    m_desktopLyricsCheck->setChecked(lyricsEnabled);
+    
+    connect(m_desktopLyricsCheck, &QCheckBox::toggled, this, [this](bool checked) {
+        QSettings settings;
+        settings.setValue("desktopLyrics", checked);
+        emit desktopLyricsChanged(checked);
+    });
+    
+    lyricsRow->addWidget(m_desktopLyricsCheck);
+    cardLay->addLayout(lyricsRow);
+
+    // 分隔线
+    auto *line2 = new QFrame(card);
+    line2->setFrameShape(QFrame::HLine);
+    line2->setObjectName("settingsDivider");
+    cardLay->addWidget(line2);
 
     // 版本 & 系统
     m_versionLabel = new QLabel(QString("%1: %2").arg(I18n::instance().version(), QString::fromUtf8(APP_VERSION)), card);

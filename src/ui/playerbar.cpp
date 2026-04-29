@@ -8,6 +8,7 @@
 
 #include "playerbar.h"
 #include "core/playerengine.h"
+#include "core/playlistmanager.h"
 #include "theme/theme.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
@@ -146,6 +147,19 @@ void PlayerBar::setupUi()
     });
     ctrlL->addWidget(nextBtn);
 
+    // 播放模式切换按钮
+    auto *modeBtn = new QPushButton(this);
+    modeBtn->setObjectName("pbCtrlBtn");
+    modeBtn->setFixedSize(32, 32);
+    modeBtn->setIcon(Icons::icon(Icons::kShuffle, 20, kCtrlNormal, kCtrlActive));
+    modeBtn->setCursor(Qt::PointingHandCursor);
+    modeBtn->setToolTip(I18n::instance().tr("playModeList"));
+    connect(modeBtn, &QPushButton::clicked, this, [this]() {
+        PlaylistManager::instance().togglePlayMode();
+        updatePlayModeIcon();
+    });
+    ctrlL->addWidget(modeBtn);
+
     cl->addLayout(ctrlL);
 
     // 进度条
@@ -262,7 +276,34 @@ void PlayerBar::retranslate()
         if (btn->objectName() == "pbCtrlBtn") {
             if (ctrlCount == 0) btn->setToolTip(I18n::instance().tr("previous"));
             else if (ctrlCount == 1) btn->setToolTip(I18n::instance().tr("next"));
-            else if (ctrlCount == 2) btn->setToolTip(I18n::instance().tr("playModeList"));
+            else if (ctrlCount == 2) {
+                // 更新播放模式按钮的提示
+                updatePlayModeIcon();
+            }
+            ctrlCount++;
+        }
+    }
+}
+
+void PlayerBar::updatePlayModeIcon()
+{
+    auto btns = findChildren<QPushButton *>();
+    int ctrlCount = 0;
+    for (auto *btn : btns) {
+        if (btn->objectName() == "pbCtrlBtn") {
+            if (ctrlCount == 2) {
+                QString mode = PlaylistManager::instance().playMode();
+                QString tooltip;
+                if (mode == "list") {
+                    tooltip = I18n::instance().tr("playModeList");
+                } else if (mode == "single") {
+                    tooltip = I18n::instance().tr("playModeSingle");
+                } else if (mode == "random") {
+                    tooltip = I18n::instance().tr("playModeRandom");
+                }
+                btn->setToolTip(tooltip);
+                break;
+            }
             ctrlCount++;
         }
     }

@@ -23,6 +23,9 @@
 #include "ui/playlistpanel.h"
 #include "ui/toast.h"
 #include "ui/updatedialog.h"
+#include "ui/searchpage.h"
+#include "ui/desktoplrc.h"
+#include <QSettings>
 #include "core/playerengine.h"
 #include "core/i18n.h"
 #include "core/apiclient.h"
@@ -122,6 +125,7 @@ void MainWindow::setupUi()
     m_latestMusicPage = new MusicListPage(MusicListPage::Latest, this);
     m_uploadPage = new UploadPage(this);
     m_playlistDetailPage = new PlaylistDetailPage(m_apiClient, this);
+    m_searchPage = new SearchPage(this);
     m_stack->addWidget(m_homePage);
     m_stack->addWidget(m_settingsPage);
     m_stack->addWidget(m_favoritesPage);
@@ -130,6 +134,7 @@ void MainWindow::setupUi()
     m_stack->addWidget(m_latestMusicPage);
     m_stack->addWidget(m_uploadPage);
     m_stack->addWidget(m_playlistDetailPage);
+    m_stack->addWidget(m_searchPage);
     midH->addWidget(m_stack, 1);
 
     mainV->addWidget(m_midWidget, 1);
@@ -268,11 +273,13 @@ void MainWindow::setupUi()
         switchPage(m_homePage);
     });
 
-    // 搜索请求（SearchPage 待实现）
-    // connect(m_titleBar, &TitleBar::searchRequested, this, [this](const QString &query) {
-    //     m_searchPage->search(query);
-    //     switchPage(m_searchPage);
-    // });
+    // 搜索请求
+    connect(m_titleBar, &TitleBar::searchRequested, this, [this](const QString &query) {
+        if (m_searchPage) {
+            m_searchPage->search(query);
+            switchPage(m_searchPage);
+        }
+    });
     // 上传页面返回
     connect(m_uploadPage, &UploadPage::backRequested, this, [this]() {
         switchPage(m_homePage);
@@ -306,6 +313,28 @@ void MainWindow::setupUi()
         mInfo.duration = info.duration;
         mInfo.coverUrl = info.coverUrl;
         PlaylistManager::instance().addToPlaylist(mInfo);
+    });
+
+    // 音乐列表页添加到歌单
+    connect(m_hotMusicPage, &MusicListPage::addToPlaylist, this, [this](const MusicListPage::MusicInfo &info) {
+        MusicInfo mInfo;
+        mInfo.id = info.id;
+        mInfo.title = info.title;
+        mInfo.artist = info.artist;
+        mInfo.album = info.album;
+        mInfo.duration = info.duration;
+        mInfo.coverUrl = info.coverUrl;
+        showAddToPlaylistDialog(mInfo);
+    });
+    connect(m_latestMusicPage, &MusicListPage::addToPlaylist, this, [this](const MusicListPage::MusicInfo &info) {
+        MusicInfo mInfo;
+        mInfo.id = info.id;
+        mInfo.title = info.title;
+        mInfo.artist = info.artist;
+        mInfo.album = info.album;
+        mInfo.duration = info.duration;
+        mInfo.coverUrl = info.coverUrl;
+        showAddToPlaylistDialog(mInfo);
     });
 
     // 封面点击切换到播放页面（全屏覆盖侧边栏和标题栏）
@@ -351,6 +380,9 @@ void MainWindow::setupUi()
 
     // 播放位置变化时更新歌词高亮
     connect(m_engine, &PlayerEngine::positionChanged, m_playerPage, &PlayerPage::updateLyricHighlight);
+    
+    // 播放结束时自动切歌
+    connect(m_engine, &PlayerEngine::playbackFinished, this, &MainWindow::playNext);
 
     // 语言切换
     connect(m_settingsPage, &SettingsPage::languageChanged, m_hotMusicPage, &MusicListPage::retranslate);
@@ -369,6 +401,19 @@ void MainWindow::setupUi()
         playMusicFromInfo(info);
     });
 
+    // 搜索页面返回
+    connect(m_searchPage, &SearchPage::backRequested, this, [this]() {
+        switchPage(m_homePage);
+    });
+
+    // 搜索页面播放
+    connect(m_searchPage, &SearchPage::playMusic, this, [this](const MusicInfo &info) {
+        playMusicFromInfo(info);
+    });
+
+    // 语言切换
+    connect(m_settingsPage, &SettingsPage::languageChanged, m_searchPage, &SearchPage::retranslate);
+
     // 播放列表页面刷新侧边栏
     connect(m_playlistDetailPage, &PlaylistDetailPage::refreshSidebarPlaylists, this, [this]() {
         m_sidebar->refreshPlaylists();
@@ -386,6 +431,47 @@ void MainWindow::setupUi()
     connect(&UserManager::instance(), &UserManager::loginStateChanged, this, [this]() {
         m_sidebar->setUploadVisible(UserManager::instance().isLoggedIn());
     });
+
+    // 创建桌面歌词窗口
+    m_desktopLrc = new DesktopLrc(this);
+    
+    // 连接播放器位置更新到桌面歌词
+    connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 position) {
+        if (m_desktopLrc) {
+            m_desktopLrc->updatePosition(position);
+        }
+    });
+    
+    // 连接歌曲开始播放时更新桌面歌词
+    connect(m_engine, &PlayerEngine::musicStarted, this, [this](const MusicInfo& music) {
+        if (m_desktopLrc) {
+            m_desktopLrc->setCurrentSong(music.title, music.artist);
+            // 这里可以添加歌词文件加载逻辑
+            // m_desktopLrc->loadLyricsFile("path/to/lyrics.lrc");
+        }
+    });
+    
+    // 连接桌面歌词设置变化
+    connect(m_settingsPage, &SettingsPage::desktopLyricsChanged, this, [this](bool enabled) {
+        if (m_desktopLrc) {
+            if (enabled) {
+                m_desktopLrc->showWindow();
+            } else {
+                m_desktopLrc->hideWindow();
+            }
+        }
+    });
+    
+    // 初始加载桌面歌词设置
+    QSettings settings;
+    bool lyricsEnabled = settings.value("desktopLyrics", true).toBool();
+    if (m_desktopLrc) {
+        if (lyricsEnabled) {
+            m_desktopLrc->showWindow();
+        } else {
+            m_desktopLrc->hideWindow();
+        }
+    }
 }
 void MainWindow::loadStyleSheet()
 {

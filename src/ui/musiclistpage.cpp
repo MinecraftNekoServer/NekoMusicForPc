@@ -74,6 +74,7 @@ public:
 
     std::function<void(int)> onClicked;
     std::function<void()> onAddToQueue;
+    std::function<void()> onAddToPlaylist;
 
 protected:
     void paintEvent(QPaintEvent *event) override
@@ -103,10 +104,13 @@ protected:
             "QMenu::item:selected { background-color: rgba(255, 255, 255, 0.1); }"
         );
 
-        QAction *addAction = menu.addAction(I18n::instance().tr("addToPlaylist"));
+        QAction *addToQueueAction = menu.addAction(I18n::instance().tr("addToQueue"));
+        QAction *addToPlaylistAction = menu.addAction(I18n::instance().tr("addToPlaylist"));
         QAction *selected = menu.exec(event->globalPos());
-        if (selected == addAction && onAddToQueue) {
+        if (selected == addToQueueAction && onAddToQueue) {
             onAddToQueue();
+        } else if (selected == addToPlaylistAction && onAddToPlaylist) {
+            onAddToPlaylist();
         }
     }
 
@@ -335,6 +339,9 @@ void MusicListPage::buildList()
         };
         card->onAddToQueue = [this, info]() {
             emit addToQueue(info);
+        };
+        card->onAddToPlaylist = [this, info]() {
+            emit addToPlaylist(info);
         };
         m_listLayout->addWidget(card);
     }

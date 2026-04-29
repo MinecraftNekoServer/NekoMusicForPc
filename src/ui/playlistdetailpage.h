@@ -35,6 +35,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     void setupUi();

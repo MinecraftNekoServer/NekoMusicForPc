@@ -37,6 +37,7 @@ public:
 signals:
     void playMusic(const MusicInfo &info);
     void addToQueue(const MusicInfo &info);
+    void addToPlaylist(const MusicInfo &info);
     void backRequested();
 
 public slots:

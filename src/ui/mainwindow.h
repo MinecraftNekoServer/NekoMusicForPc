@@ -33,6 +33,8 @@ class PlaylistPanel;
 class ApiClient;
 class UpdateChecker;
 class UpdateDialog;
+class SearchPage;
+class DesktopLrc;
 
 class MainWindow : public QMainWindow
 {
@@ -89,6 +91,7 @@ private:
     UploadPage *m_uploadPage = nullptr;
     PlayerPage *m_playerPage = nullptr;
     PlaylistDetailPage *m_playlistDetailPage = nullptr;
+    SearchPage *m_searchPage = nullptr;
     PlaylistPanel *m_playlistPanel = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QWidget *m_midWidget = nullptr;
@@ -101,4 +104,5 @@ private:
     QList<int> m_favoritesCache;  // 缓存已收藏的音乐ID
     UpdateChecker *m_updateChecker = nullptr;
     UpdateDialog *m_updateDialog = nullptr;
+    DesktopLrc *m_desktopLrc = nullptr;
 };

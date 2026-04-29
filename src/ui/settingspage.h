@@ -10,6 +10,7 @@
 class QComboBox;
 class QLabel;
 class QPushButton;
+class QCheckBox;
 
 class SettingsPage : public QWidget
 {
@@ -21,6 +22,7 @@ public:
 signals:
     void languageChanged(int language);
     void checkForUpdatesRequested();
+    void desktopLyricsChanged(bool enabled);
 
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -34,4 +36,5 @@ private:
     QLabel *m_versionLabel = nullptr;
     QLabel *m_systemLabel = nullptr;
     QPushButton *m_checkUpdateBtn = nullptr;
+    QCheckBox *m_desktopLyricsCheck = nullptr;
 };
