@@ -25,33 +25,43 @@ jobs:
 
       - name: Generate AppIcon.icns
         run: |
+          cd "$GITHUB_WORKSPACE"
+          echo "PWD: $(pwd)"
           mkdir -p src/resources/macos
           ICONSET=$(mktemp -d)/AppIcon.iconset
           mkdir -p "$ICONSET"
-          SRC="packaging/icons/hicolor/512x512/apps/nekomusic.png"
+          SRC="$GITHUB_WORKSPACE/packaging/icons/hicolor/512x512/apps/nekomusic.png"
+          echo "SRC: $SRC"
+          ls -la "$SRC"
           for size in 16 32 64 128 256 512; do
             sips -z $size $size "$SRC" --out "$ICONSET/icon_${size}x${size}.png"
             sips -z $((size*2)) $((size*2)) "$SRC" --out "$ICONSET/icon_${size}x${size}@2x.png"
           done
-          iconutil -c icns "$ICONSET" -o src/resources/macos/AppIcon.icns
+          iconutil -c icns "$ICONSET" -o "$GITHUB_WORKSPACE/src/resources/macos/AppIcon.icns"
+          ls -la "$GITHUB_WORKSPACE/src/resources/macos/"
 
       - name: Configure CMake
         run: |
+          cd "$GITHUB_WORKSPACE"
           mkdir -p build-macos
           cd build-macos
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$Qt6_DIR"
 
       - name: Build
-        run: cmake --build build-macos -j$(sysctl -n hw.ncpu)
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          cmake --build build-macos -j$(sysctl -n hw.ncpu)
 
       - name: Package DMG
         run: |
+          cd "$GITHUB_WORKSPACE"
           cd build-macos
           cpack -G DragNDrop
 
       - name: Find DMG
         id: find-dmg
         run: |
+          cd "$GITHUB_WORKSPACE"
           DMG=$(find build-macos -name "*.dmg" -type f | head -1)
           echo "dmg_path=$DMG" >> $GITHUB_OUTPUT
           echo "dmg_name=$(basename "$DMG")" >> $GITHUB_OUTPUT
