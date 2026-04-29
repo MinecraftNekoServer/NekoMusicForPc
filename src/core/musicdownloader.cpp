@@ -32,7 +32,6 @@ void MusicDownloader::download(const QUrl &url)
 {
     cancel();
     m_bufferEmitted = false;
->>>>>>> b20aaa31a7e78314859895338bb2e69cf8f0fac2
 
     // Generate cache path from URL hash (no extension - FFmpeg detects format from content)
     QString hash = QCryptographicHash::hash(url.toEncoded(), QCryptographicHash::Md5).toHex();
@@ -80,7 +79,7 @@ void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     m_bytesTotal = bytesTotal;
     emit downloadProgress(bytesReceived, bytesTotal);
 
-    if (bytesTotal > 0 && !m_bufferEmitted && (bytesReceived * 100 / bytesTotal) >= 30) {
+    if (bytesTotal > 0 && !m_bufferEmitted && (bytesReceived * 100 / bytesTotal) >= 10) {
         m_bufferEmitted = true;
         QString partPath = m_tempPath + ".part";
         if (QFile::exists(partPath)) {

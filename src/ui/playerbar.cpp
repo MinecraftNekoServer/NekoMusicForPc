@@ -274,7 +274,6 @@ void PlayerBar::retranslate()
         }
     }
 }
-}
 
 void PlayerBar::setSongInfo(const QString &title, const QString &artist, const QString &coverUrl)
 {

@@ -329,7 +329,6 @@ void MainWindow::setupUi()
         m_playlistDetailPage->loadPlaylist(playlistId);
         switchPage(m_playlistDetailPage);
     });
->>>>>>> b20aaa31a7e78314859895338bb2e69cf8f0fac2
     // 上传页面返回
     connect(m_uploadPage, &UploadPage::backRequested, this, [this]() {
         switchPage(m_homePage);
@@ -750,7 +749,6 @@ void MainWindow::playNext()
 
         m_downloader->download(url);
     });
->>>>>>> b20aaa31a7e78314859895338bb2e69cf8f0fac2
 }
 
 void MainWindow::playPrevious()

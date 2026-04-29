@@ -66,8 +66,12 @@ bool TitleBar::eventFilter(QObject *watched, QEvent *event)
             if (qobject_cast<QPushButton *>(w) || qobject_cast<QLineEdit *>(w)) {
                 return false;
             }
-            // 头像点击
-            if (w == m_avatarWidget) {
+            // 头像点击 - 扩大判定范围到整个头像区域及其子控件
+            if (w == m_avatarWidget || 
+                w == m_avatarIcon || 
+                w == m_usernameLabel || 
+                w == m_dropdownIcon ||
+                (m_avatarWidget && m_avatarWidget->isAncestorOf(w))) {
                 emit avatarClicked();
                 return true;
             }
