@@ -58,7 +58,7 @@ cmake --build build --parallel
 
 # 推荐
 bash build_linux.sh
-QT_WIN_ROOT=~/qt-win/6.10.2/mingw_64 ./build_windows.sh # 构建屎山win系统
+QT_WIN_ROOT=./qt-win/6.10.2/mingw_64 ./build_windows.sh # 构建屎山win系统
 ```
 
 ### 运行测试
