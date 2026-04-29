@@ -3,9 +3,14 @@
 
 !include "MUI2.nsh"
 
+; Version (passed via -DVERSION= on command line)
+!ifndef VERSION
+  !define VERSION "0.0.0"
+!endif
+
 ; General
 Name "Neko云音乐"
-OutFile "..\Neko云音乐-INSTALLER-win-x64.exe"
+OutFile "..\Neko云音乐-$VERSION-win.exe"
 InstallDir "$PROGRAMFILES64\Neko云音乐"
 SetCompressor lzma
 
