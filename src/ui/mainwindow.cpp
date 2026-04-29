@@ -155,6 +155,7 @@ void MainWindow::setupUi()
         m_playerBar->setSongInfo(lastMusic.title, lastMusic.artist, lastMusic.coverUrl);
         m_playerBar->setCurrentMusicId(lastMusic.id);
         m_playerPage->setMusicInfo(lastMusic.id, lastMusic.title, lastMusic.artist, QString(), lastMusic.coverUrl);
+        m_playerPage->loadLyrics(lastMusic.id);
         m_engine->setCurrentMusic(lastMusic);
 
         // 检查收藏状态（loadFavoritesCache 会在之后异步更新，但这里先设置初始状态）
