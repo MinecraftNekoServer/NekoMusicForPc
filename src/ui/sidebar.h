@@ -58,9 +58,6 @@ private:
     QPushButton *m_favBtn = nullptr;
     QPushButton *m_recBtn = nullptr;
     QPushButton *m_uploadBtn = nullptr;
-    QPushButton *m_searchBtn = nullptr;
-    QPushButton *m_favPlaylistBtn = nullptr;
-    QPushButton *m_myPlaylistsBtn = nullptr;
 
     QWidget *m_playlistContainer = nullptr;
     QVBoxLayout *m_playlistLayout = nullptr;

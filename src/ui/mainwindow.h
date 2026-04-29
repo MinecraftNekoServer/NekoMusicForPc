@@ -30,9 +30,6 @@ class QMenu;
 class PlaylistDetailPage;
 class AddToPlaylistDialog;
 class PlaylistPanel;
-class SearchPage;
-class FavoritePlaylists;
-class MyPlaylists;
 class ApiClient;
 class UpdateChecker;
 class UpdateDialog;
@@ -68,7 +65,6 @@ private:
     void playMusicFromInfo(const MusicInfo &info);
     void createTrayIcon();
     void createPlaylist();
-    void createPlaylistFromMyPlaylists();
     void showAddToPlaylistDialog(const MusicInfo &music);
     void togglePlaylistPanel();
     void playMusicFromPlaylist(int musicId);
@@ -93,9 +89,6 @@ private:
     UploadPage *m_uploadPage = nullptr;
     PlayerPage *m_playerPage = nullptr;
     PlaylistDetailPage *m_playlistDetailPage = nullptr;
-    SearchPage *m_searchPage = nullptr;
-    FavoritePlaylists *m_favoritePlaylistsPage = nullptr;
-    MyPlaylists *m_myPlaylistsPage = nullptr;
     PlaylistPanel *m_playlistPanel = nullptr;
     PlayerBar *m_playerBar = nullptr;
     QWidget *m_midWidget = nullptr;

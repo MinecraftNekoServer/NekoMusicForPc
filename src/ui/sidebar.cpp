@@ -67,11 +67,6 @@ void Sidebar::setupUi()
     lay->addWidget(createNavItem("home", I18n::instance().tr("home"),
                                  QIcon(":/icons/nav_home_active.png")));
 
-    // 搜索
-    m_searchBtn = createNavItem("search", I18n::instance().tr("search"),
-                                QIcon(":/icons/nav_home_active.png"));
-    lay->addWidget(m_searchBtn);
-
     // 我喜欢的（可点击导航）
     m_favBtn = createNavItem("favorites", I18n::instance().tr("favorites"),
                              QIcon(":/icons/nav_heart.png"));
@@ -97,16 +92,6 @@ void Sidebar::setupUi()
     auto *plHeader = new QLabel(I18n::instance().tr("myPlaylistsTitle"), container);
     plHeader->setObjectName("sbPlaylistTitle");
     lay->addWidget(plHeader);
-
-    // 收藏歌单
-    m_favPlaylistBtn = createNavItem("favoritePlaylists", I18n::instance().tr("favoritePlaylists"),
-                                     QIcon(":/icons/nav_heart.png"));
-    lay->addWidget(m_favPlaylistBtn);
-
-    // 我的歌单
-    m_myPlaylistsBtn = createNavItem("myPlaylists", I18n::instance().tr("myPlaylists"),
-                                     QIcon(":/icons/nav_home_active.png"));
-    lay->addWidget(m_myPlaylistsBtn);
 
     // 播放列表容器
     m_playlistContainer = new QWidget(container);
@@ -333,12 +318,9 @@ void Sidebar::retranslate()
     auto *homeBtn = m_navBtns.value("home");
     if (homeBtn) homeBtn->setText(I18n::instance().tr("home"));
 
-    if (m_searchBtn) m_searchBtn->setText(I18n::instance().tr("search"));
     if (m_favBtn) m_favBtn->setText(I18n::instance().tr("favorites"));
     if (m_recBtn) m_recBtn->setText(I18n::instance().tr("recentPlay"));
     if (m_uploadBtn) m_uploadBtn->setText(I18n::instance().tr("uploadMusic"));
-    if (m_favPlaylistBtn) m_favPlaylistBtn->setText(I18n::instance().tr("favoritePlaylists"));
-    if (m_myPlaylistsBtn) m_myPlaylistsBtn->setText(I18n::instance().tr("myPlaylists"));
 
     auto *plHeader = findChild<QLabel *>("sbPlaylistTitle");
     if (plHeader) plHeader->setText(I18n::instance().tr("myPlaylistsTitle"));

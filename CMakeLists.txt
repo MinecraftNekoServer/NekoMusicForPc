@@ -125,9 +125,6 @@ set(SOURCES
     src/ui/addtoplaylistdialog.cpp
     src/ui/playlistpanel.cpp
     src/ui/updatedialog.cpp
-    src/ui/searchpage.cpp
-    src/ui/favoriteplaylists.cpp
-    src/ui/myplaylists.cpp
 )
 
 set(HEADERS
@@ -163,9 +160,6 @@ set(HEADERS
     src/ui/addtoplaylistdialog.h
     src/ui/playlistpanel.h
     src/ui/updatedialog.h
-    src/ui/searchpage.h
-    src/ui/favoriteplaylists.h
-    src/ui/myplaylists.h
 )
 
 # Resources
