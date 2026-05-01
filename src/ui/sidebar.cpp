@@ -114,15 +114,11 @@ void Sidebar::setupUi()
     m_favDivider = new QWidget(container);
     m_favDivider->setObjectName("sbDivider");
     m_favDivider->setFixedHeight(1);
-    // 默认隐藏，等待数据加载完成后决定是否显示
-    m_favDivider->setVisible(false);
     lay->addWidget(m_favDivider);
 
     // 收藏歌单标题
     m_favHeader = new QLabel(I18n::instance().tr("favoritePlaylistsTitle"), container);
     m_favHeader->setObjectName("sbPlaylistTitle");
-    // 默认隐藏，等待数据加载完成后决定是否显示
-    m_favHeader->setVisible(false);
     lay->addWidget(m_favHeader);
 
     // 收藏歌单容器
@@ -130,8 +126,6 @@ void Sidebar::setupUi()
     m_favPlaylistLayout = new QVBoxLayout(m_favPlaylistContainer);
     m_favPlaylistLayout->setContentsMargins(4, 0, 4, 0);
     m_favPlaylistLayout->setSpacing(2);
-    // 默认隐藏，等待数据加载完成后决定是否显示
-    m_favPlaylistContainer->setVisible(false);
     lay->addWidget(m_favPlaylistContainer);
 
     lay->addStretch();
@@ -356,7 +350,7 @@ void Sidebar::refreshFavPlaylistList()
     }
     m_favPlaylistItems.clear();
 
-    // 默认显示区域，然后根据实际情况调整
+    // 强制显示区域，即使为空
     bool hasFavPlaylists = !m_favPlaylists.isEmpty();
     
     if (hasFavPlaylists) {
@@ -381,12 +375,19 @@ void Sidebar::refreshFavPlaylistList()
             m_favPlaylistLayout->addWidget(item);
             m_favPlaylistItems.append(item);
         }
+    } else {
+        // 即使为空也显示"暂无歌单"提示
+        auto *empty = new QLabel(I18n::instance().tr("noPlaylists"), m_favPlaylistContainer);
+        empty->setObjectName("sbEmptyPlaylist");
+        empty->setAlignment(Qt::AlignCenter);
+        empty->setWordWrap(true);
+        m_favPlaylistLayout->addWidget(empty);
     }
     
-    // 设置区域可见性
-    m_favPlaylistContainer->setVisible(hasFavPlaylists);
-    if (m_favDivider) m_favDivider->setVisible(hasFavPlaylists);
-    if (m_favHeader) m_favHeader->setVisible(hasFavPlaylists);
+    // 强制显示区域
+    m_favPlaylistContainer->setVisible(true);
+    if (m_favDivider) m_favDivider->setVisible(true);
+    if (m_favHeader) m_favHeader->setVisible(true);
 }
 
 QPushButton *Sidebar::createNavItem(const QString &key, const QString &label, const QIcon &icon)
