@@ -111,15 +111,15 @@ void Sidebar::setupUi()
     lay->addWidget(m_createPlaylistBtn);
 
     // 收藏歌单分隔线
-    auto *favDiv = new QWidget(container);
-    favDiv->setObjectName("sbDivider");
-    favDiv->setFixedHeight(1);
-    lay->addWidget(favDiv);
+    m_favDivider = new QWidget(container);
+    m_favDivider->setObjectName("sbDivider");
+    m_favDivider->setFixedHeight(1);
+    lay->addWidget(m_favDivider);
 
     // 收藏歌单标题
-    auto *favHeader = new QLabel(I18n::instance().tr("favoritePlaylistsTitle"), container);
-    favHeader->setObjectName("sbPlaylistTitle");
-    lay->addWidget(favHeader);
+    m_favHeader = new QLabel(I18n::instance().tr("favoritePlaylistsTitle"), container);
+    m_favHeader->setObjectName("sbPlaylistTitle");
+    lay->addWidget(m_favHeader);
 
     // 收藏歌单容器
     m_favPlaylistContainer = new QWidget(container);
@@ -350,13 +350,15 @@ void Sidebar::refreshFavPlaylistList()
     }
     m_favPlaylistItems.clear();
 
+    // 当收藏歌单为空时，隐藏整个收藏歌单区域（包括分隔线和标题）
     if (m_favPlaylists.isEmpty()) {
-        auto *empty = new QLabel(I18n::instance().tr("noPlaylists"), m_favPlaylistContainer);
-        empty->setObjectName("sbEmptyPlaylist");
-        empty->setAlignment(Qt::AlignCenter);
-        empty->setWordWrap(true);
-        m_favPlaylistLayout->addWidget(empty);
+        m_favPlaylistContainer->setVisible(false);
+        if (m_favDivider) m_favDivider->setVisible(false);
+        if (m_favHeader) m_favHeader->setVisible(false);
     } else {
+        m_favPlaylistContainer->setVisible(true);
+        if (m_favDivider) m_favDivider->setVisible(true);
+        if (m_favHeader) m_favHeader->setVisible(true);
         for (const auto &pl : m_favPlaylists) {
             auto *item = new PlaylistListItem(pl.id, pl.name, pl.musicCount, pl.coverUrl, PlaylistListItem::FavoritePlaylist, m_favPlaylistContainer);
             connect(item, &PlaylistListItem::clicked, this, [this, playlistId = pl.id]() { emit playlistClicked(playlistId); });

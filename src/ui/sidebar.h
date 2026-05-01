@@ -15,6 +15,7 @@
 class QPushButton;
 class QVBoxLayout;
 class QWidget;
+class QLabel;
 class PlaylistListItem;
 class ApiClient;
 
@@ -72,4 +73,6 @@ private:
     QVBoxLayout *m_favPlaylistLayout = nullptr;
     QList<PlaylistListItem *> m_favPlaylistItems;
     QList<ApiPlaylistInfo> m_favPlaylists;
+    QWidget *m_favDivider = nullptr;
+    QLabel *m_favHeader = nullptr;
 };
