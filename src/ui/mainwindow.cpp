@@ -64,13 +64,17 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_TranslucentBackground, false);
+    m_engine = new PlayerEngine(this);
+    m_downloader = new MusicDownloader(this);
 
     setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
 
-    m_engine = new PlayerEngine(this);
-    m_downloader = new MusicDownloader(this);
+    // 延迟初始化音频引擎，避免glib初始化问题
+    QTimer::singleShot(100, this, [this]() {
+        m_engine = new PlayerEngine(this);
+        m_downloader = new MusicDownloader(this);
+    });
+    
     setupUi();
     loadStyleSheet();
     createTrayIcon();

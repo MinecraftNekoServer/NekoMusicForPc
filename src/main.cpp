@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_LINUX
     // Linux: 使用 PulseAudio 后端避免 PipeWire 初始化阻塞
     qputenv("QT_MULTIMEDIA_BACKEND", "pulse");
+    // 避免 glib 相关崩溃
+    qputenv("G_DEBUG", "fatal-criticals");
+    qputenv("G_SLICE", "always-malloc");
 #endif
 
     // 检查是否已有实例在运行
