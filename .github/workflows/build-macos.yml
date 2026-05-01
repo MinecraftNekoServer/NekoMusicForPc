@@ -56,6 +56,16 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           cmake --install build-macos --prefix build-macos/install
 
+      - name: Confirm Install Success
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          if [ ! -d "build-macos/install/NekoMusic.app" ] && [ ! -d "build-macos/install/Neko云音乐.app" ]; then
+            echo "❌ Expected .app not found in build-macos/install/"
+            ls -la build-macos/install/
+            exit 1
+          fi
+          echo "✅ Valid .app found in install/"
+
       - name: Verify Universal Binary
         run: |
           cd "$GITHUB_WORKSPACE"
@@ -79,7 +89,10 @@ jobs:
         run: |
           cd "$GITHUB_WORKSPACE"
           cd build-macos
-          cpack -G productbuild
+          cpack \
+            -G productbuild \
+            -D CPACK_INSTALL_CMAKE_PROJECTS="build-macos;NekoMusic;ALL;/" \
+            -D CPACK_PACKAGE_DIRECTORY="$GITHUB_WORKSPACE/build-macos/pkg"
 
       - name: Find PKG
         id: find-pkg
