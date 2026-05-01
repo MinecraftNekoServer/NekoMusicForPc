@@ -92,7 +92,9 @@ jobs:
           cpack \
             -G productbuild \
             -D CPACK_INSTALL_CMAKE_PROJECTS="build-macos;NekoMusic;ALL;/" \
-            -D CPACK_PACKAGE_DIRECTORY="$GITHUB_WORKSPACE/build-macos/pkg"
+            -D CPACK_PACKAGE_DIRECTORY="$GITHUB_WORKSPACE/build-macos/pkg" \
+            -D CPACK_NO_PREINSTALL_SCRIPTS=ON \
+            -D CPACK_NO_POSTINSTALL_SCRIPTS=ON
 
       - name: Find PKG
         id: find-pkg
