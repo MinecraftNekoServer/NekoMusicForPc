@@ -41,12 +41,28 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p build-macos
           cd build-macos
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$Qt6_DIR"
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$Qt6_DIR" \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
 
       - name: Build
         run: |
           cd "$GITHUB_WORKSPACE"
           cmake --build build-macos -j$(sysctl -n hw.ncpu)
+
+      - name: Verify Universal Binary
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          APP_PATH="build-macos/src/NekoMusic.app/Contents/MacOS/NekoMusic"
+          if [ -f "$APP_PATH" ]; then
+            echo "✅ Found app binary: $APP_PATH"
+            lipo -info "$APP_PATH"
+          else
+            echo "❌ App binary not found at $APP_PATH"
+            ls -la build-macos/src/
+            exit 1
+          fi
 
       - name: Package PKG
         run: |
