@@ -350,15 +350,10 @@ void Sidebar::refreshFavPlaylistList()
     }
     m_favPlaylistItems.clear();
 
-    // 当收藏歌单为空时，隐藏整个收藏歌单区域（包括分隔线和标题）
-    if (m_favPlaylists.isEmpty()) {
-        m_favPlaylistContainer->setVisible(false);
-        if (m_favDivider) m_favDivider->setVisible(false);
-        if (m_favHeader) m_favHeader->setVisible(false);
-    } else {
-        m_favPlaylistContainer->setVisible(true);
-        if (m_favDivider) m_favDivider->setVisible(true);
-        if (m_favHeader) m_favHeader->setVisible(true);
+    // 默认显示区域，然后根据实际情况调整
+    bool hasFavPlaylists = !m_favPlaylists.isEmpty();
+    
+    if (hasFavPlaylists) {
         for (const auto &pl : m_favPlaylists) {
             auto *item = new PlaylistListItem(pl.id, pl.name, pl.musicCount, pl.coverUrl, PlaylistListItem::FavoritePlaylist, m_favPlaylistContainer);
             connect(item, &PlaylistListItem::clicked, this, [this, playlistId = pl.id]() { emit playlistClicked(playlistId); });
@@ -381,6 +376,11 @@ void Sidebar::refreshFavPlaylistList()
             m_favPlaylistItems.append(item);
         }
     }
+    
+    // 设置区域可见性
+    m_favPlaylistContainer->setVisible(hasFavPlaylists);
+    if (m_favDivider) m_favDivider->setVisible(hasFavPlaylists);
+    if (m_favHeader) m_favHeader->setVisible(hasFavPlaylists);
 }
 
 QPushButton *Sidebar::createNavItem(const QString &key, const QString &label, const QIcon &icon)
