@@ -37,4 +37,5 @@ private:
     QLabel *m_systemLabel = nullptr;
     QPushButton *m_checkUpdateBtn = nullptr;
     QCheckBox *m_desktopLyricsCheck = nullptr;
+    QCheckBox *m_autoResumeCheck = nullptr;
 };

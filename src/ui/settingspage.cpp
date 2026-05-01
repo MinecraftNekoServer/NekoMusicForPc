@@ -115,6 +115,34 @@ void SettingsPage::setupUi()
     line2->setObjectName("settingsDivider");
     cardLay->addWidget(line2);
 
+    // 自动恢复播放设置
+    auto *autoPlayRow = new QHBoxLayout();
+    QLabel *autoPlayLabel = new QLabel(I18n::instance().tr("autoResumePlayback"), card);
+    autoPlayLabel->setObjectName("settingsLabel");
+    autoPlayRow->addWidget(autoPlayLabel);
+    autoPlayRow->addStretch();
+
+    m_autoResumeCheck = new QCheckBox(card);
+    m_autoResumeCheck->setObjectName("settingsCheck");
+    
+    // 恢复保存的自动恢复播放设置（默认关闭）
+    bool autoResumeEnabled = settings.value("autoResumePlayback", false).toBool();
+    m_autoResumeCheck->setChecked(autoResumeEnabled);
+    
+    connect(m_autoResumeCheck, &QCheckBox::toggled, this, [this](bool checked) {
+        QSettings settings;
+        settings.setValue("autoResumePlayback", checked);
+    });
+    
+    autoPlayRow->addWidget(m_autoResumeCheck);
+    cardLay->addLayout(autoPlayRow);
+
+    // 分隔线
+    auto *line3 = new QFrame(card);
+    line3->setFrameShape(QFrame::HLine);
+    line3->setObjectName("settingsDivider");
+    cardLay->addWidget(line3);
+
     // 版本 & 系统
     m_versionLabel = new QLabel(QString("%1: %2").arg(I18n::instance().version(), QString::fromUtf8(APP_VERSION)), card);
     m_versionLabel->setObjectName("settingsInfo");

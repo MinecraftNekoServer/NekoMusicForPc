@@ -161,7 +161,7 @@ void MainWindow::setupUi()
     // 加载播放队列
     PlaylistManager::instance().load();
 
-    // 恢复上次播放的音乐
+    // 恢复上次播放的音乐（根据设置决定是否自动播放）
     if (PlaylistManager::instance().hasLastPlayed()) {
         auto lastMusic = PlaylistManager::instance().lastPlayedMusic();
         m_playerBar->setSongInfo(lastMusic.title, lastMusic.artist, lastMusic.coverUrl);
@@ -174,19 +174,25 @@ void MainWindow::setupUi()
         bool isFavorited = checkIsFavorited(lastMusic.id);
         m_playerBar->setFavoriteStatus(isFavorited);
 
-        // 预加载音频文件：下载完成后暂停，等待用户操作
-        disconnectDownloader();
-        QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
-        auto restoreConn = std::make_shared<QMetaObject::Connection>();
-        *restoreConn = connect(m_downloader, &MusicDownloader::downloadFinished, this, [this, restoreConn](const QString &localPath) {
-            disconnect(*restoreConn);
-            m_engine->play(QUrl::fromLocalFile(localPath));
-            // 立即暂停，等待用户操作
-            QTimer::singleShot(50, this, [this]() {
-                m_engine->pause();
+        // 检查设置：是否自动恢复播放
+        QSettings settings;
+        bool autoResumeEnabled = settings.value("autoResumePlayback", false).toBool();
+        
+        if (autoResumeEnabled) {
+            // 预加载音频文件：下载完成后暂停，等待用户操作
+            disconnectDownloader();
+            QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
+            auto restoreConn = std::make_shared<QMetaObject::Connection>();
+            *restoreConn = connect(m_downloader, &MusicDownloader::downloadFinished, this, [this, restoreConn](const QString &localPath) {
+                disconnect(*restoreConn);
+                m_engine->play(QUrl::fromLocalFile(localPath));
+                // 立即暂停，等待用户操作
+                QTimer::singleShot(50, this, [this]() {
+                    m_engine->pause();
+                });
             });
-        });
-        m_downloader->download(url);
+            m_downloader->download(url);
+        }
     }
 
     // 连接导航

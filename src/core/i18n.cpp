@@ -69,6 +69,7 @@ static QMap<QString, QString> zhCN()
     m["desktopLyrics"] = QStringLiteral("词");
     m["desktopLyricsEnabled"] = QStringLiteral("桌面歌词已开启");
     m["desktopLyricsDisabled"] = QStringLiteral("桌面歌词已关闭");
+    m["autoResumePlayback"] = QStringLiteral("自动恢复播放");
     m["playModeList"] = QStringLiteral("列表循环");
     m["playModeSingle"] = QStringLiteral("单曲循环");
     m["playModeRandom"] = QStringLiteral("随机播放");
@@ -588,6 +589,7 @@ static QMap<QString, QString> enUS()
     m["desktopLyrics"] = "Lyrics";
     m["desktopLyricsEnabled"] = "Desktop lyrics enabled";
     m["desktopLyricsDisabled"] = "Desktop lyrics disabled";
+    m["autoResumePlayback"] = "Auto-resume playback";
     m["playModeList"] = "List Loop";
     m["playModeSingle"] = "Single Loop";
     m["playModeRandom"] = "Random";
