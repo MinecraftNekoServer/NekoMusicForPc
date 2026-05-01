@@ -60,6 +60,9 @@ private:
     QLabel *m_curTime = nullptr;
     QLabel *m_durTime = nullptr;
     QPushButton *m_cover = nullptr;
+    QTimer *m_updateTimer = nullptr;
+    qint64 m_lastPosition = 0;
+    qint64 m_lastDuration = 0;
     int m_currentMusicId = 0;
     bool m_isFavorited = false;
     bool m_isLoading = false;

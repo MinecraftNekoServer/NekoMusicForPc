@@ -42,23 +42,32 @@ PlayerBar::PlayerBar(PlayerEngine *engine, QWidget *parent)
 {
     setFixedHeight(Theme::kPlayerBarH);
     setAttribute(Qt::WA_StyledBackground, false);
-    setupUi();
     
-    if (m_engine) {
-        connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 position) {
-            if (m_progress && m_engine) {
-                qint64 duration = m_engine->duration();
-                if (duration > 0) {
-                    int value = static_cast<int>((position * 1000) / duration);
-                    m_progress->setValue(value);
+    // 创建定时器用于限制UI更新频率
+    m_updateTimer = new QTimer(this);
+    m_updateTimer->setInterval(100); // 每100ms更新一次UI
+    connect(m_updateTimer, &QTimer::timeout, this, [this]() {
+        if (m_engine) {
+            qint64 pos = m_engine->position();
+            qint64 dur = m_engine->duration();
+            
+            // 只有位置或时长发生变化时才更新UI
+            if (pos != m_lastPosition) {
+                m_lastPosition = pos;
+                if (m_curTime) m_curTime->setText(formatTime(pos));
+                if (dur > 0 && m_progress) {
+                    m_progress->setValue(static_cast<int>(pos * 1000 / dur));
                 }
             }
-        });
-        
-        connect(m_engine, &PlayerEngine::durationChanged, this, [this](qint64 duration) {
-            // 可以更新总时长显示
-        });
-    }
+            
+            if (dur != m_lastDuration) {
+                m_lastDuration = dur;
+                if (m_durTime) m_durTime->setText(formatTime(dur));
+            }
+        }
+    });
+    
+    setupUi();
 }
 
 void PlayerBar::setupUi()
@@ -237,15 +246,37 @@ void PlayerBar::setupUi()
             if (m_engine->playbackState() == PlayerEngine::Playing) m_engine->fadeOut();
             else m_engine->fadeIn();
         });
-        connect(m_engine, &PlayerEngine::stateChanged, this, [this]() { updateState(); });
-        // 进度条跟随播放位置
-        connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 pos) {
-            if (m_curTime) m_curTime->setText(formatTime(pos));
-            if (m_engine->duration() > 0)
-                m_progress->setValue(static_cast<int>(pos * 1000 / m_engine->duration()));
+        connect(m_engine, &PlayerEngine::stateChanged, this, [this]() { 
+            updateState();
+            // 根据播放状态启动或停止定时器
+            if (m_engine->playbackState() == PlayerEngine::Playing) {
+                m_updateTimer->start();
+            } else {
+                m_updateTimer->stop();
+            }
         });
+        // 时长变化时更新
         connect(m_engine, &PlayerEngine::durationChanged, this, [this](qint64 dur) {
+            m_lastDuration = dur;
             if (m_durTime) m_durTime->setText(formatTime(dur));
+        });
+        // 进度条拖动时更新预览时间（但不改变播放位置）
+        connect(m_progress, &QSlider::sliderMoved, this, [this](int value) {
+            if (m_engine && m_engine->duration() > 0) {
+                qint64 position = static_cast<qint64>(value) * m_engine->duration() / 1000;
+                if (m_curTime) m_curTime->setText(formatTime(position));
+            }
+        });
+        
+        // 进度条释放时改变播放位置
+        connect(m_progress, &QSlider::sliderReleased, this, [this]() {
+            if (m_engine && m_engine->duration() > 0) {
+                int value = m_progress->value();
+                qint64 position = static_cast<qint64>(value) * m_engine->duration() / 1000;
+                m_engine->setPosition(position);
+                // 更新最后位置，避免定时器重复更新
+                m_lastPosition = position;
+            }
         });
     }
 }

@@ -26,20 +26,33 @@ QMainWindow {
 }
 
 #tbSearch {
-    background: rgba(245, 240, 255, 18);
-    border: 1.5px solid rgba(196, 167, 231, 30);
-    border-radius: 17px;
-    padding: 6px 18px;
+    background: rgba(245, 240, 255, 15);
+    border: 1.5px solid rgba(196, 167, 231, 40);
+    border-radius: 20px;
+    padding: 8px 20px 8px 40px;
     color: #F5F0FF;
     font-size: 13px;
-    selection-background-color: #C4A7E7;
+    selection-background-color: rgba(196, 167, 231, 50);
+    background-image: url(:/icons/search.svg);
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 16px 16px;
 }
 
-#tbSearch::placeholder { color: rgba(245, 240, 255, 90); }
+#tbSearch::placeholder { 
+    color: rgba(245, 240, 255, 70);
+    padding-left: 4px;
+}
 
 #tbSearch:focus {
-    background: rgba(245, 240, 255, 28);
-    border-color: rgba(126, 200, 200, 130);
+    background-color: rgba(245, 240, 255, 25);
+    border-color: rgba(126, 200, 200, 150);
+    box-shadow: 0 0 0 3px rgba(126, 200, 200, 0.1);
+}
+
+#tbSearch:hover {
+    background-color: rgba(245, 240, 255, 20);
+    border-color: rgba(196, 167, 231, 60);
 }
 
 #tbAvatarWidget {
@@ -116,30 +129,36 @@ QMainWindow {
 #sbNavItem {
     background: transparent;
     border: none;
-    border-radius: 10px;
-    color: rgba(245, 240, 255, 150);
+    border-radius: 12px;
+    color: rgba(245, 240, 255, 160);
     font-size: 13px;
     font-weight: 500;
     text-align: left;
-    padding: 10px 14px;
-    border-left: 3px solid transparent;
+    padding: 12px 16px;
+    margin: 2px 8px;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
 }
 
 #sbNavItem:hover {
-    background: rgba(196, 167, 231, 18);
+    background: rgba(196, 167, 231, 25);
     color: #F5F0FF;
-    padding-left: 17px;
+    padding-left: 20px;
+    box-shadow: 0 4px 12px rgba(196, 167, 231, 0.15);
 }
 
 #sbNavItem[active="true"] {
-    background: rgba(196, 167, 231, 35);
+    background: rgba(196, 167, 231, 40);
     color: #F5F0FF;
     border-left-color: #7EC8C8;
+    box-shadow: 0 4px 12px rgba(196, 167, 231, 0.2);
+    padding-left: 20px;
 }
 
 #sbNavItem:disabled {
-    color: rgba(245, 240, 255, 60);
+    color: rgba(245, 240, 255, 50);
     border-left-color: transparent;
+    background: transparent;
 }
 
 #sbDivider {
@@ -327,29 +346,55 @@ QMainWindow {
 }
 
 #pbPlayBtn {
-    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #C4A7E7, stop:1 #A88BD4);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #C4A7E7, stop:0.5 #B89FE0, stop:1 #A88BD4);
     border: none;
-    border-radius: 20px;
+    border-radius: 22px;
     color: #1A1625;
     font-size: 16px;
+    font-weight: bold;
+    padding: 0;
+    min-width: 44px;
+    min-height: 44px;
+    box-shadow: 0 4px 12px rgba(196, 167, 231, 0.3);
 }
 
 #pbPlayBtn:hover {
-    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #D4BFF0, stop:1 #C4A7E7);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #D4BFF0, stop:0.5 #C4A7E7, stop:1 #B89FE0);
+    box-shadow: 0 6px 16px rgba(196, 167, 231, 0.4);
+    transform: translateY(-1px);
+}
+
+#pbPlayBtn:pressed {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #A88BD4, stop:0.5 #9478C8, stop:1 #8865C0);
+    box-shadow: 0 2px 8px rgba(196, 167, 231, 0.2);
+    transform: translateY(1px);
+}
 }
 
 #pbCtrlBtn {
-    background: transparent;
-    border: none;
-    border-radius: 16px;
-    color: rgba(245, 240, 255, 160);
+    background: rgba(196, 167, 231, 10);
+    border: 1px solid rgba(196, 167, 231, 30);
+    border-radius: 18px;
+    color: rgba(245, 240, 255, 180);
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 18px;
 }
 
 #pbCtrlBtn:hover {
-    background: rgba(196, 167, 231, 25);
+    background: rgba(196, 167, 231, 30);
+    border-color: rgba(196, 167, 231, 60);
     color: #F5F0FF;
+    box-shadow: 0 4px 12px rgba(196, 167, 231, 0.2);
+}
+
+#pbCtrlBtn:pressed {
+    background: rgba(168, 139, 212, 40);
+    border-color: rgba(168, 139, 212, 80);
+    transform: translateY(1px);
 }
 
 #pbTime {
@@ -359,29 +404,47 @@ QMainWindow {
 
 /* ─── 滑块 ──────────────────────────────────────────────── */
 QSlider::groove:horizontal {
-    background: rgba(245, 240, 255, 25);
-    height: 3px;
-    border-radius: 1.5px;
+    background: rgba(245, 240, 255, 20);
+    height: 4px;
+    border-radius: 2px;
 }
 
 QSlider::handle:horizontal {
-    background: #C4A7E7;
-    width: 10px;
-    height: 10px;
-    margin: -3.5px 0;
-    border-radius: 5px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #F5F0FF, stop:1 #C4A7E7);
+    width: 14px;
+    height: 14px;
+    margin: -5px 0;
+    border-radius: 7px;
+    border: 1px solid rgba(168, 139, 212, 100);
 }
 
-QSlider::handle:horizontal:hover { background: #D4BFF0; }
+QSlider::handle:horizontal:hover { 
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #FFFFFF, stop:1 #D4BFF0);
+    border-color: rgba(196, 167, 231, 150);
+}
 
 QSlider::sub-page:horizontal {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-        stop:0 #C4A7E7, stop:1 #A88BD4);
-    border-radius: 1.5px;
+        stop:0 #C4A7E7, stop:0.5 #D4BFF0, stop:1 #A88BD4);
+    border-radius: 2px;
 }
 
-#pbVolume::groove:horizontal { height: 2px; }
-#pbVolume::handle:horizontal { width: 8px; height: 8px; margin: -3px 0; border-radius: 4px; }
+#pbVolume::groove:horizontal { height: 3px; }
+#pbVolume::handle:horizontal { 
+    width: 12px; 
+    height: 12px; 
+    margin: -4.5px 0; 
+    border-radius: 6px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #F5F0FF, stop:1 #7EC8C8);
+    border: 1px solid rgba(126, 200, 200, 100);
+}
+#pbVolume::handle:horizontal:hover { 
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 #FFFFFF, stop:1 #9DD8D8);
+}
 
 /* ─── 滚动条 ────────────────────────────────────────────── */
 QScrollBar:vertical {
