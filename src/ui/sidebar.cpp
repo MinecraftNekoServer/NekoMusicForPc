@@ -114,11 +114,15 @@ void Sidebar::setupUi()
     m_favDivider = new QWidget(container);
     m_favDivider->setObjectName("sbDivider");
     m_favDivider->setFixedHeight(1);
+    // 默认隐藏，等待数据加载完成后决定是否显示
+    m_favDivider->setVisible(false);
     lay->addWidget(m_favDivider);
 
     // 收藏歌单标题
     m_favHeader = new QLabel(I18n::instance().tr("favoritePlaylistsTitle"), container);
     m_favHeader->setObjectName("sbPlaylistTitle");
+    // 默认隐藏，等待数据加载完成后决定是否显示
+    m_favHeader->setVisible(false);
     lay->addWidget(m_favHeader);
 
     // 收藏歌单容器
@@ -126,6 +130,8 @@ void Sidebar::setupUi()
     m_favPlaylistLayout = new QVBoxLayout(m_favPlaylistContainer);
     m_favPlaylistLayout->setContentsMargins(4, 0, 4, 0);
     m_favPlaylistLayout->setSpacing(2);
+    // 默认隐藏，等待数据加载完成后决定是否显示
+    m_favPlaylistContainer->setVisible(false);
     lay->addWidget(m_favPlaylistContainer);
 
     lay->addStretch();
