@@ -1,4 +1,4 @@
-name: Build macOS PKG (robust, fixed upload)
+name: Build macOS PKG (pkgbuild, robust versioning)
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Generate AppIcon.icns (with fallback)
         run: |
-          set -e
+          set -euo pipefail
           cd "$GITHUB_WORKSPACE"
           SRC="$GITHUB_WORKSPACE/packaging/icons/hicolor/512x512/apps/nekomusic.png"
           echo "Looking for icon at: $SRC"
@@ -66,7 +66,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          set -e
+          set -euo pipefail
           cd "$GITHUB_WORKSPACE"
           rm -rf build-macos
           mkdir -p build-macos
@@ -80,13 +80,13 @@ jobs:
 
       - name: Build
         run: |
-          set -e
+          set -euo pipefail
           cd "$GITHUB_WORKSPACE/build-macos"
           cmake --build . -j$(sysctl -n hw.ncpu) --verbose
 
       - name: Install to install-prefix
         run: |
-          set -e
+          set -euo pipefail
           BUILD_DIR="$GITHUB_WORKSPACE/build-macos"
           INSTALL_PREFIX="$BUILD_DIR/install"
           echo "Installing to $INSTALL_PREFIX"
@@ -100,7 +100,7 @@ jobs:
       - id: package_pkgbuild
         name: Package with pkgbuild (single .app -> .pkg)
         run: |
-          set -e
+          set -euo pipefail
           BUILD_DIR="$GITHUB_WORKSPACE/build-macos"
           INSTALL_PREFIX="$BUILD_DIR/install"
           PKG_OUTDIR="$BUILD_DIR/pkg"
@@ -114,11 +114,21 @@ jobs:
           fi
           echo "Found app to package: $APP_DIR"
 
-          VERSION="0.0.0"
-          if [ -f "$BUILD_DIR/CMakeCache.txt" ]; then
-            ver=$(grep -E "^PROJECT_VERSION:STATIC=" "$BUILD_DIR/CMakeCache.txt" | sed -E 's/.*=//')
-            if [ -n "$ver" ]; then VERSION="$ver"; fi
+          # Detect version robustly: try cmake cache, CMakeCache.txt, then CMakeLists source
+          VERSION=""
+          # 1) try cmake -LA -N from build dir
+          cd "$BUILD_DIR"
+          VERSION=$(cmake -LA -N . 2>/dev/null | sed -n 's/^PROJECT_VERSION[^=]*=//p' | head -n1 || true)
+          # 2) fallback to CMakeCache.txt
+          if [ -z "$VERSION" ] && [ -f CMakeCache.txt ]; then
+            VERSION=$(grep -Eo '^PROJECT_VERSION[^=]*=.*' CMakeCache.txt 2>/dev/null | sed -E 's/.*=//' | head -n1 || true)
           fi
+          # 3) fallback to parsing top-level CMakeLists.txt
+          if [ -z "$VERSION" ] && [ -f ../CMakeLists.txt ]; then
+            VERSION=$(sed -n '1,80p' ../CMakeLists.txt | sed -n 's/.*VERSION[[:space:]]\+\([0-9.]\+\).*/\1/p' | head -n1 || true)
+          fi
+          VERSION=${VERSION:-0.0.0}
+          echo "Packaging version detected: $VERSION"
 
           PKG_PATH="$PKG_OUTDIR/NekoMusic-${VERSION}.pkg"
           echo "Creating pkg: $PKG_PATH (installing to /Applications)"
@@ -128,21 +138,21 @@ jobs:
           echo "== pkg created =="
           ls -lh "$PKG_PATH" || true
 
-          # Expand to inspect contents
+          # Expand to inspect contents for diagnostics
           TMPDIR=$(mktemp -d)
           pkgutil --expand "$PKG_PATH" "$TMPDIR/expanded" || echo "pkgutil expand failed"
           echo "Expanded package tree (top):"
           ls -la "$TMPDIR/expanded" || true
 
           # Export path for other steps
-          echo "pkg_path=$PKG_PATH" >> $GITHUB_OUTPUT
-          echo "pkg_name=$(basename "$PKG_PATH")" >> $GITHUB_OUTPUT
-          echo "PKG_PATH=$PKG_PATH" >> $GITHUB_ENV
+          echo "pkg_path=$PKG_PATH" >> "$GITHUB_OUTPUT"
+          echo "pkg_name=$(basename "$PKG_PATH")" >> "$GITHUB_OUTPUT"
+          echo "PKG_PATH=$PKG_PATH" >> "$GITHUB_ENV"
 
       - name: Show pkg info (sanity)
         run: |
-          set -e
-          echo "Env PKG_PATH: $PKG_PATH"
+          set -euo pipefail
+          echo "Env PKG_PATH: ${PKG_PATH:-<unset>}"
           PKG="${PKG_PATH:-$(find "$GITHUB_WORKSPACE/build-macos" -name '*.pkg' -type f | head -n1 || true)}"
           echo "Resolved PKG: $PKG"
           if [ -z "$PKG" ]; then
