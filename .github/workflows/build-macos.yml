@@ -51,6 +51,11 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           cmake --build build-macos -j$(sysctl -n hw.ncpu)
 
+      - name: Install
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          cmake --install build-macos --prefix build-macos/install
+
       - name: Verify Universal Binary
         run: |
           cd "$GITHUB_WORKSPACE"
