@@ -278,7 +278,7 @@ endif()
 #    add_custom_target(preinstall COMMAND ${CMAKE_COMMAND} -E echo "preinstall: no-op for macOS")
 #endif()
 #
-#include(CPack)
+include(CPack)
 
 # Tests
 if(BUILD_TESTING)
