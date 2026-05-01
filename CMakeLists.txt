@@ -273,6 +273,11 @@ elseif(APPLE)
     set(CPACK_PACKAGE_FILE_NAME "Neko云音乐-${CPACK_PACKAGE_VERSION}-macos-${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
+# macOS: dummy preinstall target to satisfy CPack productbuild
+if(APPLE)
+    add_custom_target(preinstall COMMAND ${CMAKE_COMMAND} -E echo "preinstall: no-op for macOS")
+endif()
+
 include(CPack)
 
 # Tests
