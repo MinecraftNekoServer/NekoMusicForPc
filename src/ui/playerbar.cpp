@@ -132,8 +132,29 @@ void PlayerBarInkButton::paintEvent(QPaintEvent *event)
     QStylePainter painter(this);
     painter.drawControl(QStyle::CE_PushButton, option);
 
-    if (property("pbLoading").toBool())
+    if (property("pbLoading").toBool()) {
+        painter.save();
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        const int ang = property("pbSpinAngle").toInt();
+        const QRect r = rect();
+        const QPoint c = r.center();
+        const int R = qMin(r.width(), r.height()) / 2 - 4;
+        painter.translate(c);
+
+        const bool dark = Theme::ThemeManager::instance().isDarkMode();
+        const QColor track = dark ? QColor(196, 167, 231, 72) : QColor(150, 130, 195, 90);
+        QPen penTrack(track, 2.0, Qt::SolidLine, Qt::RoundCap);
+        painter.setPen(penTrack);
+        painter.drawArc(-R, -R, 2 * R, 2 * R, 0, 360 * 16);
+
+        painter.rotate(ang);
+        const QColor arc = dark ? QColor(250, 245, 255, 238) : QColor(90, 65, 130, 245);
+        QPen penArc(arc, 2.8, Qt::SolidLine, Qt::RoundCap);
+        painter.setPen(penArc);
+        painter.drawArc(-R, -R, 2 * R, 2 * R, -90 * 16, 285 * 16);
+        painter.restore();
         return;
+    }
 
     const PbInk ink = static_cast<PbInk>(property("pbInk").toInt());
     if (ink == PbInk::None)
@@ -515,6 +536,8 @@ void PlayerBar::setupUi()
             s.setValue(kSettingsKeyVolume, m_volumeSlider->value());
         });
         connect(m_playBtn, &QPushButton::clicked, this, [this]() {
+            if (m_isLoading)
+                return;
             if (m_engine->playbackState() == PlayerEngine::Playing) m_engine->fadeOut();
             else m_engine->fadeIn();
         });
@@ -812,22 +835,33 @@ void PlayerBar::setLoading(bool loading)
     if (loading) {
         if (m_playBtn) {
             m_playBtn->setProperty("pbLoading", true);
+            m_playBtn->setProperty("pbSpinAngle", 0);
+            m_playBtn->setEnabled(false);
             m_playBtn->setToolTip(I18n::instance().tr("loading"));
             m_playBtn->update();
         }
-        QTimer *timer = new QTimer(this);
-        timer->setObjectName("loadingTimer");
-        timer->setInterval(30);
-        connect(timer, &QTimer::timeout, this, [this, timer]() {
-            if (!m_isLoading) { timer->stop(); return; }
-            m_loadingAngle = (m_loadingAngle + 12) % 360;
-            update();
-        });
-        timer->start();
+        if (!m_loadingTimer) {
+            m_loadingTimer = new QTimer(this);
+            connect(m_loadingTimer, &QTimer::timeout, this, [this]() {
+                if (!m_isLoading) {
+                    m_loadingTimer->stop();
+                    return;
+                }
+                m_loadingAngle = (m_loadingAngle + 6) % 360;
+                if (m_playBtn) {
+                    m_playBtn->setProperty("pbSpinAngle", m_loadingAngle);
+                    m_playBtn->update();
+                }
+            });
+        }
+        m_loadingTimer->setInterval(16);
+        m_loadingTimer->start();
     } else {
-        if (QTimer *timer = findChild<QTimer *>("loadingTimer")) {
-            timer->stop();
-            timer->deleteLater();
+        if (m_loadingTimer)
+            m_loadingTimer->stop();
+        if (m_playBtn) {
+            m_playBtn->setProperty("pbLoading", false);
+            m_playBtn->setEnabled(true);
         }
         updateState();
     }
@@ -854,9 +888,12 @@ void PlayerBar::updateState()
     if (!m_engine) return;
     bool playing = m_engine->playbackState() == PlayerEngine::Playing;
     if (m_playBtn) {
-        m_playBtn->setProperty("pbLoading", false);
+        if (!m_isLoading)
+            m_playBtn->setProperty("pbLoading", false);
         m_playBtn->setProperty("pbPlaying", playing);
-        m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
+        if (!m_isLoading) {
+            m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
+        }
         m_playBtn->update();
     }
 }
@@ -882,23 +919,4 @@ void PlayerBar::paintEvent(QPaintEvent *)
     QPainter p(this);
     GlassPaint::paintBarGlass(p, rect(), GlassPaint::BarKind::PlayerBar,
                               Theme::ThemeManager::instance().isDarkMode());
-
-    // Draw loading spinner on play button area
-    if (m_isLoading && m_playBtn) {
-        QRect btnRect = m_playBtn->geometry();
-        QPoint center = btnRect.center();
-        int radius = 18;
-
-        p.save();
-        p.translate(center);
-        p.rotate(m_loadingAngle);
-
-        QPen pen(QColor(196, 167, 231, 220), 2.5);
-        pen.setCapStyle(Qt::RoundCap);
-        p.setPen(pen);
-
-        // Draw arc (270 degrees, leaving a gap for spinner effect)
-        p.drawArc(-radius, -radius, radius * 2, radius * 2, 0, 270 * 16);
-        p.restore();
-    }
 }

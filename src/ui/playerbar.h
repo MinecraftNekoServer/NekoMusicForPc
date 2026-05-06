@@ -86,4 +86,5 @@ private:
     bool m_isFavorited = false;
     bool m_isLoading = false;
     int m_loadingAngle = 0;
+    QTimer *m_loadingTimer = nullptr;
 };
