@@ -352,6 +352,24 @@ QMainWindow {
     color: #F5F0FF;
 }
 
+#pbDesktopLrcBtn {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(245, 240, 255, 150);
+    padding: 0;
+}
+
+#pbDesktopLrcBtn:hover {
+    background: rgba(196, 167, 231, 25);
+    color: #F5F0FF;
+}
+
+#pbDesktopLrcBtn:checked {
+    background: rgba(196, 167, 231, 45);
+    color: #C4A7E7;
+}
+
 #pbTime {
     font-size: 11px;
     color: rgba(245, 240, 255, 100);

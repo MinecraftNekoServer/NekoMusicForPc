@@ -516,14 +516,13 @@ void MainWindow::setupUi()
         }
     });
     
-    // 连接桌面歌词设置变化
-    connect(m_settingsPage, &SettingsPage::desktopLyricsChanged, this, [this](bool enabled) {
+    // 连接桌面歌词开关（播放栏「词」按钮）
+    connect(m_playerBar, &PlayerBar::desktopLyricsToggled, this, [this](bool enabled) {
         if (m_desktopLrc) {
-            if (enabled) {
+            if (enabled)
                 m_desktopLrc->showWindow();
-            } else {
+            else
                 m_desktopLrc->hideWindow();
-            }
         }
     });
     

@@ -25,6 +25,7 @@ class PlayerBar : public QWidget
 signals:
     void coverClicked();
     void playlistClicked();
+    void desktopLyricsToggled(bool enabled);
     void previousClicked();
     void nextClicked();
     void favoriteClicked(int musicId);
@@ -68,6 +69,7 @@ private:
     QWidget *m_volumePanel = nullptr;
     QSlider *m_volumeSlider = nullptr;
     QPushButton *m_volumeBtn = nullptr;
+    QPushButton *m_desktopLrcBtn = nullptr;
     QLabel *m_volumeLabel = nullptr;
     QGraphicsOpacityEffect *m_volumeOpacityFx = nullptr;
     QPropertyAnimation *m_volumeOpAnim = nullptr;
