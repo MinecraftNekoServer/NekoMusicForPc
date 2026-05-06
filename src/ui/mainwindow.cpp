@@ -759,13 +759,10 @@ void MainWindow::playNext()
         if (m_isDownloading) return; // 二次检查
         m_isDownloading = true;
 
-        // 重新建立连接（确保旧的已断开）
-        // 建议使用 Qt::UniqueConnection 确保连接唯一性
-        m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this, [this](auto path){
+        // 重新建立连接（playNext 开头已 disconnectDownloader，勿对 lambda 使用 UniqueConnection）
+        m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this, [this](const QString &path) {
             m_engine->play(QUrl::fromLocalFile(path));
-        }, Qt::UniqueConnection);
-
-        // ... 其他 connect 也要加 Qt::UniqueConnection ...
+        });
 
         m_downloader->download(QUrl(QString("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id)));
     });
