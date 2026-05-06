@@ -449,9 +449,7 @@ void MainWindow::setupUi()
 
     // 播放位置变化时更新歌词高亮
     connect(m_engine, &PlayerEngine::positionChanged, m_playerPage, &PlayerPage::updateLyricHighlight);
-    
-    // 播放结束时自动切歌
-    connect(m_engine, &PlayerEngine::playbackFinished, this, &MainWindow::playNext);
+    // 注意：自动切歌仅连接上方 playbackFinished 的 lambda，勿重复 connect playNext
 
     // 语言切换
     connect(m_settingsPage, &SettingsPage::languageChanged, m_hotMusicPage, &MusicListPage::retranslate);

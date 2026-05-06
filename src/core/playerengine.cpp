@@ -163,9 +163,9 @@ void PlayerEngine::onMediaStateChanged(QMediaPlayer::PlaybackState state)
         break;
     case QMediaPlayer::StoppedState:
         m_state = Stopped;
-        // 播放结束时发出信号，用于自动切歌
+        // 勿在此处 emit playbackFinished：用户 stop() 切歌也会进入 Stopped，
+        // 会与「自然播完」竞态，误触发自动下一首。自然结束由 MediaStatus::EndOfMedia 发出。
         emit stateChanged(m_state);
-        emit playbackFinished();
         break;
     }
     emit stateChanged(m_state);
