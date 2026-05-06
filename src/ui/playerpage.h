@@ -1,5 +1,7 @@
 #pragma once
 
+#include "glasswidget.h"
+
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
@@ -41,12 +43,24 @@ signals:
 
 private:
     void setupUi();
+    void applyPlayerPageStyle();
     void loadCover(const QString &url);
     void applyCoverPixmap(const QPixmap &sourcePixmap);
     void parseLrc(const QString &lrc);
     void rebuildLyricLabels();
 
     PlayerEngine *m_engine;
+
+    GlassWidget *m_leftGlass = nullptr;
+    GlassWidget *m_rightGlass = nullptr;
+
+    QString m_clrTitle;
+    QString m_clrArtist;
+    QString m_clrAlbum;
+    QString m_clrLyricDim;
+    QString m_clrLyricHi;
+    QString m_clrLyricHiTrans;
+    QString m_clrLyricHiBg;
 
     QPushButton *m_backBtn;
     QLabel *m_coverLabel;

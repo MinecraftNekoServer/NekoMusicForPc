@@ -3,9 +3,15 @@
 #include "../core/i18n.h"
 #include "../core/covercache.h"
 #include "../theme/theme.h"
+#include "../theme/thememanager.h"
+#include "glasspaint.h"
 
 #include <QPainter>
 #include <QPainterPath>
+#include <QColor>
+#include <QFrame>
+#include <QShowEvent>
+#include <QSizePolicy>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QNetworkReply>
@@ -23,6 +29,14 @@ PlayerPage::PlayerPage(PlayerEngine *engine, QWidget *parent)
 {
     setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
+
+    connect(&Theme::ThemeManager::instance(), &Theme::ThemeManager::themeChanged, this,
+            [this](Theme::ThemeMode) {
+                applyPlayerPageStyle();
+                update();
+                rebuildLyricLabels();
+                updateLyricHighlight(m_engine->position());
+            });
 }
 
 PlayerPage::~PlayerPage() = default;
@@ -30,15 +44,127 @@ PlayerPage::~PlayerPage() = default;
 void PlayerPage::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-
-    // 深色渐变背景
-    QLinearGradient grad(rect().topLeft(), rect().bottomRight());
-    grad.setColorAt(0.0, QColor(20, 16, 30));
-    grad.setColorAt(1.0, QColor(30, 24, 45));
-    p.fillRect(rect(), grad);
+    GlassPaint::paintMainWindowDeepBackdrop(p, rect(), Theme::ThemeManager::instance().isDarkMode());
 
     QWidget::paintEvent(event);
+}
+
+void PlayerPage::applyPlayerPageStyle()
+{
+    const bool dark = Theme::ThemeManager::instance().isDarkMode();
+
+    if (m_leftGlass) {
+        if (dark) {
+            m_leftGlass->setBaseColor(QColor(45, 38, 65));
+            m_leftGlass->setBorderColor(QColor(196, 167, 231, 58));
+            m_leftGlass->setOpacity(0.54);
+        } else {
+            m_leftGlass->setBaseColor(QColor(255, 255, 255));
+            m_leftGlass->setBorderColor(QColor(111, 66, 193, 70));
+            m_leftGlass->setOpacity(0.64);
+        }
+        m_leftGlass->setBorderRadius(Theme::kRXl);
+    }
+    if (m_rightGlass) {
+        if (dark) {
+            m_rightGlass->setBaseColor(QColor(40, 34, 58));
+            m_rightGlass->setBorderColor(QColor(196, 167, 231, 48));
+            m_rightGlass->setOpacity(0.50);
+        } else {
+            m_rightGlass->setBaseColor(QColor(255, 255, 255));
+            m_rightGlass->setBorderColor(QColor(111, 66, 193, 55));
+            m_rightGlass->setOpacity(0.58);
+        }
+        m_rightGlass->setBorderRadius(Theme::kRLg);
+    }
+
+    if (dark) {
+        m_clrTitle = QString::fromUtf8(Theme::kLavender);
+        m_clrArtist = QString::fromUtf8(Theme::kTextSub);
+        m_clrAlbum = QString::fromUtf8(Theme::kTextMuted);
+        m_clrLyricDim = QString::fromUtf8(Theme::kTextMuted);
+        m_clrLyricHi = QString::fromUtf8(Theme::kLavender);
+        m_clrLyricHiTrans = QString::fromUtf8(Theme::kLavenderLt);
+        m_clrLyricHiBg = QStringLiteral("rgba(196,167,231,24)");
+    } else {
+        m_clrTitle = QStringLiteral("#6F42C1");
+        m_clrArtist = QStringLiteral("rgba(33,37,41,0.78)");
+        m_clrAlbum = QStringLiteral("rgba(33,37,41,0.52)");
+        m_clrLyricDim = QStringLiteral("rgba(33,37,41,0.52)");
+        m_clrLyricHi = QStringLiteral("#6F42C1");
+        m_clrLyricHiTrans = QStringLiteral("#8B6FC4");
+        m_clrLyricHiBg = QStringLiteral("rgba(196,167,231,0.38)");
+    }
+
+    const QString backFg = dark ? QString::fromUtf8(Theme::kLavender) : QStringLiteral("#6F42C1");
+    const QString coverBorder = dark ? QStringLiteral("rgba(196,167,231,32)")
+                                     : QStringLiteral("rgba(111,66,193,0.32)");
+
+    const int backBgA = dark ? 18 : 22;
+    const int backBdA = dark ? 32 : 40;
+    const int backHiA = dark ? 42 : 55;
+    const int backHiBdA = dark ? 62 : 75;
+    const int sepA = dark ? 40 : 48;
+    const int sbA = dark ? 60 : 85;
+    const int sbHiA = dark ? 100 : 120;
+
+    setStyleSheet(QString::fromUtf8(
+                      "#playerPage { background: transparent; }"
+
+                      "#playerBackBtn { "
+                      "  background: rgba(196,167,231,%5); color: %1; font-size: 20px; "
+                      "  border: 1px solid rgba(196,167,231,%6); border-radius: 22px; }"
+                      "#playerBackBtn:hover { "
+                      "  background: rgba(196,167,231,%7); color: %1; border-color: rgba(196,167,231,%8); }"
+
+                      "#playerCoverLabel { "
+                      "  background: transparent; "
+                      "  border: 2px solid %2; "
+                      "  border-radius: 32px; }"
+
+                      "#playerSongTitleLabel { "
+                      "  color: %3; font-size: 22px; font-weight: 600; "
+                      "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
+
+                      "#playerArtistLabel { "
+                      "  color: %4; font-size: 15px; font-weight: 400; "
+                      "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
+
+                      "#playerAlbumLabel { "
+                      "  color: %9; font-size: 13px; "
+                      "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
+
+                      "#lyricsTitleLabel { "
+                      "  color: %3; font-size: 18px; font-weight: 600; "
+                      "  background: transparent; padding-left: 16px; }"
+
+                      "#lyricsSeparator { "
+                      "  background: qlineargradient(x1:0,y1:0,x2:1,y2:0, "
+                      "    stop:0 rgba(196,167,231,%10), stop:1 rgba(196,167,231,0)); }"
+
+                      "#lyricsScroll { "
+                      "  background: transparent; border: none; }"
+                      "#lyricsScroll > QWidget { background: transparent; }"
+
+                      "QScrollBar:vertical { width: 4px; background: transparent; }"
+                      "QScrollBar::handle:vertical { "
+                      "  background: rgba(196,167,231,%11); border-radius: 2px; min-height: 50px; }"
+                      "QScrollBar::handle:vertical:hover { "
+                      "  background: rgba(196,167,231,%12); }"
+                      "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
+                      "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }")
+                      .arg(backFg)
+                      .arg(coverBorder)
+                      .arg(m_clrTitle)
+                      .arg(m_clrArtist)
+                      .arg(backBgA)
+                      .arg(backBdA)
+                      .arg(backHiA)
+                      .arg(backHiBdA)
+                      .arg(m_clrAlbum)
+                      .arg(sepA)
+                      .arg(sbA)
+                      .arg(sbHiA));
 }
 
 void PlayerPage::setupUi()
@@ -70,29 +196,34 @@ void PlayerPage::setupUi()
     contentRow->setSpacing(56);
     contentRow->setContentsMargins(0, 0, 0, 0);
 
-    // 左侧封面列
-    auto *coverCol = new QVBoxLayout();
+    m_leftGlass = new GlassWidget(this);
+    m_leftGlass->setObjectName(QStringLiteral("playerLeftGlass"));
+    m_leftGlass->setAttribute(Qt::WA_StyledBackground, false);
+    m_leftGlass->setFixedWidth(320 + 48); // 封面 + 左右内边距
+    m_leftGlass->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+
+    auto *coverCol = new QVBoxLayout(m_leftGlass);
     coverCol->setSpacing(20);
+    coverCol->setContentsMargins(24, 28, 24, 28);
     coverCol->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 
-    // 封面容器（带阴影效果）
-    m_coverLabel = new QLabel(this);
+    m_coverLabel = new QLabel(m_leftGlass);
     m_coverLabel->setFixedSize(320, 320);
     m_coverLabel->setScaledContents(false);
     m_coverLabel->setAlignment(Qt::AlignCenter);
     m_coverLabel->setObjectName("playerCoverLabel");
 
-    m_titleLabel = new QLabel(I18n::instance().tr("unknown"), this);
+    m_titleLabel = new QLabel(I18n::instance().tr("unknown"), m_leftGlass);
     m_titleLabel->setObjectName("playerSongTitleLabel");
     m_titleLabel->setAlignment(Qt::AlignCenter);
     m_titleLabel->setWordWrap(true);
     m_titleLabel->setMaximumWidth(340);
 
-    m_artistLabel = new QLabel(I18n::instance().tr("unknownArtist"), this);
+    m_artistLabel = new QLabel(I18n::instance().tr("unknownArtist"), m_leftGlass);
     m_artistLabel->setObjectName("playerArtistLabel");
     m_artistLabel->setAlignment(Qt::AlignCenter);
 
-    m_albumLabel = new QLabel();
+    m_albumLabel = new QLabel(m_leftGlass);
     m_albumLabel->setObjectName("playerAlbumLabel");
     m_albumLabel->setAlignment(Qt::AlignCenter);
 
@@ -106,28 +237,31 @@ void PlayerPage::setupUi()
     coverCol->addWidget(m_albumLabel);
     coverCol->addStretch();
 
-    // 右侧歌词区
-    auto *lyricsCol = new QVBoxLayout();
-    lyricsCol->setContentsMargins(0, 0, 0, 0);
+    m_rightGlass = new GlassWidget(this);
+    m_rightGlass->setObjectName(QStringLiteral("playerRightGlass"));
+    m_rightGlass->setAttribute(Qt::WA_StyledBackground, false);
+    m_rightGlass->setMinimumWidth(520);
+    m_rightGlass->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    auto *lyricsCol = new QVBoxLayout(m_rightGlass);
+    lyricsCol->setContentsMargins(20, 22, 22, 24);
     lyricsCol->setSpacing(0);
 
-    // 歌词标题
-    auto *lyricsTitle = new QLabel(I18n::instance().tr("lyrics"), this);
+    auto *lyricsTitle = new QLabel(I18n::instance().tr("lyrics"), m_rightGlass);
     lyricsTitle->setObjectName("lyricsTitleLabel");
     lyricsTitle->setMaximumWidth(500);
 
     lyricsCol->addWidget(lyricsTitle);
     lyricsCol->addSpacing(16);
 
-    // 歌词分隔线
-    auto *separator = new QLabel(this);
+    auto *separator = new QLabel(m_rightGlass);
     separator->setFixedHeight(1);
     separator->setObjectName("lyricsSeparator");
     separator->setMaximumWidth(500);
     lyricsCol->addWidget(separator);
     lyricsCol->addSpacing(16);
 
-    m_lyricsScroll = new QScrollArea(this);
+    m_lyricsScroll = new QScrollArea(m_rightGlass);
     m_lyricsScroll->setObjectName("lyricsScroll");
     m_lyricsScroll->setWidgetResizable(true);
     m_lyricsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -143,67 +277,12 @@ void PlayerPage::setupUi()
     m_lyricsScroll->setWidget(m_lyricsContainer);
     lyricsCol->addWidget(m_lyricsScroll, 1);
 
-    contentRow->addLayout(coverCol, 0);
-    contentRow->addLayout(lyricsCol, 1);
+    contentRow->addWidget(m_leftGlass, 0);
+    contentRow->addWidget(m_rightGlass, 1);
 
     mainLayout->addLayout(contentRow, 1);
 
-    // ─── 样式 ───
-    setStyleSheet(QString::fromUtf8(
-        "#playerPage { background: transparent; }"
-
-        // 返回按钮
-        "#playerBackBtn { "
-        "  background: rgba(196,167,231,15); color: %1; font-size: 20px; "
-        "  border: 1px solid rgba(196,167,231,30); border-radius: 22px; }"
-        "#playerBackBtn:hover { "
-        "  background: rgba(196,167,231,40); color: %1; border-color: rgba(196,167,231,60); }"
-
-        // 封面
-        "#playerCoverLabel { "
-        "  background: transparent; "
-        "  border: 2px solid rgba(196,167,231,25); "
-        "  border-radius: 32px; }"
-
-        // 歌曲标题
-        "#playerSongTitleLabel { "
-        "  color: %1; font-size: 22px; font-weight: 600; "
-        "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
-
-        // 艺术家
-        "#playerArtistLabel { "
-        "  color: %2; font-size: 15px; font-weight: 400; "
-        "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
-
-        // 专辑
-        "#playerAlbumLabel { "
-        "  color: %3; font-size: 13px; "
-        "  background: transparent; qproperty-alignment: 'AlignCenter'; }"
-
-        // 歌词标题
-        "#lyricsTitleLabel { "
-        "  color: %1; font-size: 18px; font-weight: 600; "
-        "  background: transparent; padding-left: 16px; }"
-
-        // 分隔线
-        "#lyricsSeparator { "
-        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:0, "
-        "    stop:0 rgba(196,167,231,40), stop:1 rgba(196,167,231,0)); }"
-
-        // 歌词滚动区
-        "#lyricsScroll { "
-        "  background: transparent; border: none; }"
-        "#lyricsScroll > QWidget { background: transparent; }"
-
-        // 滚动条
-        "QScrollBar:vertical { width: 4px; background: transparent; }"
-        "QScrollBar::handle:vertical { "
-        "  background: rgba(196,167,231,60); border-radius: 2px; min-height: 50px; }"
-        "QScrollBar::handle:vertical:hover { "
-        "  background: rgba(196,167,231,100); }"
-        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
-        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }"
-    ).arg(Theme::kLavender, Theme::kTextSub, Theme::kTextMuted));
+    applyPlayerPageStyle();
 }
 
 void PlayerPage::setMusicInfo(int id, const QString &title, const QString &artist,
@@ -425,7 +504,7 @@ void PlayerPage::rebuildLyricLabels()
         noData->setObjectName("noLyricsIcon");
         noData->setStyleSheet(QString::fromUtf8(
             "color: %1; font-size: 56px; background: transparent; margin-top: 60px;"
-        ).arg(Theme::kTextMuted));
+        ).arg(m_clrLyricDim));
         m_lyricsLayout->addWidget(noData);
 
         auto *noDataLabel = new QLabel(I18n::instance().tr("noLyrics"), m_lyricsContainer);
@@ -433,7 +512,7 @@ void PlayerPage::rebuildLyricLabels()
         noDataLabel->setObjectName("noLyricsText");
         noDataLabel->setStyleSheet(QString::fromUtf8(
             "color: %1; font-size: 14px; background: transparent;"
-        ).arg(Theme::kTextMuted));
+        ).arg(m_clrLyricDim));
         m_lyricsLayout->addWidget(noDataLabel);
         m_lyricsLayout->addStretch();
         return;
@@ -454,7 +533,7 @@ void PlayerPage::rebuildLyricLabels()
         textLabel->setStyleSheet(QString::fromUtf8(
             "color: %1; font-size: 15px; background: transparent; "
             "border-radius: 8px; padding: 6px 12px;"
-        ).arg(Theme::kTextMuted));
+        ).arg(m_clrLyricDim));
         lineLayout->addWidget(textLabel);
 
         if (!m_lyrics[i].translation.isEmpty()) {
@@ -466,7 +545,7 @@ void PlayerPage::rebuildLyricLabels()
             transLabel->setStyleSheet(QString::fromUtf8(
                 "color: %1; font-size: 12px; background: transparent; "
                 "border-radius: 6px; padding: 4px 10px;"
-            ).arg(Theme::kTextMuted));
+            ).arg(m_clrLyricDim));
             lineLayout->addWidget(transLabel);
         }
 
@@ -506,16 +585,16 @@ void PlayerPage::updateLyricHighlight(qint64 positionMs)
         textLabel->setStyleSheet(QString::fromUtf8(
             "color: %1; font-size: %2; font-weight: %3; "
             "background: %4; border-radius: 8px; padding: 6px 12px;"
-        ).arg(isCurrent ? Theme::kLavender : Theme::kTextMuted)
+        ).arg(isCurrent ? m_clrLyricHi : m_clrLyricDim)
          .arg(isCurrent ? 17 : 15)
          .arg(isCurrent ? "bold" : "normal")
-         .arg(isCurrent ? "rgba(196,167,231,20)" : "transparent"));
+         .arg(isCurrent ? m_clrLyricHiBg : QStringLiteral("transparent")));
 
         if (transLabel) {
             transLabel->setStyleSheet(QString::fromUtf8(
                 "color: %1; font-size: %2; "
                 "background: transparent; border-radius: 6px; padding: 4px 10px;"
-            ).arg(isCurrent ? Theme::kLavenderLt : Theme::kTextMuted)
+            ).arg(isCurrent ? m_clrLyricHiTrans : m_clrLyricDim)
              .arg(isCurrent ? 13 : 12));
         }
     }
