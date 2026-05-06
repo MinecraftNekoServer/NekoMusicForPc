@@ -53,7 +53,9 @@ void PlayerEngine::stop()
 void PlayerEngine::setVolume(float volume)
 {
     m_targetVolume = qBound(0.0f, volume, 1.0f);
-    m_audioOutput->setVolume(m_targetVolume);
+    if (m_audioOutput) {
+        m_audioOutput->setVolume(m_targetVolume);
+    }
 }
 
 void PlayerEngine::fadeIn()

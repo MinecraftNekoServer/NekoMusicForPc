@@ -107,10 +107,13 @@ private:
     UpdateChecker *m_updateChecker = nullptr;
     UpdateDialog *m_updateDialog = nullptr;
     DesktopLrc *m_desktopLrc = nullptr;
+    
+    // Download state
+    bool m_isDownloading = false;
 
-    // Downloader signal connections (for buffered streaming)
-    QMetaObject::Connection m_bufferConn;
-    QMetaObject::Connection m_progressConn;
+    // Downloader signal connections
     QMetaObject::Connection m_finishedConn;
     QMetaObject::Connection m_errorConn;
+    QMetaObject::Connection m_bufferConn;
+    QMetaObject::Connection m_progressConn;
 };

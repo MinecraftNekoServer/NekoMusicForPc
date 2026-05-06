@@ -241,11 +241,20 @@ void PlayerBar::setupUi()
         // 进度条跟随播放位置
         connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 pos) {
             if (m_curTime) m_curTime->setText(formatTime(pos));
-            if (m_engine->duration() > 0)
+            if (m_engine->duration() > 0) {
                 m_progress->setValue(static_cast<int>(pos * 1000 / m_engine->duration()));
+            }
         });
         connect(m_engine, &PlayerEngine::durationChanged, this, [this](qint64 dur) {
             if (m_durTime) m_durTime->setText(formatTime(dur));
+        });
+        // 进度条控制播放位置
+        connect(m_progress, &QSlider::sliderReleased, this, [this]() {
+            // 释放时应用最终位置
+            if (m_engine && m_engine->duration() > 0) {
+                qint64 position = static_cast<qint64>(m_progress->value()) * m_engine->duration() / 1000;
+                m_engine->setPosition(position);
+            }
         });
     }
 }

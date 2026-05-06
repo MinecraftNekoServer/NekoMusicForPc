@@ -5,8 +5,19 @@
 #include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QCoreApplication>
 
-MusicDownloader::MusicDownloader(QObject *parent) : QObject(parent) {}
+MusicDownloader& MusicDownloader::instance()
+{
+    static MusicDownloader instance;
+    return instance;
+}
+
+MusicDownloader::MusicDownloader(QObject *parent) : QObject(parent) 
+{
+    // 配置网络管理器，减少连接保持
+    m_nam.setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
+}
 
 MusicDownloader::~MusicDownloader()
 {
@@ -15,17 +26,23 @@ MusicDownloader::~MusicDownloader()
 
 void MusicDownloader::cancel()
 {
+    qDebug() << "[MusicDownloader] cancel called";
     if (m_reply) {
         m_reply->disconnect();
         m_reply->abort();
         m_reply->deleteLater();
+        // 强制删除reply，不等待事件循环
+        QCoreApplication::processEvents();
         m_reply = nullptr;
     }
-    if (m_file && m_file->isOpen()) {
-        m_file->close();
-        m_file->deleteLater();
+    if (m_file) {
+        if (m_file->isOpen()) {
+            m_file->close();
+        }
+        delete m_file;
         m_file = nullptr;
     }
+    m_bufferEmitted = false;
 }
 
 void MusicDownloader::download(const QUrl &url)
@@ -41,7 +58,7 @@ void MusicDownloader::download(const QUrl &url)
 
     // Check if already cached
     if (QFile::exists(m_tempPath)) {
-        emit bufferReady(m_tempPath);
+        // 文件已完全下载，直接播放完整文件
         emit downloadFinished(m_tempPath);
         return;
     }
@@ -59,7 +76,8 @@ void MusicDownloader::download(const QUrl &url)
     QNetworkRequest req(url);
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     m_reply = m_nam.get(req);
-    m_reply->setParent(this);
+    // 不要设置parent，让reply在完成后自动删除
+    // m_reply->setParent(this);
 
     connect(m_reply, &QNetworkReply::downloadProgress, this, &MusicDownloader::onDownloadProgress);
     connect(m_reply, &QNetworkReply::finished, this, &MusicDownloader::onReplyFinished);
@@ -78,12 +96,16 @@ void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal
     m_bytesReceived = bytesReceived;
     m_bytesTotal = bytesTotal;
     emit downloadProgress(bytesReceived, bytesTotal);
-
-    if (bytesTotal > 0 && !m_bufferEmitted && (bytesReceived * 100 / bytesTotal) >= 10) {
-        m_bufferEmitted = true;
-        QString partPath = m_tempPath + ".part";
-        if (QFile::exists(partPath)) {
-            emit bufferReady(partPath);
+    
+    // 检查是否达到缓冲阈值（30%），如果达到且尚未发射bufferReady信号，则发射
+    if (bytesTotal > 0 && !m_bufferEmitted) {
+        double progress = static_cast<double>(bytesReceived) / bytesTotal;
+        if (progress >= 0.3) {  // 30%缓冲阈值
+            QString partPath = m_tempPath + ".part";
+            if (QFile::exists(partPath)) {
+                m_bufferEmitted = true;
+                emit bufferReady(partPath);
+            }
         }
     }
 }
@@ -117,7 +139,7 @@ void MusicDownloader::onReplyFinished()
 
     reply->deleteLater();
     if (m_file) {
-        m_file->deleteLater();
+        delete m_file;
         m_file = nullptr;
     }
 }

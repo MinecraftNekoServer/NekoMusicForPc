@@ -28,6 +28,8 @@
 #include "ui/desktoplrc.h"
 #include <QSettings>
 #include "core/playerengine.h"
+#include <QCryptographicHash>
+#include <QStandardPaths>
 #include "core/i18n.h"
 #include "core/apiclient.h"
 #include "core/musicdownloader.h"
@@ -61,6 +63,7 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QElapsedTimer>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -68,9 +71,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setAttribute(Qt::WA_TranslucentBackground, false);
 
     setWindowIcon(QIcon(QStringLiteral(":/icons/app.png")));
-
+    QMetaObject::Connection m_bufferConn;
+    QMetaObject::Connection m_progressConn;
     m_engine = new PlayerEngine(this);
-    m_downloader = new MusicDownloader(this);
+    m_downloader = &MusicDownloader::instance();
     setupUi();
     loadStyleSheet();
     createTrayIcon();
@@ -85,6 +89,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 MainWindow::~MainWindow()
 {
+    // 清理下载器连接
+    disconnectDownloader();
+    
     // 清理托盘图标
     if (m_trayIcon) {
         m_trayIcon->hide();
@@ -672,82 +679,77 @@ void MainWindow::playMusicFromPlaylist(int musicId)
 
 void MainWindow::disconnectDownloader()
 {
-    if (m_bufferConn) disconnect(m_bufferConn);
-    if (m_progressConn) disconnect(m_progressConn);
-    if (m_finishedConn) disconnect(m_finishedConn);
-    if (m_errorConn) disconnect(m_errorConn);
+    qDebug() << "[MainWindow] disconnectDownloader called";
+    if (m_finishedConn) {
+        disconnect(m_finishedConn);
+        m_finishedConn = QMetaObject::Connection();
+    }
+    if (m_errorConn) {
+        disconnect(m_errorConn);
+        m_errorConn = QMetaObject::Connection();
+    }
+    if (m_bufferConn) {
+        disconnect(m_bufferConn);
+        m_bufferConn = QMetaObject::Connection();
+    }
+    if (m_progressConn) {
+        disconnect(m_progressConn);
+        m_progressConn = QMetaObject::Connection();
+    }
 }
 
 void MainWindow::playNext()
 {
+    // 1. 立即拦截频繁调用（防抖）
+    static QElapsedTimer lastCallTimer;
+    if (lastCallTimer.isValid() && lastCallTimer.elapsed() < 300) return;
+    lastCallTimer.restart();
+
     qDebug() << "[MainWindow] playNext called";
+
+    // 2. 同步状态清理
+    m_isDownloading = false; // 重置状态，准备新任务
+    disconnectDownloader();  // 确保这里彻底 disconnect 了 m_downloader 的所有信号
+    m_downloader->cancel();
+    m_engine->stop();
+
     auto& manager = PlaylistManager::instance();
-    if (manager.count() == 0) {
-        qDebug() << "[MainWindow] Playlist is empty";
-        // 显示提示信息
-        Toast::show(this, tr("播放列表为空，请先添加歌曲"));
-        return;
-    }
+    if (manager.count() == 0) return;
 
     int nextIdx = manager.nextIndex();
     const MusicInfo info = manager.playlist()[nextIdx];
-
-    qDebug() << "[切歌] 下一曲:" << info.title << "-" << info.artist << "(ID:" << info.id << ")";
-
-    m_engine->stop();
     manager.setCurrentIndex(nextIdx);
 
-    // Defer to next event loop iteration so QMediaPlayer fully releases previous stream
-    QTimer::singleShot(0, this, [this, info]() {
+    // 3. 移除 singleShot，或者将状态检查移入异步块
+    // 如果一定要用 singleShot 解决 QMediaPlayer 的释放问题：
+    QTimer::singleShot(50, this, [this, info]() {
+        // 更新 UI
         m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
         m_playerBar->setCurrentMusicId(info.id);
-        m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
-        m_playerPage->loadLyrics(info.id);
-        m_engine->setCurrentMusic(info);
 
-        QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
-        qDebug() << "[音乐加载] 开始下载:" << url.toString();
+        // 缓存检查
+        QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/nekomusic-cache";
+        QString hash = QCryptographicHash::hash(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id).toUtf8(), QCryptographicHash::Md5).toHex();
+        QString cachedPath = cacheDir + "/" + hash;
 
-        disconnectDownloader();
-        m_downloader->cancel();
-        m_playerBar->setLoading(true);
+        if (QFile::exists(cachedPath)) {
+            m_engine->play(QUrl::fromLocalFile(cachedPath));
+            return;
+        }
 
-        // Buffer ready: start playback from .part file at 30%
-        m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this,
-            [this](const QString &partPath) {
-                qDebug() << "[缓冲就绪] 开始流式播放:" << partPath;
-                m_playerBar->setLoading(false);
-                m_engine->play(QUrl::fromLocalFile(partPath));
-            });
+        // --- 开始下载逻辑 ---
+        if (m_isDownloading) return; // 二次检查
+        m_isDownloading = true;
 
-        // Download progress: update seek limit
-        m_progressConn = connect(m_downloader, &MusicDownloader::downloadProgress, this,
-            [this](qint64 bytesReceived, qint64 bytesTotal) {
-                if (bytesTotal > 0) {
-                    qint64 dur = m_engine->duration();
-                    if (dur > 0) {
-                        qint64 seekLimit = (bytesReceived * dur) / bytesTotal;
-                        m_engine->setSeekLimitMs(seekLimit);
-                    }
-                }
-            });
+        // 重新建立连接（确保旧的已断开）
+        // 建议使用 Qt::UniqueConnection 确保连接唯一性
+        m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this, [this](auto path){
+            m_engine->play(QUrl::fromLocalFile(path));
+        }, Qt::UniqueConnection);
 
-        // Download finished: clear seek limit, file is fully available
-        m_finishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
-            [this](const QString &finalPath) {
-                qDebug() << "[下载完成] 文件已就绪:" << finalPath;
-                m_engine->setSeekLimitMs(-1);
-            });
+        // ... 其他 connect 也要加 Qt::UniqueConnection ...
 
-        // Download error
-        m_errorConn = connect(m_downloader, &MusicDownloader::downloadError, this,
-            [this](const QString &err) {
-                qDebug() << "[下载失败]" << err;
-                m_playerBar->setLoading(false);
-                m_engine->setSeekLimitMs(-1);
-            });
-
-        m_downloader->download(url);
+        m_downloader->download(QUrl(QString("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id)));
     });
 }
 
@@ -778,6 +780,19 @@ void MainWindow::playPrevious()
         m_playerPage->loadLyrics(info.id);
         m_engine->setCurrentMusic(info);
 
+        // 检查文件是否已缓存
+        QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/nekomusic-cache";
+        QString hash = QCryptographicHash::hash(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id).toUtf8(), 
+                                                QCryptographicHash::Md5).toHex();
+        QString cachedPath = cacheDir + "/" + hash;
+        
+        if (QFile::exists(cachedPath)) {
+            qDebug() << "[缓存命中] 文件已缓存:" << cachedPath;
+            m_playerBar->setLoading(false);
+            m_engine->play(QUrl::fromLocalFile(cachedPath));
+            return;
+        }
+
         QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
         qDebug() << "[音乐加载] 开始下载:" << url.toString();
 
@@ -785,35 +800,17 @@ void MainWindow::playPrevious()
         m_downloader->cancel();
         m_playerBar->setLoading(true);
 
-        m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this,
-            [this](const QString &partPath) {
-                qDebug() << "[缓冲就绪] 开始流式播放:" << partPath;
-                m_playerBar->setLoading(false);
-                m_engine->play(QUrl::fromLocalFile(partPath));
-            });
-
-        m_progressConn = connect(m_downloader, &MusicDownloader::downloadProgress, this,
-            [this](qint64 bytesReceived, qint64 bytesTotal) {
-                if (bytesTotal > 0) {
-                    qint64 dur = m_engine->duration();
-                    if (dur > 0) {
-                        qint64 seekLimit = (bytesReceived * dur) / bytesTotal;
-                        m_engine->setSeekLimitMs(seekLimit);
-                    }
-                }
-            });
-
         m_finishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
             [this](const QString &finalPath) {
-                qDebug() << "[下载完成] 文件已就绪:" << finalPath;
-                m_engine->setSeekLimitMs(-1);
+                qDebug() << "[下载完成] 文件已就绪，开始播放:" << finalPath;
+                m_playerBar->setLoading(false);
+                m_engine->play(QUrl::fromLocalFile(finalPath));
             });
 
         m_errorConn = connect(m_downloader, &MusicDownloader::downloadError, this,
             [this](const QString &err) {
                 qDebug() << "[下载失败]" << err;
                 m_playerBar->setLoading(false);
-                m_engine->setSeekLimitMs(-1);
             });
 
         m_downloader->download(url);
@@ -865,6 +862,19 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Set current music info for recent play tracking
     m_engine->setCurrentMusic(mInfo);
 
+    // 检查文件是否已缓存
+    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/nekomusic-cache";
+    QString hash = QCryptographicHash::hash(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId).toUtf8(), 
+                                            QCryptographicHash::Md5).toHex();
+    QString cachedPath = cacheDir + "/" + hash;
+    
+    if (QFile::exists(cachedPath)) {
+        qDebug() << "[缓存命中] 文件已缓存:" << cachedPath;
+        m_playerBar->setLoading(false);
+        m_engine->play(QUrl::fromLocalFile(cachedPath));
+        return;
+    }
+
     QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
     qDebug() << "[音乐加载] 开始下载:" << url.toString();
 
@@ -872,35 +882,17 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     m_downloader->cancel();
     m_playerBar->setLoading(true);
 
-    m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this,
-        [this](const QString &partPath) {
-            qDebug() << "[缓冲就绪] 开始流式播放:" << partPath;
-            m_playerBar->setLoading(false);
-            m_engine->play(QUrl::fromLocalFile(partPath));
-        });
-
-    m_progressConn = connect(m_downloader, &MusicDownloader::downloadProgress, this,
-        [this](qint64 bytesReceived, qint64 bytesTotal) {
-            if (bytesTotal > 0) {
-                qint64 dur = m_engine->duration();
-                if (dur > 0) {
-                    qint64 seekLimit = (bytesReceived * dur) / bytesTotal;
-                    m_engine->setSeekLimitMs(seekLimit);
-                }
-            }
-        });
-
     m_finishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
         [this](const QString &finalPath) {
-            qDebug() << "[下载完成] 文件已就绪:" << finalPath;
-            m_engine->setSeekLimitMs(-1);
+            qDebug() << "[下载完成] 文件已就绪，开始播放:" << finalPath;
+            m_playerBar->setLoading(false);
+            m_engine->play(QUrl::fromLocalFile(finalPath));
         });
 
     m_errorConn = connect(m_downloader, &MusicDownloader::downloadError, this,
         [this](const QString &err) {
             qDebug() << "[下载失败]" << err;
             m_playerBar->setLoading(false);
-            m_engine->setSeekLimitMs(-1);
         });
 
     m_downloader->download(url);

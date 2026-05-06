@@ -8,11 +8,14 @@ class MusicDownloader : public QObject
 {
     Q_OBJECT
 public:
-    explicit MusicDownloader(QObject *parent = nullptr);
-    ~MusicDownloader() override;
-
+    static MusicDownloader& instance();
+    
     void download(const QUrl &url);
     void cancel();
+    
+private:
+    explicit MusicDownloader(QObject *parent = nullptr);
+    ~MusicDownloader() override;
 
 signals:
     void bufferReady(const QString &localPath);
