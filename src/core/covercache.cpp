@@ -3,8 +3,8 @@
  * @brief 封面图片磁盘缓存实现
  *
  * 缓存目录跨平台：
- *   Linux/macOS: /tmp/NekoMusic/covers/
- *   Windows:     %TEMP%/NekoMusic/covers/
+ *   Linux/macOS: /tmp/nekomusic-cache/covers
+ *   Windows:     %TEMP%/nekomusic-cache/covers
  */
 
 #include "covercache.h"
@@ -32,7 +32,7 @@ QString CoverCache::cacheDir() const
 {
     if (!m_cacheDirInitialized) {
         QString base = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-        m_cacheDir = base + QStringLiteral("/NekoMusic/covers");
+        m_cacheDir = base + QStringLiteral("/nekomusic-cache/covers");
         m_cacheDirInitialized = true;
     }
     return m_cacheDir;
