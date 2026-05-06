@@ -1132,8 +1132,9 @@ void MainWindow::checkForUpdates()
         m_updateDialog->exec();
     });
 
-    connect(m_updateChecker, &UpdateChecker::noUpdate, this, []() {
+    connect(m_updateChecker, &UpdateChecker::noUpdate, this, [this]() {
         qDebug() << "[更新] 已是最新版本";
+        Toast::show(this, I18n::instance().tr("isLatest"), Toast::Info);
     });
 
     connect(m_updateChecker, &UpdateChecker::checkFailed, this, [](const QString &error) {
