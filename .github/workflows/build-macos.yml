@@ -1,6 +1,6 @@
 name: Build macOS PKG (robust, pkgbuild, safe Qt & version)
 
-on:
+'on':
   workflow_dispatch:
     inputs:
       reason:
@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - main
+      - master
     tags:
       - "v*"
 

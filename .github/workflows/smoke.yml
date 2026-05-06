@@ -1,11 +1,9 @@
-# 用于确认「推送到 main 后 GitHub 是否收到 Actions 事件」；若本任务出现而 macOS 包没有，再查 macOS 专用工作流。
+# 任意分支 push 都会跑，用于确认仓库是否启用 Actions、webhook 是否正常（确认后再收紧 branches 亦可）。
 name: CI smoke (ubuntu)
 
-on:
+'on':
   workflow_dispatch:
   push:
-    branches:
-      - main
 
 permissions:
   contents: read
