@@ -51,7 +51,6 @@ private:
     void setupUi();
     void updateState();
     void setCoverPixmap(const QPixmap &pm);
-    void loadCoverAsync(const QString &url);
     void updateVolumeIcon(int value);
     void showVolumePanelAnimated();
     void hideVolumePanelAnimated();
@@ -82,6 +81,7 @@ private:
     QLabel *m_curTime = nullptr;
     QLabel *m_durTime = nullptr;
     QPushButton *m_cover = nullptr;
+    QMetaObject::Connection m_coverConn;
     int m_currentMusicId = 0;
     bool m_isFavorited = false;
     bool m_isLoading = false;

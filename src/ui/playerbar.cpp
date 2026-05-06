@@ -13,6 +13,7 @@
 #include "core/playlistmanager.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
+#include "core/covercache.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -27,8 +28,6 @@
 #include <QStyleOptionButton>
 #include <QFont>
 #include <QDebug>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QTimer>
 #include <QEvent>
 #include <QCursor>
@@ -729,8 +728,35 @@ void PlayerBar::setSongInfo(const QString &title, const QString &artist, const Q
     if (m_artist) m_artist->setText(artist.isEmpty() ? I18n::instance().tr("unknown") : artist);
 
     if (m_cover && !coverUrl.isEmpty()) {
-        if (coverUrl.startsWith("http")) {
-            loadCoverAsync(coverUrl);
+        if (coverUrl.startsWith(QStringLiteral("http"))) {
+            const QString musicIdStr = CoverCache::musicIdFromCoverUrl(coverUrl);
+            if (musicIdStr.isEmpty())
+                return;
+
+            CoverCache *cc = CoverCache::instance();
+            if (QPixmap hit = cc->get(musicIdStr); !hit.isNull()) {
+                disconnect(m_coverConn);
+                m_coverConn = {};
+                setCoverPixmap(hit);
+                return;
+            }
+
+            disconnect(m_coverConn);
+            m_coverConn = connect(cc, &CoverCache::coverLoaded, this,
+                [this, musicIdStr](const QString &id, const QPixmap &pix) {
+                    if (id != musicIdStr)
+                        return;
+                    if (QString::number(m_currentMusicId) != musicIdStr)
+                        return;
+                    if (pix.isNull())
+                        return;
+                    setCoverPixmap(pix);
+                });
+
+            QPixmap ph = Icons::render(Icons::kMusic, 28, pbCtrlIdleColor());
+            if (!ph.isNull())
+                setCoverPixmap(ph);
+            cc->fetchCover(musicIdStr, coverUrl);
         } else {
             QPixmap pm(coverUrl);
             if (!pm.isNull()) setCoverPixmap(pm);
@@ -805,20 +831,6 @@ void PlayerBar::setCoverPixmap(const QPixmap &pm)
     p.setClipPath(path);
     p.drawPixmap(0, 0, scaled);
     btn->setIcon(QIcon(rounded));
-}
-
-void PlayerBar::loadCoverAsync(const QString &url)
-{
-    static QNetworkAccessManager nam;
-    auto *reply = nam.get(QNetworkRequest(QUrl(url)));
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        reply->deleteLater();
-        if (reply->error() != QNetworkReply::NoError) return;
-        QPixmap pm;
-        if (pm.loadFromData(reply->readAll())) {
-            setCoverPixmap(pm);
-        }
-    });
 }
 
 void PlayerBar::updateState()

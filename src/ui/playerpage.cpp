@@ -293,7 +293,7 @@ void PlayerPage::loadCover(const QString &url)
 {
     if (url.isEmpty())
         return;
-    const QString musicId = url.mid(url.lastIndexOf(QLatin1Char('/')) + 1);
+    const QString musicId = CoverCache::musicIdFromCoverUrl(url);
     if (musicId.isEmpty())
         return;
 
@@ -303,12 +303,16 @@ void PlayerPage::loadCover(const QString &url)
         return;
     }
 
+    m_coverLabel->clear();
+
     disconnect(m_coverConn);
     m_coverConn = connect(cc, &CoverCache::coverLoaded, this,
                             [this, musicId](const QString &id, const QPixmap &pix) {
                                 if (id != musicId)
                                     return;
                                 if (QString::number(m_musicId) != musicId)
+                                    return;
+                                if (pix.isNull())
                                     return;
                                 applyCoverPixmap(pix);
                             });

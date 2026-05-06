@@ -168,8 +168,8 @@ void MainWindow::setupUi()
     // 恢复上次播放的音乐
     if (PlaylistManager::instance().hasLastPlayed()) {
         auto lastMusic = PlaylistManager::instance().lastPlayedMusic();
-        m_playerBar->setSongInfo(lastMusic.title, lastMusic.artist, lastMusic.coverUrl);
         m_playerBar->setCurrentMusicId(lastMusic.id);
+        m_playerBar->setSongInfo(lastMusic.title, lastMusic.artist, lastMusic.coverUrl);
         m_playerPage->setMusicInfo(lastMusic.id, lastMusic.title, lastMusic.artist, QString(), lastMusic.coverUrl);
         m_playerPage->loadLyrics(lastMusic.id);
         m_engine->setCurrentMusic(lastMusic);
@@ -735,8 +735,8 @@ void MainWindow::playNext()
     manager.setCurrentIndex(nextIdx);
 
     // 与上一曲、点歌一致：立即同步播放栏与播放页（勿等 singleShot，避免播放页滞后）
-    m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
     m_playerBar->setCurrentMusicId(info.id);
+    m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
     m_playerBar->setFavoriteStatus(checkIsFavorited(info.id));
     m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
     m_playerPage->loadLyrics(info.id);
@@ -813,8 +813,8 @@ void MainWindow::playPrevious()
 
     manager.setCurrentIndex(prevIdx);
 
-    m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
     m_playerBar->setCurrentMusicId(info.id);
+    m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
     m_playerBar->setFavoriteStatus(checkIsFavorited(info.id));
     m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
     m_playerPage->loadLyrics(info.id);
@@ -900,8 +900,8 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     }
 
     // Update player bar
-    m_playerBar->setSongInfo(title, artist, coverUrl);
     m_playerBar->setCurrentMusicId(musicId);
+    m_playerBar->setSongInfo(title, artist, coverUrl);
 
     // 检查收藏状态
     bool isFavorited = checkIsFavorited(musicId);

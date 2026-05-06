@@ -28,6 +28,18 @@ CoverCache::CoverCache(QObject *parent) : QObject(parent)
     m_nam.setTransferTimeout(10000);
 }
 
+QString CoverCache::musicIdFromCoverUrl(const QString &coverUrl)
+{
+    const int slash = coverUrl.lastIndexOf(QLatin1Char('/'));
+    if (slash < 0)
+        return {};
+    QString id = coverUrl.mid(slash + 1);
+    const int q = id.indexOf(QLatin1Char('?'));
+    if (q >= 0)
+        id.truncate(q);
+    return id;
+}
+
 QString CoverCache::cacheDir() const
 {
     if (!m_cacheDirInitialized) {
@@ -74,11 +86,16 @@ void CoverCache::fetchCover(const QString &musicId, const QString &coverUrl)
         return;
     }
 
+    if (m_inFlight.contains(musicId))
+        return;
+
     QNetworkRequest req;
     req.setUrl(QUrl(coverUrl));
     req.setTransferTimeout(10000);
     QNetworkReply *reply = m_nam.get(req);
+    m_inFlight.insert(musicId, reply);
     connect(reply, &QNetworkReply::finished, this, [this, reply, musicId]() {
+        m_inFlight.remove(musicId);
         reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) return;
 
@@ -92,6 +109,16 @@ void CoverCache::fetchCover(const QString &musicId, const QString &coverUrl)
 
 void CoverCache::clear()
 {
+    const QList<QNetworkReply *> reps = m_inFlight.values();
+    m_inFlight.clear();
+    for (QNetworkReply *reply : reps) {
+        if (reply) {
+            reply->disconnect();
+            reply->abort();
+            reply->deleteLater();
+        }
+    }
+
     ensureCacheDir();
     QDir dir(cacheDir());
     const auto entries = dir.entryInfoList({QStringLiteral("*.jpg")}, QDir::Files);
