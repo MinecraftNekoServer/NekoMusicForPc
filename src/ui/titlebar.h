@@ -12,6 +12,7 @@
 
 class QLineEdit;
 class QLabel;
+class QResizeEvent;
 class QNetworkAccessManager;
 class QNetworkReply;
 
@@ -34,14 +35,17 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
     void paintEvent(QPaintEvent *) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     void setupUi();
     void updateAvatar();
-    void loadAvatarAsync(const QString &url);
-    void onAvatarReplyFinished();
+    void elideUsername();
+    void updateChevronPixmap();
+    void loadAvatarAsync(const QString &url, int userId);
 
     QNetworkAccessManager *m_nam = nullptr;
+    QNetworkReply *m_avatarReply = nullptr;
     QLineEdit *m_search = nullptr;
     QLabel *m_logo = nullptr;
     QLabel *m_name = nullptr;

@@ -43,21 +43,28 @@ QMainWindow {
 }
 
 #tbAvatarWidget {
-    background: rgba(33, 37, 41, 0.08);
-    border: 1.5px solid rgba(111, 66, 193, 0.3);
-    border-radius: 15px;
+    background: rgba(33, 37, 41, 0.06);
+    border: 1px solid rgba(111, 66, 193, 0.35);
+    border-radius: 18px;
+    min-height: 38px;
 }
 
 #tbAvatarWidget:hover {
-    background: rgba(196, 167, 231, 0.2);
-    border-color: rgba(196, 167, 231, 0.4);
+    background: rgba(196, 167, 231, 0.18);
+    border-color: rgba(111, 66, 193, 0.45);
 }
 
 #tbUsername {
     font-size: 13px;
     color: #212529;
     font-weight: 500;
-    padding: 0 4px;
+    letter-spacing: 0.2px;
+    padding: 0 2px 0 0;
+    background: transparent;
+}
+
+#tbAccountChevron {
+    background: transparent;
 }
 
 #tbIconBtn {

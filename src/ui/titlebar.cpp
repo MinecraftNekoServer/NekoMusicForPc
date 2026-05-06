@@ -29,8 +29,13 @@
 #include <QFontMetrics>
 #include <QPainterPath>
 #include <QUrl>
+#include <QResizeEvent>
 
 namespace {
+
+constexpr int kTbAvatarPx = 28;
+constexpr int kTbChevronPx = 12;
+
 QColor iconNormal() {
     return Theme::ThemeManager::instance().isDarkMode() 
         ? QColor(245, 240, 255, 166) 
@@ -52,6 +57,12 @@ QColor closeNormal() {
 QColor closeActive() {
     return QColor(242, 100, 100, 230); // 红色，保持不变
 }
+
+QColor chevronMuted()
+{
+    return Theme::ThemeManager::instance().isDarkMode() ? QColor(245, 240, 255, 140)
+                                                        : QColor(33, 37, 41, 128);
+}
 }
 
 TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
@@ -64,9 +75,19 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     // 监听用户状态变化
     connect(&UserManager::instance(), &UserManager::loginStateChanged,
             this, &TitleBar::updateAvatar);
+    connect(&Theme::ThemeManager::instance(), &Theme::ThemeManager::themeChanged,
+            this, [this](Theme::ThemeMode) { updateChevronPixmap(); });
 }
 
-TitleBar::~TitleBar() = default;
+TitleBar::~TitleBar()
+{
+    if (m_avatarReply) {
+        m_avatarReply->disconnect();
+        m_avatarReply->abort();
+        m_avatarReply->deleteLater();
+        m_avatarReply = nullptr;
+    }
+}
 
 bool TitleBar::eventFilter(QObject *watched, QEvent *event)
 {
@@ -136,7 +157,7 @@ void TitleBar::setupUi()
     setAttribute(Qt::WA_StyledBackground, false);
 
     auto *lay = new QHBoxLayout(this);
-    lay->setContentsMargins(16, 0, 10, 0);
+    lay->setContentsMargins(16, 0, 12, 0);
     lay->setSpacing(0);
 
     // ─── 左侧 Logo + 名称 ────────────────────────────
@@ -169,46 +190,61 @@ void TitleBar::setupUi()
             emit searchRequested(m_search->text().trimmed());
     });
     lay->addStretch(1);
-    lay->addWidget(m_search, 0, Qt::AlignHCenter);
+    lay->addWidget(m_search, 0, Qt::AlignVCenter);
     lay->addStretch(1);
 
+    // 账号区与设置、窗口按钮分组留白
+    lay->addSpacing(8);
+
     // ─── 右侧控制 ────────────────────────────────────
-    // 头像区域：左边头像图标 + 右边用户名 + 下拉箭头
+    // 账号胶囊：头像 + 用户名 + 下拉提示
     m_avatarWidget = new QWidget(this);
     m_avatarWidget->setObjectName("tbAvatarWidget");
     m_avatarWidget->setCursor(Qt::PointingHandCursor);
+    m_avatarWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     auto *avatarLay = new QHBoxLayout(m_avatarWidget);
-    avatarLay->setContentsMargins(14, 4, 12, 4);
-    avatarLay->setSpacing(10);
+    avatarLay->setContentsMargins(10, 5, 10, 5);
+    avatarLay->setSpacing(8);
+    avatarLay->setAlignment(Qt::AlignVCenter);
 
     m_avatarIcon = new QLabel(m_avatarWidget);
-    m_avatarIcon->setFixedSize(24, 24);
-    m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    avatarLay->addWidget(m_avatarIcon);
+    m_avatarIcon->setFixedSize(kTbAvatarPx, kTbAvatarPx);
+    m_avatarIcon->setScaledContents(false);
+    m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(kTbAvatarPx, kTbAvatarPx, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    avatarLay->addWidget(m_avatarIcon, 0, Qt::AlignVCenter);
 
     m_usernameLabel = new QLabel(m_avatarWidget);
     m_usernameLabel->setObjectName("tbUsername");
     m_usernameLabel->setCursor(Qt::PointingHandCursor);
-    m_usernameLabel->setMaximumWidth(180);
-    avatarLay->addWidget(m_usernameLabel);
+    m_usernameLabel->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    m_usernameLabel->setMinimumWidth(48);
+    m_usernameLabel->setMaximumWidth(200);
+    m_usernameLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    m_usernameLabel->setMinimumHeight(kTbAvatarPx);
+    avatarLay->addWidget(m_usernameLabel, 0, Qt::AlignVCenter);
 
-    // 下拉箭头
     m_dropdownIcon = new QLabel(m_avatarWidget);
-    m_dropdownIcon->setFixedSize(12, 12);
+    m_dropdownIcon->setObjectName("tbAccountChevron");
+    m_dropdownIcon->setFixedSize(kTbChevronPx, kTbChevronPx);
     m_dropdownIcon->setCursor(Qt::PointingHandCursor);
-    avatarLay->addWidget(m_dropdownIcon);
+    m_dropdownIcon->setScaledContents(false);
+    avatarLay->addWidget(m_dropdownIcon, 0, Qt::AlignVCenter);
 
     updateAvatar();
-    lay->addWidget(m_avatarWidget);
+    lay->addWidget(m_avatarWidget, 0, Qt::AlignVCenter);
+
+    lay->addSpacing(10);
 
     auto *settingsBtn = new QPushButton(this);
     settingsBtn->setObjectName("tbIconBtn");
-    settingsBtn->setFixedSize(34, 34);
+    settingsBtn->setFixedSize(36, 36);
     settingsBtn->setIcon(Icons::icon(Icons::kSettings, 18, iconNormal(), iconActive()));
     settingsBtn->setCursor(Qt::PointingHandCursor);
     settingsBtn->setToolTip(I18n::instance().tr("settings"));
     connect(settingsBtn, &QPushButton::clicked, this, &TitleBar::settingsClicked);
-    lay->addWidget(settingsBtn);
+    lay->addWidget(settingsBtn, 0, Qt::AlignVCenter);
+
+    lay->addSpacing(6);
 
     // 窗口控制（圆形彩色按钮）
     const QColor kMinHover = QColor(196, 167, 231);  // 薰衣草紫
@@ -222,7 +258,7 @@ void TitleBar::setupUi()
     minBtn->setCursor(Qt::PointingHandCursor);
     minBtn->setToolTip(QStringLiteral("最小化"));
     connect(minBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->showMinimized(); });
-    lay->addWidget(minBtn);
+    lay->addWidget(minBtn, 0, Qt::AlignVCenter);
 
     auto *maxBtn = new QPushButton(this);
     maxBtn->setObjectName("tbMaxBtn");
@@ -233,7 +269,7 @@ void TitleBar::setupUi()
     connect(maxBtn, &QPushButton::clicked, this, [this]() {
         if (window()) window()->isMaximized() ? window()->showNormal() : window()->showMaximized();
     });
-    lay->addWidget(maxBtn);
+    lay->addWidget(maxBtn, 0, Qt::AlignVCenter);
 
     auto *closeBtn = new QPushButton(this);
     closeBtn->setObjectName("tbCloseBtn");
@@ -242,7 +278,7 @@ void TitleBar::setupUi()
     closeBtn->setCursor(Qt::PointingHandCursor);
     closeBtn->setToolTip(QStringLiteral("关闭"));
     connect(closeBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->close(); });
-    lay->addWidget(closeBtn);
+    lay->addWidget(closeBtn, 0, Qt::AlignVCenter);
 }
 
 void TitleBar::retranslate()
@@ -252,6 +288,14 @@ void TitleBar::retranslate()
 
     auto *settingsBtn = findChild<QPushButton *>("tbIconBtn");
     if (settingsBtn) settingsBtn->setToolTip(I18n::instance().tr("settings"));
+
+    updateAvatar();
+}
+
+void TitleBar::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    elideUsername();
 }
 
 QPoint TitleBar::avatarPos() const
@@ -262,74 +306,115 @@ QPoint TitleBar::avatarPos() const
     return mapToGlobal(QPoint(width() - 40, height()));
 }
 
+void TitleBar::elideUsername()
+{
+    if (!m_usernameLabel)
+        return;
+
+    if (!UserManager::instance().isLoggedIn()) {
+        m_usernameLabel->setText(I18n::instance().tr("goToLogin"));
+        m_usernameLabel->setToolTip(I18n::instance().tr("goToLogin"));
+        return;
+    }
+
+    QString username = UserManager::instance().userInfo().value("username").toString();
+    if (username.isEmpty())
+        username = QStringLiteral("User");
+    m_usernameLabel->setToolTip(username);
+
+    int avail = m_usernameLabel->width() - 2;
+    if (avail < 32)
+        avail = 140;
+    QFontMetrics fm(m_usernameLabel->font());
+    m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, avail));
+}
+
+void TitleBar::updateChevronPixmap()
+{
+    if (!m_dropdownIcon)
+        return;
+    QPixmap arrow(kTbChevronPx, kTbChevronPx);
+    arrow.fill(Qt::transparent);
+    QPainter p(&arrow);
+    p.setRenderHint(QPainter::Antialiasing);
+    const QColor c = chevronMuted();
+    p.setPen(QPen(c, 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    const qreal cx = kTbChevronPx * 0.5;
+    const qreal y1 = kTbChevronPx * 0.38;
+    const qreal y2 = kTbChevronPx * 0.62;
+    p.drawLine(QPointF(cx - 3.0, y1), QPointF(cx, y2));
+    p.drawLine(QPointF(cx, y2), QPointF(cx + 3.0, y1));
+    m_dropdownIcon->setPixmap(arrow);
+}
+
 void TitleBar::updateAvatar()
 {
     if (!m_avatarIcon || !m_usernameLabel || !m_dropdownIcon) return;
 
     if (UserManager::instance().isLoggedIn()) {
-        // 已登录，显示用户名
-        QString username = UserManager::instance().userInfo().value("username").toString();
-        if (username.isEmpty()) username = "User";
-
-        // 用户名截断
-        QFontMetrics fm(m_usernameLabel->font());
-        m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, 180));
-        m_usernameLabel->setToolTip(username);
-
-        // 异步加载头像
         int userId = UserManager::instance().userInfo().value("id").toInt();
         if (userId > 0) {
             QString avatarUrl = QString::fromUtf8("%1/api/user/avatar/%2")
                 .arg(Theme::kApiBase).arg(userId);
-            loadAvatarAsync(avatarUrl);
+            loadAvatarAsync(avatarUrl, userId);
         } else {
-            // 没有用户ID，显示默认图标
-            m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(kTbAvatarPx, kTbAvatarPx, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         }
+        elideUsername();
     } else {
-        // 未登录，显示默认图标和点击登录
-        m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        if (m_avatarReply) {
+            m_avatarReply->disconnect();
+            m_avatarReply->abort();
+            m_avatarReply->deleteLater();
+            m_avatarReply = nullptr;
+        }
+        m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(kTbAvatarPx, kTbAvatarPx, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         m_usernameLabel->setText(I18n::instance().tr("goToLogin"));
         m_usernameLabel->setToolTip(I18n::instance().tr("goToLogin"));
     }
 
-    // 绘制下拉箭头
-    QPixmap arrow(12, 12);
-    arrow.fill(Qt::transparent);
-    QPainter p(&arrow);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.setPen(QPen(QColor(245, 240, 255, 150), 1.5, Qt::SolidLine, Qt::RoundCap));
-    p.drawLine(3, 5, 6, 8);
-    p.drawLine(6, 8, 9, 5);
-    m_dropdownIcon->setPixmap(arrow);
+    updateChevronPixmap();
 }
 
-void TitleBar::loadAvatarAsync(const QString &url)
+void TitleBar::loadAvatarAsync(const QString &url, int userId)
 {
-    // 先显示默认图标
-    m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    m_avatarIcon->setPixmap(QPixmap(":/icons/app.png").scaled(kTbAvatarPx, kTbAvatarPx, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    if (m_avatarReply) {
+        m_avatarReply->disconnect();
+        m_avatarReply->abort();
+        m_avatarReply->deleteLater();
+        m_avatarReply = nullptr;
+    }
 
     QNetworkRequest req{QUrl(url)};
     req.setTransferTimeout(5000);
     QNetworkReply *reply = m_nam->get(req);
+    m_avatarReply = reply;
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, userId]() {
+        if (m_avatarReply == reply)
+            m_avatarReply = nullptr;
         reply->deleteLater();
-        if (reply->error() == QNetworkReply::NoError) {
-            QPixmap pixmap;
-            if (pixmap.loadFromData(reply->readAll())) {
-                QPixmap scaled = pixmap.scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                QPixmap rounded(24, 24);
-                rounded.fill(Qt::transparent);
-                QPainter p(&rounded);
-                p.setRenderHint(QPainter::Antialiasing);
-                QPainterPath path;
-                path.addRoundedRect(0, 0, 24, 24, 12, 12);
-                p.setClipPath(path);
-                p.drawPixmap(0, 0, scaled);
-                m_avatarIcon->setPixmap(rounded);
-            }
-        }
+        if (reply->error() != QNetworkReply::NoError)
+            return;
+        if (!UserManager::instance().isLoggedIn())
+            return;
+        if (UserManager::instance().userInfo().value("id").toInt() != userId)
+            return;
+        QPixmap pixmap;
+        if (!pixmap.loadFromData(reply->readAll()))
+            return;
+        QPixmap scaled = pixmap.scaled(kTbAvatarPx, kTbAvatarPx, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QPixmap rounded(kTbAvatarPx, kTbAvatarPx);
+        rounded.fill(Qt::transparent);
+        QPainter p(&rounded);
+        p.setRenderHint(QPainter::Antialiasing);
+        QPainterPath path;
+        path.addRoundedRect(0, 0, kTbAvatarPx, kTbAvatarPx, kTbAvatarPx / 2, kTbAvatarPx / 2);
+        p.setClipPath(path);
+        p.drawPixmap(0, 0, scaled);
+        m_avatarIcon->setPixmap(rounded);
     });
 }
 
