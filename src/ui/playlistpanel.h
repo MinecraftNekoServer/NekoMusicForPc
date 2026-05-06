@@ -38,6 +38,7 @@ protected:
 
 private:
     void setupUi();
+    void applyPanelChrome();
     void rebuildList();
 
     QLabel *m_titleLabel = nullptr;
@@ -47,5 +48,6 @@ private:
     QScrollArea *m_scroll = nullptr;
     QVBoxLayout *m_listLayout = nullptr;
     QWidget *m_listContainer = nullptr;
+    QWidget *m_divider = nullptr;
     QList<QWidget *> m_items;
 };
