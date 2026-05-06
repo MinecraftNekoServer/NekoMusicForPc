@@ -29,10 +29,19 @@
 #include <QEvent>
 #include <QCursor>
 #include <QRect>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+#include <QEasingCurve>
+#include <QCoreApplication>
+#include <QMouseEvent>
+#include <QSettings>
 
 namespace {
 const QColor kCtrlNormal = QColor(245, 240, 255, 180);
 const QColor kCtrlActive = QColor(196, 167, 231, 255);
+constexpr int kVolumePanelExtraLiftPx = 16;
+constexpr int kVolumeLeaveAutoHideMs = 3000;
+const QString kSettingsKeyVolume = QStringLiteral("player/volume");
 
 QString formatTime(qint64 ms) {
     qint64 sec = ms / 1000;
@@ -257,13 +266,39 @@ void PlayerBar::setupUi()
     m_volumeSlider = new QSlider(Qt::Vertical, m_volumePanel);
     m_volumeSlider->setObjectName("pbVolumeSlider");
     m_volumeSlider->setRange(0, 100);
-    m_volumeSlider->setValue(80);
     vpLay->addWidget(m_volumeSlider, 1, Qt::AlignHCenter);
 
-    m_volumeLabel = new QLabel("80%", m_volumePanel);
+    QSettings volSettings;
+    const int initialVol = qBound(0, volSettings.value(kSettingsKeyVolume, 80).toInt(), 100);
+
+    m_volumeLabel = new QLabel(QStringLiteral("%1%").arg(initialVol), m_volumePanel);
     m_volumeLabel->setObjectName("pbVolumeLabel");
     m_volumeLabel->setAlignment(Qt::AlignCenter);
     vpLay->addWidget(m_volumeLabel);
+
+    // 参考 old 中 .volume-panel 的 opacity 0.2s ease，并加轻微上滑
+    m_volumeOpacityFx = new QGraphicsOpacityEffect(m_volumePanel);
+    m_volumeOpacityFx->setOpacity(0.0);
+    m_volumePanel->setGraphicsEffect(m_volumeOpacityFx);
+    m_volumeOpAnim = new QPropertyAnimation(m_volumeOpacityFx, "opacity", this);
+    m_volumePosAnim = new QPropertyAnimation(m_volumePanel, "pos", this);
+    connect(m_volumeOpAnim, &QPropertyAnimation::finished, this, [this]() {
+        if (!m_volumePanelClosing || !m_volumePanel)
+            return;
+        m_volumePanel->hide();
+        m_volumePanelClosing = false;
+        removeVolumePanelAppFilter();
+    });
+
+    m_volumeLeaveTimer = new QTimer(this);
+    m_volumeLeaveTimer->setSingleShot(true);
+    m_volumeLeaveTimer->setInterval(kVolumeLeaveAutoHideMs);
+    connect(m_volumeLeaveTimer, &QTimer::timeout, this, [this]() {
+        if (!m_volumePanel || !m_volumePanel->isVisible() || m_volumePanelClosing)
+            return;
+        if (!volumePanelHotRectGlobal().contains(QCursor::pos()))
+            hideVolumePanelAnimated();
+    });
 
     lay->addWidget(right);
 
@@ -273,6 +308,12 @@ void PlayerBar::setupUi()
             m_engine->setVolume(v / 100.0f);
             m_volumeLabel->setText(QString("%1%").arg(v));
             updateVolumeIcon(v);
+        });
+        connect(m_volumeSlider, &QSlider::sliderReleased, this, [this]() {
+            if (!m_volumeSlider)
+                return;
+            QSettings s;
+            s.setValue(kSettingsKeyVolume, m_volumeSlider->value());
         });
         connect(m_playBtn, &QPushButton::clicked, this, [this]() {
             if (m_engine->playbackState() == PlayerEngine::Playing) m_engine->fadeOut();
@@ -297,46 +338,147 @@ void PlayerBar::setupUi()
                 m_engine->setPosition(position);
             }
         });
+        m_volumeSlider->setValue(initialVol);
+        updateVolumeIcon(initialVol);
     }
+}
+
+PlayerBar::~PlayerBar()
+{
+    removeVolumePanelAppFilter();
+}
+
+QRect PlayerBar::volumePanelHotRectGlobal() const
+{
+    if (!m_volumeBtn || !m_volumePanel)
+        return {};
+    const QRect btnGlobal(m_volumeBtn->mapToGlobal(QPoint(0, 0)), m_volumeBtn->size());
+    const QRect panelGlobal(m_volumePanel->mapToGlobal(QPoint(0, 0)), m_volumePanel->size());
+    return btnGlobal.united(panelGlobal);
+}
+
+void PlayerBar::installVolumePanelAppFilter()
+{
+    if (m_volumeAppFilterInstalled)
+        return;
+    if (QCoreApplication *app = QCoreApplication::instance()) {
+        app->installEventFilter(this);
+        m_volumeAppFilterInstalled = true;
+    }
+}
+
+void PlayerBar::removeVolumePanelAppFilter()
+{
+    if (!m_volumeAppFilterInstalled)
+        return;
+    if (QCoreApplication *app = QCoreApplication::instance())
+        app->removeEventFilter(this);
+    m_volumeAppFilterInstalled = false;
+}
+
+void PlayerBar::showVolumePanelAnimated()
+{
+    if (!m_volumePanel || !m_volumeBtn || !m_volumeOpacityFx || !m_volumeOpAnim || !m_volumePosAnim)
+        return;
+
+    m_volumePanelClosing = false;
+    m_volumeOpAnim->stop();
+    m_volumePosAnim->stop();
+    if (m_volumeLeaveTimer)
+        m_volumeLeaveTimer->stop();
+
+    QWidget *host = m_volumePanel->parentWidget();
+    if (!host)
+        host = window();
+    if (!host)
+        host = this;
+    const QPoint ref = m_volumeBtn->mapTo(host, QPoint(0, 0));
+    const int x = ref.x() + (m_volumeBtn->width() - m_volumePanel->width()) / 2;
+    const int overlap = 8;
+    const int y = ref.y() - m_volumePanel->height() + overlap - kVolumePanelExtraLiftPx;
+    const QPoint finalPos(x, y);
+    const QPoint startPos(x, y + 10);
+
+    m_volumePanel->move(startPos);
+    m_volumeOpacityFx->setOpacity(0.0);
+    m_volumePanel->show();
+    m_volumePanel->raise();
+
+    m_volumeOpAnim->setDuration(200);
+    m_volumeOpAnim->setEasingCurve(QEasingCurve::OutCubic);
+    m_volumeOpAnim->setStartValue(0.0);
+    m_volumeOpAnim->setEndValue(1.0);
+
+    m_volumePosAnim->setDuration(200);
+    m_volumePosAnim->setEasingCurve(QEasingCurve::OutCubic);
+    m_volumePosAnim->setStartValue(startPos);
+    m_volumePosAnim->setEndValue(finalPos);
+
+    m_volumeOpAnim->start();
+    m_volumePosAnim->start();
+
+    installVolumePanelAppFilter();
+}
+
+void PlayerBar::hideVolumePanelAnimated()
+{
+    if (!m_volumePanel || !m_volumeOpacityFx || !m_volumeOpAnim)
+        return;
+    if (!m_volumePanel->isVisible())
+        return;
+
+    if (m_volumeLeaveTimer)
+        m_volumeLeaveTimer->stop();
+
+    m_volumeOpAnim->stop();
+    if (m_volumePosAnim)
+        m_volumePosAnim->stop();
+
+    m_volumePanelClosing = true;
+    m_volumeOpAnim->setDuration(180);
+    m_volumeOpAnim->setEasingCurve(QEasingCurve::InCubic);
+    m_volumeOpAnim->setStartValue(m_volumeOpacityFx->opacity());
+    m_volumeOpAnim->setEndValue(0.0);
+    m_volumeOpAnim->start();
 }
 
 bool PlayerBar::eventFilter(QObject *watched, QEvent *event)
 {
-    auto volumeGlobalHotRect = [this]() -> QRect {
-        if (!m_volumeBtn || !m_volumePanel)
-            return {};
-        const QRect btnGlobal(m_volumeBtn->mapToGlobal(QPoint(0, 0)), m_volumeBtn->size());
-        const QRect panelGlobal(m_volumePanel->mapToGlobal(QPoint(0, 0)), m_volumePanel->size());
-        return btnGlobal.united(panelGlobal);
-    };
+    if (event->type() == QEvent::MouseButtonPress && m_volumePanel && m_volumePanel->isVisible()
+        && !m_volumePanelClosing) {
+        auto *me = static_cast<QMouseEvent *>(event);
+        const QPoint g = me->globalPosition().toPoint();
+        if (!volumePanelHotRectGlobal().contains(g))
+            hideVolumePanelAnimated();
+    }
 
     if (watched->objectName() == "pbVolumeWrapper") {
         if (event->type() == QEvent::Enter) {
-            if (m_volumePanel && m_volumeBtn) {
-                QWidget *host = m_volumePanel->parentWidget();
-                if (!host)
-                    host = window();
-                if (!host)
-                    host = this;
-                const QPoint ref = m_volumeBtn->mapTo(host, QPoint(0, 0));
-                const int x = ref.x() + (m_volumeBtn->width() - m_volumePanel->width()) / 2;
-                // 与按钮保留少量重叠，避免从按钮移到滑块时经过缝隙触发 Leave 误关
-                const int overlap = 8;
-                const int y = ref.y() - m_volumePanel->height() + overlap;
-                m_volumePanel->move(x, y);
-                m_volumePanel->show();
-                m_volumePanel->raise();
-            }
+            if (m_volumeLeaveTimer)
+                m_volumeLeaveTimer->stop();
+            if (m_volumePanel && m_volumeBtn)
+                showVolumePanelAnimated();
         } else if (event->type() == QEvent::Leave) {
             if (m_volumePanel && m_volumePanel->isVisible()) {
-                if (!volumeGlobalHotRect().contains(QCursor::pos()))
-                    m_volumePanel->hide();
+                if (!volumePanelHotRectGlobal().contains(QCursor::pos())) {
+                    if (m_volumeLeaveTimer)
+                        m_volumeLeaveTimer->start();
+                } else if (m_volumeLeaveTimer) {
+                    m_volumeLeaveTimer->stop();
+                }
             }
         }
     } else if (watched == m_volumePanel) {
-        if (event->type() == QEvent::Leave) {
-            if (!volumeGlobalHotRect().contains(QCursor::pos()))
-                m_volumePanel->hide();
+        if (event->type() == QEvent::Enter) {
+            if (m_volumeLeaveTimer)
+                m_volumeLeaveTimer->stop();
+        } else if (event->type() == QEvent::Leave) {
+            if (!volumePanelHotRectGlobal().contains(QCursor::pos())) {
+                if (m_volumeLeaveTimer)
+                    m_volumeLeaveTimer->start();
+            } else if (m_volumeLeaveTimer) {
+                m_volumeLeaveTimer->stop();
+            }
         }
     }
     return QWidget::eventFilter(watched, event);

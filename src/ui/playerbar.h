@@ -15,6 +15,8 @@ class QSlider;
 class QPushButton;
 class QLabel;
 class QTimer;
+class QGraphicsOpacityEffect;
+class QPropertyAnimation;
 
 class PlayerBar : public QWidget
 {
@@ -30,6 +32,7 @@ signals:
 
 public:
     explicit PlayerBar(PlayerEngine *engine, QWidget *parent = nullptr);
+    ~PlayerBar() override;
     void retranslate();
     void setSongInfo(const QString &title, const QString &artist, const QString &coverUrl = QString());
     void setCoverVisible(bool visible);
@@ -50,6 +53,11 @@ private:
     void loadCoverAsync(const QString &url);
     void updatePlayModeIcon();
     void updateVolumeIcon(int value);
+    void showVolumePanelAnimated();
+    void hideVolumePanelAnimated();
+    QRect volumePanelHotRectGlobal() const;
+    void installVolumePanelAppFilter();
+    void removeVolumePanelAppFilter();
 
     PlayerEngine *m_engine = nullptr;
     QPushButton *m_playBtn = nullptr;
@@ -61,6 +69,12 @@ private:
     QSlider *m_volumeSlider = nullptr;
     QPushButton *m_volumeBtn = nullptr;
     QLabel *m_volumeLabel = nullptr;
+    QGraphicsOpacityEffect *m_volumeOpacityFx = nullptr;
+    QPropertyAnimation *m_volumeOpAnim = nullptr;
+    QPropertyAnimation *m_volumePosAnim = nullptr;
+    bool m_volumePanelClosing = false;
+    QTimer *m_volumeLeaveTimer = nullptr;
+    bool m_volumeAppFilterInstalled = false;
 
     QLabel *m_songName = nullptr;
     QLabel *m_artist = nullptr;
