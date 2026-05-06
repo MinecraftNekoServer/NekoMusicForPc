@@ -213,10 +213,13 @@ if [ $NSIS_EXIT -ne 0 ]; then
     exit 1
 fi
 
-# The installer is output to the parent of packaging/, i.e. project root
+# NSIS OutFile 为 packaging/../*.exe（仓库根目录）；若版本宏展开异常，再按通配兜底
 EXE_FILE="$SCRIPT_DIR/Neko云音乐-${FULL_VERSION}-win.exe"
+if [ ! -f "$EXE_FILE" ]; then
+    EXE_FILE=$(find "$SCRIPT_DIR" -maxdepth 1 -name 'Neko云音乐-*-win.exe' -type f -printf '%T@\t%p\n' 2>/dev/null | sort -n | tail -1 | cut -f2-)
+fi
 
-if [ -f "$EXE_FILE" ]; then
+if [ -n "$EXE_FILE" ] && [ -f "$EXE_FILE" ]; then
     OUTPUT_DIR="$SCRIPT_DIR/dist"
     mkdir -p "$OUTPUT_DIR"
     cp "$EXE_FILE" "$OUTPUT_DIR/"

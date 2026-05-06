@@ -10,7 +10,8 @@
 
 ; General
 Name "Neko云音乐"
-OutFile "..\Neko云音乐-$VERSION-win.exe"
+; OutFile 须用 ${VERSION}（编译期）；$VERSION 在 NSIS 中为运行时变量，展开为空会导致文件名与 build_windows.sh 不一致
+OutFile "..\Neko云音乐-${VERSION}-win.exe"
 InstallDir "$PROGRAMFILES64\Neko云音乐"
 SetCompressor lzma
 
