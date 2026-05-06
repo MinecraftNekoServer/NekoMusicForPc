@@ -64,6 +64,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+namespace {
+/** 单次远程起播：超过此时长仍未进入 Playing 则计一次失败并重试（最多 3 次）。 */
+constexpr int kStreamReadyTimeoutMs = 12000;
+constexpr int kStreamRetryDelayMs = 350;
+}
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -180,22 +186,12 @@ void MainWindow::setupUi()
         bool isFavorited = checkIsFavorited(lastMusic.id);
         m_playerBar->setFavoriteStatus(isFavorited);
 
-        // 预加载音频文件：下载完成后暂停，等待用户操作
+        // 与点歌一致：远程起播 + 并行写缓存；起播后暂停等待用户操作
         disconnectDownloader();
-        const QString cachedRestore = MusicDownloader::cachedAudioFilePath(lastMusic.id);
-        if (QFile::exists(cachedRestore)) {
-            m_engine->play(QUrl::fromLocalFile(cachedRestore));
-            QTimer::singleShot(50, this, [this]() { m_engine->pause(); });
-        } else {
-            QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
-            auto restoreConn = std::make_shared<QMetaObject::Connection>();
-            *restoreConn = connect(m_downloader, &MusicDownloader::downloadFinished, this, [this, restoreConn](const QString &localPath) {
-                disconnect(*restoreConn);
-                m_engine->play(QUrl::fromLocalFile(localPath));
-                QTimer::singleShot(50, this, [this]() { m_engine->pause(); });
-            });
-            m_downloader->download(url, lastMusic.id);
-        }
+        const quint64 restoreSeq = m_enginePlaySeq;
+        const QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(lastMusic.id));
+        m_playerBar->setLoading(true);
+        startRemotePlaybackWithBackgroundCache(lastMusic.id, restoreSeq, url, true);
     }
 
     // 连接导航
@@ -249,9 +245,11 @@ void MainWindow::setupUi()
         PlaylistDatabase::instance().recordRecentPlay(music);
     });
 
-    // 播放错误处理
+    // 播放错误处理（远程重试流程由 startRemotePlaybackWithBackgroundCache 专用连接处理，此处不抢 loading）
     connect(m_engine, &PlayerEngine::mediaError, this, [this](const QString &err) {
         qDebug() << "[播放错误]" << err;
+        if (m_streamRetryActive)
+            return;
         m_playerBar->setLoading(false);
     });
 
@@ -684,9 +682,140 @@ void MainWindow::playMusicFromPlaylist(int musicId)
     }
 }
 
+void MainWindow::cancelStreamWatch()
+{
+    if (m_streamAttemptTimer) {
+        m_streamAttemptTimer->stop();
+        m_streamAttemptTimer->deleteLater();
+        m_streamAttemptTimer = nullptr;
+    }
+    if (m_streamPlayConn) {
+        disconnect(m_streamPlayConn);
+        m_streamPlayConn = QMetaObject::Connection();
+    }
+    if (m_streamErrorConn) {
+        disconnect(m_streamErrorConn);
+        m_streamErrorConn = QMetaObject::Connection();
+    }
+}
+
+void MainWindow::startRemotePlaybackWithBackgroundCache(int musicId, quint64 playSeq, const QUrl &remoteUrl,
+                                                        bool pauseWhenReady)
+{
+    cancelStreamWatch();
+    m_streamRetryActive = true;
+    m_streamRemoteUrl = remoteUrl;
+    m_streamPauseWhenReady = pauseWhenReady;
+    m_remoteStreamFailureCount = 0;
+
+    startBackgroundCacheDownload(musicId, playSeq, remoteUrl);
+    attachStreamPlaybackGuards(musicId, playSeq);
+    m_engine->play(remoteUrl);
+}
+
+void MainWindow::startBackgroundCacheDownload(int musicId, quint64 playSeq, const QUrl &url)
+{
+    if (m_bgCacheFinishedConn) {
+        disconnect(m_bgCacheFinishedConn);
+        m_bgCacheFinishedConn = QMetaObject::Connection();
+    }
+    if (m_bgCacheErrorConn) {
+        disconnect(m_bgCacheErrorConn);
+        m_bgCacheErrorConn = QMetaObject::Connection();
+    }
+
+    m_bgCacheFinishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
+        [this, playSeq, musicId](const QString &path) {
+            if (playSeq != m_enginePlaySeq)
+                return;
+            qDebug() << "[后台缓存完成] id=" << musicId << path;
+        });
+    m_bgCacheErrorConn = connect(m_downloader, &MusicDownloader::downloadError, this,
+        [this, playSeq, musicId](const QString &err) {
+            if (playSeq != m_enginePlaySeq)
+                return;
+            qDebug() << "[后台缓存失败] id=" << musicId << err;
+        });
+
+    m_downloader->download(url, musicId);
+}
+
+void MainWindow::attachStreamPlaybackGuards(int musicId, quint64 playSeq)
+{
+    cancelStreamWatch();
+    m_streamFailHandledThisRound = false;
+
+    m_streamAttemptTimer = new QTimer(this);
+    m_streamAttemptTimer->setSingleShot(true);
+    m_streamAttemptTimer->setInterval(kStreamReadyTimeoutMs);
+    connect(m_streamAttemptTimer, &QTimer::timeout, this, [this, musicId, playSeq]() {
+        QTimer *t = m_streamAttemptTimer;
+        m_streamAttemptTimer = nullptr;
+        if (t)
+            t->deleteLater();
+        if (playSeq != m_enginePlaySeq)
+            return;
+        if (m_engine->playbackState() == PlayerEngine::Playing)
+            return;
+        qDebug() << "[Music] 远程起播超时 id=" << musicId;
+        handleRemoteStreamFailure(musicId, playSeq);
+    });
+
+    m_streamPlayConn = connect(m_engine, &PlayerEngine::stateChanged, this,
+        [this, playSeq](PlayerEngine::PlaybackState st) {
+            if (playSeq != m_enginePlaySeq || st != PlayerEngine::Playing)
+                return;
+            m_streamRetryActive = false;
+            cancelStreamWatch();
+            if (m_streamPauseWhenReady)
+                QTimer::singleShot(50, this, [this]() { m_engine->pause(); });
+        });
+
+    m_streamErrorConn = connect(m_engine, &PlayerEngine::mediaError, this,
+        [this, musicId, playSeq](const QString &err) {
+            if (playSeq != m_enginePlaySeq)
+                return;
+            qDebug() << "[Music] 远程播放错误 id=" << musicId << err;
+            handleRemoteStreamFailure(musicId, playSeq);
+        });
+
+    m_streamAttemptTimer->start();
+}
+
+void MainWindow::handleRemoteStreamFailure(int musicId, quint64 playSeq)
+{
+    if (playSeq != m_enginePlaySeq)
+        return;
+    if (m_engine->playbackState() == PlayerEngine::Playing)
+        return;
+    if (m_streamFailHandledThisRound)
+        return;
+    m_streamFailHandledThisRound = true;
+
+    m_engine->stop();
+    m_remoteStreamFailureCount++;
+    if (m_remoteStreamFailureCount >= 3) {
+        m_streamRetryActive = false;
+        cancelStreamWatch();
+        m_playerBar->setLoading(false);
+        qDebug() << "[Music] 远程播放失败已达 3 次，切下一首 id=" << musicId;
+        playNext();
+        return;
+    }
+
+    cancelStreamWatch();
+    QTimer::singleShot(kStreamRetryDelayMs, this, [this, musicId, playSeq]() {
+        if (playSeq != m_enginePlaySeq)
+            return;
+        attachStreamPlaybackGuards(musicId, playSeq);
+        m_engine->play(m_streamRemoteUrl);
+    });
+}
+
 void MainWindow::disconnectDownloader()
 {
     qDebug() << "[MainWindow] disconnectDownloader called";
+    cancelStreamWatch();
     if (m_finishedConn) {
         disconnect(m_finishedConn);
         m_finishedConn = QMetaObject::Connection();
@@ -703,6 +832,14 @@ void MainWindow::disconnectDownloader()
         disconnect(m_progressConn);
         m_progressConn = QMetaObject::Connection();
     }
+    if (m_bgCacheFinishedConn) {
+        disconnect(m_bgCacheFinishedConn);
+        m_bgCacheFinishedConn = QMetaObject::Connection();
+    }
+    if (m_bgCacheErrorConn) {
+        disconnect(m_bgCacheErrorConn);
+        m_bgCacheErrorConn = QMetaObject::Connection();
+    }
 }
 
 void MainWindow::playNext()
@@ -713,7 +850,6 @@ void MainWindow::playNext()
     disconnectDownloader();
     m_downloader->cancel();
     m_engine->stop();
-    m_lastBufferedMusicId = 0;
 
     ++m_enginePlaySeq;
     const quint64 playSeq = m_enginePlaySeq;
@@ -738,43 +874,9 @@ void MainWindow::playNext()
         if (playSeq != m_enginePlaySeq)
             return;
 
-        const QString cachedPath = MusicDownloader::cachedAudioFilePath(info.id);
-        if (QFile::exists(cachedPath)) {
-            m_engine->play(QUrl::fromLocalFile(cachedPath));
-            return;
-        }
-
-        if (m_isDownloading)
-            return;
-        m_isDownloading = true;
-
-        const int expectedId = info.id;
-        m_bufferConn = connect(m_downloader, &MusicDownloader::bufferReady, this,
-            [this, playSeq, expectedId](const QString &path) {
-                if (playSeq != m_enginePlaySeq)
-                    return;
-                const QString base = MusicDownloader::cachedAudioFilePath(expectedId);
-                if (path != base + QLatin1String(".part") && path != base)
-                    return;
-                if (!QFile::exists(path))
-                    return;
-                m_lastBufferedMusicId = expectedId;
-                m_engine->play(QUrl::fromLocalFile(path));
-            });
-
-        m_finishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
-            [this, playSeq, expectedId](const QString &finalPath) {
-                if (playSeq != m_enginePlaySeq)
-                    return;
-                const QString want = MusicDownloader::cachedAudioFilePath(expectedId);
-                if (finalPath != want || !QFile::exists(finalPath))
-                    return;
-                const qint64 pos = (m_lastBufferedMusicId == expectedId) ? m_engine->position() : 0;
-                m_lastBufferedMusicId = 0;
-                m_engine->playLocalResuming(finalPath, pos);
-            });
-
-        m_downloader->download(QUrl(QStringLiteral("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id)), info.id);
+        m_playerBar->setLoading(true);
+        const QUrl url(QStringLiteral("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
+        startRemotePlaybackWithBackgroundCache(info.id, playSeq, url, false);
     });
 }
 
@@ -792,7 +894,6 @@ void MainWindow::playPrevious()
     disconnectDownloader();
     m_downloader->cancel();
     m_engine->stop();
-    m_lastBufferedMusicId = 0;
 
     ++m_enginePlaySeq;
     const quint64 playSeq = m_enginePlaySeq;
@@ -815,39 +916,11 @@ void MainWindow::playPrevious()
         if (playSeq != m_enginePlaySeq)
             return;
 
-        const QString cachedPath = MusicDownloader::cachedAudioFilePath(info.id);
-        if (QFile::exists(cachedPath)) {
-            qDebug() << "[缓存命中] 文件已缓存:" << cachedPath;
-            m_playerBar->setLoading(false);
-            m_engine->play(QUrl::fromLocalFile(cachedPath));
-            return;
-        }
-
-        QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
-        qDebug() << "[音乐加载] 开始下载:" << url.toString();
+        const QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id));
+        qDebug() << "[音乐加载] 远程起播并并行缓存:" << url.toString();
 
         m_playerBar->setLoading(true);
-
-        m_finishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
-            [this, playSeq](const QString &finalPath) {
-                if (playSeq != m_enginePlaySeq)
-                    return;
-                if (!QFile::exists(finalPath))
-                    return;
-                qDebug() << "[下载完成] 文件已就绪，开始播放:" << finalPath;
-                m_playerBar->setLoading(false);
-                m_engine->play(QUrl::fromLocalFile(finalPath));
-            });
-
-        m_errorConn = connect(m_downloader, &MusicDownloader::downloadError, this,
-            [this, playSeq](const QString &err) {
-                if (playSeq != m_enginePlaySeq)
-                    return;
-                qDebug() << "[下载失败]" << err;
-                m_playerBar->setLoading(false);
-            });
-
-        m_downloader->download(url, info.id);
+        startRemotePlaybackWithBackgroundCache(info.id, playSeq, url, false);
     });
 }
 
@@ -859,7 +932,6 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     disconnectDownloader();
     m_downloader->cancel();
     m_engine->stop();
-    m_lastBufferedMusicId = 0;
 
     ++m_enginePlaySeq;
     const quint64 playSeq = m_enginePlaySeq;
@@ -905,39 +977,11 @@ void MainWindow::playMusicById(int musicId, const QString &title, const QString 
     // Set current music info for recent play tracking
     m_engine->setCurrentMusic(mInfo);
 
-    const QString cachedPath = MusicDownloader::cachedAudioFilePath(musicId);
-    if (QFile::exists(cachedPath)) {
-        qDebug() << "[缓存命中] 文件已缓存:" << cachedPath;
-        m_playerBar->setLoading(false);
-        m_engine->play(QUrl::fromLocalFile(cachedPath));
-        return;
-    }
-
-    QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
-    qDebug() << "[音乐加载] 开始下载:" << url.toString();
+    const QUrl url(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(musicId));
+    qDebug() << "[音乐加载] 远程起播并并行缓存:" << url.toString();
 
     m_playerBar->setLoading(true);
-
-    m_finishedConn = connect(m_downloader, &MusicDownloader::downloadFinished, this,
-        [this, playSeq](const QString &finalPath) {
-            if (playSeq != m_enginePlaySeq)
-                return;
-            if (!QFile::exists(finalPath))
-                return;
-            qDebug() << "[下载完成] 文件已就绪，开始播放:" << finalPath;
-            m_playerBar->setLoading(false);
-            m_engine->play(QUrl::fromLocalFile(finalPath));
-        });
-
-    m_errorConn = connect(m_downloader, &MusicDownloader::downloadError, this,
-        [this, playSeq](const QString &err) {
-            if (playSeq != m_enginePlaySeq)
-                return;
-            qDebug() << "[下载失败]" << err;
-            m_playerBar->setLoading(false);
-        });
-
-    m_downloader->download(url, musicId);
+    startRemotePlaybackWithBackgroundCache(musicId, playSeq, url, false);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)

@@ -9,6 +9,7 @@
  */
 
 #include <QMainWindow>
+#include <QUrl>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
 #include "core/musicinfo.h"
@@ -28,6 +29,7 @@ class MusicListPage;
 class UploadPage;
 class PlayerPage;
 class QMenu;
+class QTimer;
 class PlaylistDetailPage;
 class AddToPlaylistDialog;
 class PlaylistPanel;
@@ -83,6 +85,13 @@ private:
     bool checkIsFavorited(int musicId);
     void loadFavoritesCache();
     void disconnectDownloader();
+    void cancelStreamWatch();
+    /** 播放始终走 HTTP 远程 URL；并行触发本地缓存（无文件则下载，已有则下载器立即完成）。 */
+    void startRemotePlaybackWithBackgroundCache(int musicId, quint64 playSeq, const QUrl &remoteUrl,
+                                                bool pauseWhenReady = false);
+    void startBackgroundCacheDownload(int musicId, quint64 playSeq, const QUrl &url);
+    void attachStreamPlaybackGuards(int musicId, quint64 playSeq);
+    void handleRemoteStreamFailure(int musicId, quint64 playSeq);
 
     bool m_switching = false;
     TitleBar *m_titleBar = nullptr;
@@ -115,12 +124,21 @@ private:
     bool m_isDownloading = false;
     /** 每次切歌递增；延后回调里若与当前不一致则丢弃，避免叠多个 singleShot 播错文件。 */
     quint64 m_enginePlaySeq = 0;
-    /** 当前曲是否已因 bufferReady 从 .part 起播（用于 downloadFinished 时是否带进度切到正式文件）。 */
-    int m_lastBufferedMusicId = 0;
 
     // Downloader signal connections
     QMetaObject::Connection m_finishedConn;
     QMetaObject::Connection m_errorConn;
     QMetaObject::Connection m_bufferConn;
     QMetaObject::Connection m_progressConn;
+    QMetaObject::Connection m_bgCacheFinishedConn;
+    QMetaObject::Connection m_bgCacheErrorConn;
+    QMetaObject::Connection m_streamPlayConn;
+    QMetaObject::Connection m_streamErrorConn;
+    QTimer *m_streamAttemptTimer = nullptr;
+    bool m_streamRetryActive = false;
+    QUrl m_streamRemoteUrl;
+    bool m_streamPauseWhenReady = false;
+    int m_remoteStreamFailureCount = 0;
+    /** 同一轮远程起播内只处理一次失败（避免 timeout 与 mediaError 双计）。 */
+    bool m_streamFailHandledThisRound = false;
 };
