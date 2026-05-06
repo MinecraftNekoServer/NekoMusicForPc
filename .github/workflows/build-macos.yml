@@ -14,10 +14,14 @@ on:
     tags:
       - "v*"
 
-# 打包上传 release 资源需要写权限；未声明时部分组织/仓库默认只读会导致步骤失败
+# contents: release 上传；actions: upload-artifact 需要 write（仅设 read 会导致上传步骤无权限）
 permissions:
   contents: write
-  actions: read
+  actions: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-macos:
@@ -86,8 +90,8 @@ jobs:
           cd build-macos
           echo "Running cmake ..."
 
-          # Safe Qt prefix determination
-          CMAKE_PREFIX_PATH="${Qt6_DIR:-}"
+          # install-qt-action 通常导出 Qt6_DIR 或 CMAKE_PREFIX_PATH
+          CMAKE_PREFIX_PATH="${Qt6_DIR:-${CMAKE_PREFIX_PATH:-}}"
           if [ -z "$CMAKE_PREFIX_PATH" ]; then
             if command -v brew >/dev/null 2>&1 && brew --prefix qt >/dev/null 2>&1; then
               CMAKE_PREFIX_PATH="$(brew --prefix qt)"
