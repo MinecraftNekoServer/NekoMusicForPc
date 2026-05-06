@@ -22,6 +22,8 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QStyle>
+#include <QStylePainter>
+#include <QStyleOptionButton>
 #include <QFont>
 #include <QDebug>
 #include <QNetworkAccessManager>
@@ -35,9 +37,11 @@
 #include <QEasingCurve>
 #include <QCoreApplication>
 #include <QMouseEvent>
+#include <QEnterEvent>
 #include <QSettings>
 
 namespace {
+
 // 与 old PlayerBar.vue 的 .control-btn / .play-btn 观感对齐：更大、更亮
 const QColor kPbIconNormal = QColor(255, 255, 255, 210);
 const QColor kPbIconActive = QColor(255, 255, 255, 255);
@@ -56,6 +60,146 @@ QString formatTime(qint64 ms) {
     qint64 sec = ms / 1000;
     return QString("%1:%2").arg(sec / 60).arg(sec % 60, 2, 10, QChar('0'));
 }
+
+/** 列表/单曲循环 PNG 多为黑/灰 + Alpha；用目标色填充再按源 Alpha 裁切，避免整颗纯黑。 */
+static QPixmap tintMaskedPixmap(const QPixmap &src, const QColor &c)
+{
+    if (src.isNull())
+        return src;
+    QPixmap out(src.size());
+    out.fill(Qt::transparent);
+    QPainter p(&out);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    p.fillRect(out.rect(), c);
+    p.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+    p.drawPixmap(0, 0, src);
+    p.end();
+    return out;
+}
+
+/** 播放栏图标绘制角色：完全不走 QIcon::pixmap，避免 Fusion+QSS 把图标当蒙版染黑。 */
+enum class PbInk : int {
+    None = 0,
+    Prev,
+    Next,
+    PlayMain,
+    Heart,
+    Playlist,
+    Volume,
+    PlayModePng,
+};
+
+class PlayerBarInkButton final : public QPushButton {
+public:
+    explicit PlayerBarInkButton(QWidget *parent = nullptr)
+        : QPushButton(parent)
+    {
+        setFlat(true);
+        setAutoDefault(false);
+        setDefault(false);
+        setFocusPolicy(Qt::NoFocus);
+        setAttribute(Qt::WA_Hover, true);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    void enterEvent(QEnterEvent *event) override
+    {
+        QPushButton::enterEvent(event);
+        update();
+    }
+    void leaveEvent(QEvent *event) override
+    {
+        QPushButton::leaveEvent(event);
+        update();
+    }
+};
+
+void PlayerBarInkButton::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QStyleOptionButton option;
+    initStyleOption(&option);
+    option.icon = QIcon();
+    option.text.clear();
+
+    QStylePainter painter(this);
+    painter.drawControl(QStyle::CE_PushButton, option);
+
+    if (property("pbLoading").toBool())
+        return;
+
+    const PbInk ink = static_cast<PbInk>(property("pbInk").toInt());
+    if (ink == PbInk::None)
+        return;
+
+    const QSize sz = iconSize().isValid() ? iconSize() : QSize(22, 22);
+    const int px = qMax(sz.width(), sz.height());
+    const bool hi = isEnabled() && (underMouse() || isDown());
+    const QColor cN = kPbIconNormal;
+    const QColor cA = kPbIconAccent;
+
+    QPixmap pm;
+    switch (ink) {
+    case PbInk::Prev:
+        pm = Icons::render(Icons::kPrev, px, hi ? cA : cN);
+        break;
+    case PbInk::Next:
+        pm = Icons::render(Icons::kNext, px, hi ? cA : cN);
+        break;
+    case PbInk::PlayMain: {
+        const bool playing = property("pbPlaying").toBool();
+        pm = Icons::render(playing ? Icons::kPause : Icons::kPlay, px, kPbPlayGlyph);
+        break;
+    }
+    case PbInk::Heart: {
+        const bool on = property("pbHeartOn").toBool();
+        pm = Icons::render(Icons::kHeart, px, on ? kPbHeartOn : (hi ? cA : cN));
+        break;
+    }
+    case PbInk::Playlist:
+        pm = Icons::render(Icons::kPlaylist, px, hi ? cA : cN);
+        break;
+    case PbInk::Volume: {
+        const int band = property("pbVol").toInt();
+        const char *path = Icons::kVolumeHigh;
+        if (band == 0)
+            path = Icons::kVolumeMute;
+        else if (band == 1)
+            path = Icons::kVolumeLow;
+        pm = Icons::render(path, px, hi ? cA : cN);
+        break;
+    }
+    case PbInk::PlayModePng: {
+        const int m = property("pbPlayMode").toInt();
+        const QColor tint = hi ? cA : cN;
+        if (m == 2) {
+            pm = Icons::render(Icons::kShuffle, px, tint);
+            break;
+        }
+        const QString res = m == 1 ? QStringLiteral(":/icons/icon_single_loop.png")
+                                    : QStringLiteral(":/icons/icon_list_loop.png");
+        QPixmap raw;
+        if (!raw.load(res))
+            return;
+        const QPixmap scaled = raw.scaled(sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        pm = tintMaskedPixmap(scaled, tint);
+        break;
+    }
+    default:
+        return;
+    }
+
+    if (pm.isNull())
+        return;
+
+    const QRect r = rect();
+    const QPoint topLeft(r.x() + (r.width() - pm.width()) / 2,
+                         r.y() + (r.height() - pm.height()) / 2);
+    painter.drawPixmap(topLeft, pm);
+}
+
 }
 
 PlayerBar::PlayerBar(PlayerEngine *engine, QWidget *parent)
@@ -139,11 +283,11 @@ void PlayerBar::setupUi()
     ctrlL->setSpacing(12);
     ctrlL->setAlignment(Qt::AlignCenter);
 
-    auto *prevBtn = new QPushButton(this);
+    auto *prevBtn = new PlayerBarInkButton(this);
     prevBtn->setObjectName("pbCtrlBtn");
     prevBtn->setFixedSize(kPbCtrlBtn, kPbCtrlBtn);
     prevBtn->setIconSize(QSize(kPbCtrlIcon, kPbCtrlIcon));
-    prevBtn->setIcon(Icons::icon(Icons::kPrev, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+    prevBtn->setProperty("pbInk", int(PbInk::Prev));
     prevBtn->setCursor(Qt::PointingHandCursor);
     prevBtn->setToolTip(I18n::instance().tr("previous"));
     connect(prevBtn, &QPushButton::clicked, this, [this]() {
@@ -151,20 +295,22 @@ void PlayerBar::setupUi()
     });
     ctrlL->addWidget(prevBtn);
 
-    m_playBtn = new QPushButton(this);
+    m_playBtn = new PlayerBarInkButton(this);
     m_playBtn->setObjectName("pbPlayBtn");
     m_playBtn->setFixedSize(kPbPlayBtn, kPbPlayBtn);
     m_playBtn->setIconSize(QSize(kPbPlayIcon, kPbPlayIcon));
-    m_playBtn->setIcon(Icons::icon(Icons::kPlay, kPbPlayIcon, kPbPlayGlyph, kPbPlayGlyph));
+    m_playBtn->setProperty("pbInk", int(PbInk::PlayMain));
+    m_playBtn->setProperty("pbPlaying", false);
+    m_playBtn->setProperty("pbLoading", false);
     m_playBtn->setCursor(Qt::PointingHandCursor);
     m_playBtn->setToolTip(I18n::instance().tr("play"));
     ctrlL->addWidget(m_playBtn);
 
-    auto *nextBtn = new QPushButton(this);
+    auto *nextBtn = new PlayerBarInkButton(this);
     nextBtn->setObjectName("pbCtrlBtn");
     nextBtn->setFixedSize(kPbCtrlBtn, kPbCtrlBtn);
     nextBtn->setIconSize(QSize(kPbCtrlIcon, kPbCtrlIcon));
-    nextBtn->setIcon(Icons::icon(Icons::kNext, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+    nextBtn->setProperty("pbInk", int(PbInk::Next));
     nextBtn->setCursor(Qt::PointingHandCursor);
     nextBtn->setToolTip(I18n::instance().tr("next"));
     connect(nextBtn, &QPushButton::clicked, this, [this]() {
@@ -172,11 +318,12 @@ void PlayerBar::setupUi()
     });
     ctrlL->addWidget(nextBtn);
 
-    m_playModeBtn = new QPushButton(this);
+    m_playModeBtn = new PlayerBarInkButton(this);
     m_playModeBtn->setObjectName("pbPlayModeBtn");
     m_playModeBtn->setFixedSize(kPbCtrlBtn, kPbCtrlBtn);
     m_playModeBtn->setIconSize(QSize(24, 24));
-    m_playModeBtn->setIcon(QIcon(":/icons/icon_list_loop.png"));
+    m_playModeBtn->setProperty("pbInk", int(PbInk::PlayModePng));
+    m_playModeBtn->setProperty("pbPlayMode", 0);
     m_playModeBtn->setCursor(Qt::PointingHandCursor);
     m_playModeBtn->setToolTip(I18n::instance().tr("playModeList"));
     connect(m_playModeBtn, &QPushButton::clicked, this, [this]() {
@@ -219,12 +366,12 @@ void PlayerBar::setupUi()
     rl->setSpacing(8);
 
     // 收藏按钮（与 old 相同 SVG 心形路径）
-    m_heartBtn = new QPushButton(this);
+    m_heartBtn = new PlayerBarInkButton(this);
     m_heartBtn->setObjectName("pbHeartBtn");
     m_heartBtn->setFixedSize(kPbCtrlBtn, kPbCtrlBtn);
     m_heartBtn->setIconSize(QSize(kPbCtrlIcon, kPbCtrlIcon));
-    m_heartBtn->setFlat(true);
-    m_heartBtn->setIcon(Icons::icon(Icons::kHeart, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+    m_heartBtn->setProperty("pbInk", int(PbInk::Heart));
+    m_heartBtn->setProperty("pbHeartOn", false);
     m_heartBtn->setCursor(Qt::PointingHandCursor);
     m_heartBtn->setToolTip(I18n::instance().tr("addToFavorites"));
     connect(m_heartBtn, &QPushButton::clicked, this, [this]() {
@@ -257,11 +404,11 @@ void PlayerBar::setupUi()
     });
     rl->addWidget(m_desktopLrcBtn);
 
-    auto *playlistBtn = new QPushButton(this);
+    auto *playlistBtn = new PlayerBarInkButton(this);
     playlistBtn->setObjectName("pbPlaylistBtn");
     playlistBtn->setFixedSize(kPbCtrlBtn, kPbCtrlBtn);
     playlistBtn->setIconSize(QSize(kPbCtrlIcon, kPbCtrlIcon));
-    playlistBtn->setIcon(Icons::icon(Icons::kPlaylist, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+    playlistBtn->setProperty("pbInk", int(PbInk::Playlist));
     playlistBtn->setCursor(Qt::PointingHandCursor);
     playlistBtn->setToolTip(I18n::instance().tr("playlist"));
     connect(playlistBtn, &QPushButton::clicked, this, [this]() {
@@ -276,11 +423,12 @@ void PlayerBar::setupUi()
     volLay->setContentsMargins(0, 0, 0, 0);
     volLay->setSpacing(0);
 
-    m_volumeBtn = new QPushButton(this);
+    m_volumeBtn = new PlayerBarInkButton(this);
     m_volumeBtn->setObjectName("pbVolumeBtn");
     m_volumeBtn->setFixedSize(kPbCtrlBtn, kPbCtrlBtn);
     m_volumeBtn->setIconSize(QSize(kPbCtrlIcon, kPbCtrlIcon));
-    m_volumeBtn->setIcon(Icons::icon(Icons::kVolumeHigh, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+    m_volumeBtn->setProperty("pbInk", int(PbInk::Volume));
+    m_volumeBtn->setProperty("pbVol", 2);
     m_volumeBtn->setCursor(Qt::PointingHandCursor);
     volLay->addWidget(m_volumeBtn);
     rl->addWidget(volWrapper);
@@ -526,11 +674,13 @@ bool PlayerBar::eventFilter(QObject *watched, QEvent *event)
 void PlayerBar::updateVolumeIcon(int value)
 {
     if (!m_volumeBtn) return;
-    const char *path = Icons::kVolumeHigh;
-    if (value == 0) path = Icons::kVolumeMute;
-    else if (value < 50) path = Icons::kVolumeLow;
-    
-    m_volumeBtn->setIcon(Icons::icon(path, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+    int band = 2;
+    if (value == 0)
+        band = 0;
+    else if (value < 50)
+        band = 1;
+    m_volumeBtn->setProperty("pbVol", band);
+    m_volumeBtn->update();
 }
 
 void PlayerBar::retranslate()
@@ -593,11 +743,9 @@ void PlayerBar::setFavoriteStatus(bool isFavorited)
     qDebug() << "[播放栏] setFavoriteStatus:" << isFavorited;
     m_isFavorited = isFavorited;
     if (m_heartBtn) {
-        if (isFavorited)
-            m_heartBtn->setIcon(Icons::icon(Icons::kHeart, kPbCtrlIcon, kPbHeartOn, QColor(255, 120, 120)));
-        else
-            m_heartBtn->setIcon(Icons::icon(Icons::kHeart, kPbCtrlIcon, kPbIconNormal, kPbIconAccent));
+        m_heartBtn->setProperty("pbHeartOn", isFavorited);
         m_heartBtn->setToolTip(isFavorited ? I18n::instance().tr("removeFromFavorites") : I18n::instance().tr("addToFavorites"));
+        m_heartBtn->update();
     }
 }
 
@@ -609,8 +757,9 @@ void PlayerBar::setLoading(bool loading)
 
     if (loading) {
         if (m_playBtn) {
-            m_playBtn->setIcon(QIcon());
+            m_playBtn->setProperty("pbLoading", true);
             m_playBtn->setToolTip(I18n::instance().tr("loading"));
+            m_playBtn->update();
         }
         QTimer *timer = new QTimer(this);
         timer->setObjectName("loadingTimer");
@@ -664,23 +813,28 @@ void PlayerBar::updateState()
 {
     if (!m_engine) return;
     bool playing = m_engine->playbackState() == PlayerEngine::Playing;
-    m_playBtn->setIcon(Icons::render(playing ? Icons::kPause : Icons::kPlay, kPbPlayIcon, kPbPlayGlyph));
-    m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
+    if (m_playBtn) {
+        m_playBtn->setProperty("pbLoading", false);
+        m_playBtn->setProperty("pbPlaying", playing);
+        m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
+        m_playBtn->update();
+    }
 }
 
 void PlayerBar::updatePlayModeBtn(const QString &mode)
 {
     if (!m_playModeBtn) return;
-    if (mode == "single") {
-        m_playModeBtn->setIcon(QIcon(":/icons/icon_single_loop.png"));
+    if (mode == QStringLiteral("single")) {
+        m_playModeBtn->setProperty("pbPlayMode", 1);
         m_playModeBtn->setToolTip(I18n::instance().tr("playModeSingle"));
-    } else if (mode == "random") {
-        m_playModeBtn->setIcon(QIcon(":/icons/icon_shuffle.png"));
+    } else if (mode == QStringLiteral("random")) {
+        m_playModeBtn->setProperty("pbPlayMode", 2);
         m_playModeBtn->setToolTip(I18n::instance().tr("playModeRandom"));
     } else {
-        m_playModeBtn->setIcon(QIcon(":/icons/icon_list_loop.png"));
+        m_playModeBtn->setProperty("pbPlayMode", 0);
         m_playModeBtn->setToolTip(I18n::instance().tr("playModeList"));
     }
+    m_playModeBtn->update();
 }
 
 void PlayerBar::paintEvent(QPaintEvent *)
