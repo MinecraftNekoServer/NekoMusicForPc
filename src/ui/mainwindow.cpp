@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setMinimumSize(960, 640);
 
     // 延迟检查版本更新
-    QTimer::singleShot(2000, this, &MainWindow::checkForUpdates);
+    QTimer::singleShot(2000, this, [this]() { checkForUpdates(false); });
 }
 
 MainWindow::~MainWindow()
@@ -454,7 +454,9 @@ void MainWindow::setupUi()
     connect(m_settingsPage, &SettingsPage::languageChanged, m_latestMusicPage, &MusicListPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_uploadPage, &UploadPage::retranslate);
     connect(m_settingsPage, &SettingsPage::languageChanged, m_playlistDetailPage, &PlaylistDetailPage::retranslate);
-    connect(m_settingsPage, &SettingsPage::checkForUpdatesRequested, this, &MainWindow::checkForUpdates);
+    connect(m_settingsPage, &SettingsPage::checkForUpdatesRequested, this, [this]() {
+        checkForUpdates(true);
+    });
 
     // 播放列表页面返回
     connect(m_playlistDetailPage, &PlaylistDetailPage::backRequested, this, [this]() {
@@ -1108,7 +1110,7 @@ void MainWindow::loadFavoritesCache()
     });
 }
 
-void MainWindow::checkForUpdates()
+void MainWindow::checkForUpdates(bool showNoUpdateToast)
 {
     // 防止重复检查
     if (m_updateChecker && m_updateDialog && m_updateDialog->isVisible()) {
@@ -1132,9 +1134,10 @@ void MainWindow::checkForUpdates()
         m_updateDialog->exec();
     });
 
-    connect(m_updateChecker, &UpdateChecker::noUpdate, this, [this]() {
+    connect(m_updateChecker, &UpdateChecker::noUpdate, this, [this, showNoUpdateToast]() {
         qDebug() << "[更新] 已是最新版本";
-        Toast::show(this, I18n::instance().tr("isLatest"), Toast::Info);
+        if (showNoUpdateToast)
+            Toast::show(this, I18n::instance().tr("isLatest"), Toast::Info);
     });
 
     connect(m_updateChecker, &UpdateChecker::checkFailed, this, [](const QString &error) {

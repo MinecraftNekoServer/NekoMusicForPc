@@ -74,7 +74,8 @@ private:
     void playNext();
     void playPrevious();
     void toggleFavorite(int musicId);
-    void checkForUpdates();
+    /** @param showNoUpdateToast 为 true 时表示用户从设置页手动检查，已是最新版本时弹出 Toast */
+    void checkForUpdates(bool showNoUpdateToast = false);
 
 private:
     bool checkIsFavorited(int musicId);
