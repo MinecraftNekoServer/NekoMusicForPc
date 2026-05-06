@@ -35,6 +35,8 @@ PlayerPage::PlayerPage(PlayerEngine *engine, QWidget *parent)
                 applyPlayerPageStyle();
                 update();
                 rebuildLyricLabels();
+                // 重建后控件已换，若行号未变 updateLyricHighlight 会早退，高亮样式不会套到新 QLabel
+                m_currentLyricLine = -1;
                 updateLyricHighlight(m_engine->position());
             });
 }

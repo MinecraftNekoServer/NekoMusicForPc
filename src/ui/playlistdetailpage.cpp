@@ -358,6 +358,16 @@ void PlaylistDetailPage::applyPlaylistDetailStyle()
     }
 
     for (QWidget *w : m_musicItems) {
+        if (auto *emptyHint = qobject_cast<QLabel *>(w)) {
+            if (emptyHint->objectName() == QLatin1String("playlistEmptyHint")) {
+                const QString emptyCol = dark ? QString::fromUtf8(Theme::kTextSub)
+                                              : QStringLiteral("rgba(33,37,41,0.55)");
+                emptyHint->setStyleSheet(QStringLiteral(
+                    "QLabel { color: %1; font-size: 14px; padding: 60px 20px; }")
+                                             .arg(emptyCol));
+                continue;
+            }
+        }
         if (auto *card = dynamic_cast<PlaylistMusicCard *>(w))
             card->applyPalette();
     }
@@ -637,6 +647,7 @@ void PlaylistDetailPage::buildList()
 
     if (m_musicList.isEmpty()) {
         auto *emptyLbl = new QLabel(I18n::instance().tr("noMusicInPlaylist"), m_listContainer);
+        emptyLbl->setObjectName(QStringLiteral("playlistEmptyHint"));
         emptyLbl->setAlignment(Qt::AlignCenter);
         const bool dark = Theme::ThemeManager::instance().isDarkMode();
         const QString emptyCol = dark ? QString::fromUtf8(Theme::kTextSub)
