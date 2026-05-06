@@ -239,6 +239,7 @@ void RecentPage::setupUi()
     m_listLay = new QVBoxLayout();
     m_listLay->setContentsMargins(0, 0, 0, 0);
     m_listLay->setSpacing(8);
+    m_listLay->setAlignment(Qt::AlignTop);
     m_mainLay->addLayout(m_listLay);
 
     m_mainLay->addStretch();
@@ -255,10 +256,10 @@ void RecentPage::setupUi()
 
 void RecentPage::loadRecentPlays()
 {
-    // 清空现有卡片
     QLayoutItem *item;
     while ((item = m_listLay->takeAt(0)) != nullptr) {
-        delete item->widget();
+        if (QWidget *w = item->widget())
+            w->deleteLater();
         delete item;
     }
 
@@ -270,6 +271,7 @@ void RecentPage::loadRecentPlays()
         emptyLbl->setAlignment(Qt::AlignCenter);
         emptyLbl->setStyleSheet("QLabel { font-size: 14px; color: " + QString(Theme::kTextMuted) + "; padding: 40px 0; }");
         m_listLay->addWidget(emptyLbl);
+        m_listLay->addStretch(1);
         return;
     }
 
@@ -292,6 +294,7 @@ void RecentPage::loadRecentPlays()
         };
         m_listLay->addWidget(card);
     }
+    m_listLay->addStretch(1);
 }
 
 void RecentPage::paintEvent(QPaintEvent *)

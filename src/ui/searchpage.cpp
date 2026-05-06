@@ -587,6 +587,7 @@ void SearchPage::setupUi()
     m_listLayout = new QVBoxLayout(m_container);
     m_listLayout->setContentsMargins(16, 16, 16, 16);
     m_listLayout->setSpacing(8);
+    m_listLayout->setAlignment(Qt::AlignTop);
 
     m_scroll->setWidget(m_container);
     mainLay->addWidget(m_scroll, 1);
@@ -719,7 +720,7 @@ void SearchPage::buildMusicList()
             m_listLayout->addWidget(card);
         }
     }
-    m_listLayout->addStretch();
+    m_listLayout->addStretch(1);
     hideLoading();
 }
 
@@ -741,7 +742,7 @@ void SearchPage::buildPlaylistList()
             m_listLayout->addWidget(card);
         }
     }
-    m_listLayout->addStretch();
+    m_listLayout->addStretch(1);
     hideLoading();
 }
 
@@ -785,7 +786,7 @@ void SearchPage::buildArtistList()
             m_listLayout->addWidget(card);
         }
     }
-    m_listLayout->addStretch();
+    m_listLayout->addStretch(1);
     hideLoading();
 }
 

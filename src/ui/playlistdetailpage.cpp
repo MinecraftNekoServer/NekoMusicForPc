@@ -480,6 +480,7 @@ void PlaylistDetailPage::setupUi()
     m_listLayout = new QVBoxLayout(m_listContainer);
     m_listLayout->setContentsMargins(0, 0, 0, 0);
     m_listLayout->setSpacing(0);
+    m_listLayout->setAlignment(Qt::AlignTop);
 
     listOuter->addWidget(m_listContainer, 1);
 
@@ -638,10 +639,11 @@ void PlaylistDetailPage::setPlaceholderCover()
 
 void PlaylistDetailPage::buildList()
 {
-    // 清除现有项
-    for (auto *widget : m_musicItems) {
-        m_listLayout->removeWidget(widget);
-        widget->deleteLater();
+    QLayoutItem *lit;
+    while ((lit = m_listLayout->takeAt(0)) != nullptr) {
+        if (QWidget *w = lit->widget())
+            w->deleteLater();
+        delete lit;
     }
     m_musicItems.clear();
 
@@ -676,6 +678,7 @@ void PlaylistDetailPage::buildList()
             m_musicItems.append(card);
         }
     }
+    m_listLayout->addStretch(1);
 }
 
 void PlaylistDetailPage::retranslate()

@@ -231,6 +231,7 @@ void MusicListPage::setupUi()
     m_listLayout = new QVBoxLayout(m_listContainer);
     m_listLayout->setContentsMargins(16, 16, 16, 16);
     m_listLayout->setSpacing(8);
+    m_listLayout->setAlignment(Qt::AlignTop);
 
     m_loadingLabel = new QLabel(I18n::instance().tr("loading"), m_listContainer);
     m_loadingLabel->setObjectName("hpLoading");
@@ -334,7 +335,7 @@ void MusicListPage::buildList()
             "QLabel { color: " + QString(Theme::kTextSub) + "; font-size: 14px; padding: 40px; }"
         );
         m_listLayout->addWidget(emptyLbl);
-        m_listLayout->addStretch();
+        m_listLayout->addStretch(1);
         return;
     }
 
@@ -369,7 +370,7 @@ void MusicListPage::buildListBatch()
         QTimer::singleShot(0, this, &MusicListPage::buildListBatch);
     } else {
         m_buildingList = false;
-        m_listLayout->addStretch();
+        m_listLayout->addStretch(1);
     }
 }
 

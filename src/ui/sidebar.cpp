@@ -100,6 +100,7 @@ void Sidebar::setupUi()
     m_playlistLayout = new QVBoxLayout(m_playlistContainer);
     m_playlistLayout->setContentsMargins(4, 0, 4, 0);
     m_playlistLayout->setSpacing(2);
+    m_playlistLayout->setAlignment(Qt::AlignTop);
     lay->addWidget(m_playlistContainer);
 
     // 创建歌单按钮
@@ -128,6 +129,7 @@ void Sidebar::setupUi()
     m_favPlaylistLayout = new QVBoxLayout(m_favPlaylistContainer);
     m_favPlaylistLayout->setContentsMargins(4, 0, 4, 0);
     m_favPlaylistLayout->setSpacing(2);
+    m_favPlaylistLayout->setAlignment(Qt::AlignTop);
     lay->addWidget(m_favPlaylistContainer);
 
     lay->addStretch();
@@ -304,6 +306,7 @@ void Sidebar::refreshPlaylistList()
             m_playlistItems.append(item);
         }
     }
+    m_playlistLayout->addStretch(1);
 }
 
 void Sidebar::loadFavPlaylists()
@@ -382,6 +385,7 @@ void Sidebar::refreshFavPlaylistList()
             m_favPlaylistItems.append(item);
         }
     }
+    m_favPlaylistLayout->addStretch(1);
 }
 
 QPushButton *Sidebar::createNavItem(const QString &key, const QString &label, const QIcon &icon)

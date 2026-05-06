@@ -261,6 +261,7 @@ void PlaylistPanel::setupUi() {
     m_listLayout = new QVBoxLayout(m_listContainer);
     m_listLayout->setContentsMargins(4, 4, 4, 4);
     m_listLayout->setSpacing(4);
+    m_listLayout->setAlignment(Qt::AlignTop);
 
     m_scroll->setWidget(m_listContainer);
     lay->addWidget(m_scroll, 1);
@@ -282,10 +283,11 @@ void PlaylistPanel::refresh() {
 }
 
 void PlaylistPanel::rebuildList() {
-    // 清除现有项
-    for (auto *item : m_items) {
-        m_listLayout->removeWidget(item);
-        item->deleteLater();
+    QLayoutItem *lit;
+    while ((lit = m_listLayout->takeAt(0)) != nullptr) {
+        if (QWidget *w = lit->widget())
+            w->deleteLater();
+        delete lit;
     }
     m_items.clear();
 
@@ -315,7 +317,7 @@ void PlaylistPanel::rebuildList() {
         }
     }
 
-    m_listLayout->addStretch();
+    m_listLayout->addStretch(1);
 
     // 更新计数
     if (m_countLabel) {

@@ -238,6 +238,7 @@ void FavoritesPage::setupUi()
     m_listLay = new QVBoxLayout();
     m_listLay->setContentsMargins(0, 0, 0, 0);
     m_listLay->setSpacing(8);
+    m_listLay->setAlignment(Qt::AlignTop);
     m_mainLay->addLayout(m_listLay);
 
     m_mainLay->addStretch();
@@ -254,10 +255,10 @@ void FavoritesPage::setupUi()
 
 void FavoritesPage::loadFavorites()
 {
-    // 清空现有卡片
     QLayoutItem *item;
     while ((item = m_listLay->takeAt(0)) != nullptr) {
-        delete item->widget();
+        if (QWidget *w = item->widget())
+            w->deleteLater();
         delete item;
     }
 
@@ -296,6 +297,7 @@ void FavoritesPage::loadFavorites()
             };
             m_listLay->addWidget(card);
         }
+        m_listLay->addStretch(1);
     });
 }
 
