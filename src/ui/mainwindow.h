@@ -12,6 +12,7 @@
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
 #include "core/musicinfo.h"
+#include "theme/thememanager.h"
 
 class QCloseEvent;
 class TitleBar;
@@ -61,6 +62,7 @@ private slots:
 private:
     void setupUi();
     void loadStyleSheet();
+    void applyTheme();
     void switchPage(QWidget *target);
     void showMusicListPage(bool isHot);
     void showPlaylistDetailPage(int localId);

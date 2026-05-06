@@ -7,9 +7,10 @@
  */
 
 #include "playerbar.h"
+#include "theme/theme.h"
+#include "theme/thememanager.h"
 #include "core/playerengine.h"
 #include "core/playlistmanager.h"
-#include "theme/theme.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
 
@@ -43,8 +44,6 @@
 namespace {
 
 // 与 old PlayerBar.vue 的 .control-btn / .play-btn 观感对齐：更大、更亮
-const QColor kPbIconNormal = QColor(255, 255, 255, 210);
-const QColor kPbIconActive = QColor(255, 255, 255, 255);
 const QColor kPbIconAccent = QColor(212, 196, 255, 255);
 const QColor kPbPlayGlyph = QColor(26, 22, 37, 255);
 const QColor kPbHeartOn = QColor(255, 69, 69, 255);
@@ -55,6 +54,12 @@ constexpr int kPbPlayIcon = 28;
 constexpr int kVolumePanelExtraLiftPx = 16;
 constexpr int kVolumeLeaveAutoHideMs = 3000;
 const QString kSettingsKeyVolume = QStringLiteral("player/volume");
+
+inline QColor pbCtrlIdleColor()
+{
+    return Theme::ThemeManager::instance().isDarkMode() ? QColor(255, 255, 255, 210)
+                                                        : QColor(33, 37, 41, 210);
+}
 
 QString formatTime(qint64 ms) {
     qint64 sec = ms / 1000;
@@ -137,7 +142,7 @@ void PlayerBarInkButton::paintEvent(QPaintEvent *event)
     const QSize sz = iconSize().isValid() ? iconSize() : QSize(22, 22);
     const int px = qMax(sz.width(), sz.height());
     const bool hi = isEnabled() && (underMouse() || isDown());
-    const QColor cN = kPbIconNormal;
+    const QColor cN = pbCtrlIdleColor();
     const QColor cA = kPbIconAccent;
 
     QPixmap pm;
@@ -208,6 +213,13 @@ PlayerBar::PlayerBar(PlayerEngine *engine, QWidget *parent)
     setFixedHeight(Theme::kPlayerBarH);
     setAttribute(Qt::WA_StyledBackground, false);
     setupUi();
+
+    connect(&Theme::ThemeManager::instance(), &Theme::ThemeManager::themeChanged,
+            this, [this](Theme::ThemeMode) {
+                for (auto *b : findChildren<QPushButton *>())
+                    b->update();
+                update();
+            });
     
     if (m_engine) {
         connect(m_engine, &PlayerEngine::positionChanged, this, [this](qint64 position) {

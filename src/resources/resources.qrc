@@ -23,5 +23,6 @@
         <file>icons/icon_list_loop.png</file>
         <file>icons/icon_single_loop.png</file>
         <file>style.qss</file>
+        <file>style-light.qss</file>
     </qresource>
 </RCC>
