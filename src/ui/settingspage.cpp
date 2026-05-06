@@ -39,7 +39,7 @@ void SettingsPage::setupUi()
 
     auto *card = new GlassWidget(container);
     card->setBorderRadius(Theme::kRXl);
-    card->setOpacity(0.5);
+    card->setOpacity(0.58);
 
     auto *cardLay = new QVBoxLayout(card);
     cardLay->setContentsMargins(24, 20, 24, 20);

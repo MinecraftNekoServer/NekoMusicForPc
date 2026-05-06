@@ -95,6 +95,7 @@ set(SOURCES
         src/main.cpp
         src/ui/mainwindow.cpp
         src/ui/glasswidget.cpp
+        src/ui/glasspaint.cpp
         src/ui/titlebar.cpp
         src/ui/sidebar.cpp
         src/ui/carousel.cpp
@@ -133,6 +134,7 @@ set(SOURCES
 set(HEADERS
         src/ui/mainwindow.h
         src/ui/glasswidget.h
+        src/ui/glasspaint.h
         src/ui/titlebar.h
         src/ui/sidebar.h
         src/ui/carousel.h

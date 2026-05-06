@@ -122,7 +122,7 @@ public:
 
         auto *glass = new GlassWidget(this);
         glass->setBorderRadius(Theme::kRXl);
-        glass->setOpacity(0.55);
+        glass->setOpacity(0.60);
         glass->setObjectName(type == Hot ? "hpHotMusicCard" : "hpLatestMusicCard");
 
         auto *vlay = new QVBoxLayout(glass);

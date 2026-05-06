@@ -36,6 +36,8 @@
 #include "core/playlistmanager.h"
 #include "core/updatechecker.h"
 #include "theme/theme.h"
+#include "theme/thememanager.h"
+#include "ui/glasspaint.h"
 #include "version.h"
 
 #include <QApplication>
@@ -557,18 +559,7 @@ void MainWindow::applyTheme()
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-    QLinearGradient bg(rect().topLeft(), QPoint(rect().width() * 0.3, rect().height()));
-    
-    if (Theme::ThemeManager::instance().isDarkMode()) {
-        bg.setColorAt(0.0, QColor(26, 22, 37));   // #1A1625
-        bg.setColorAt(1.0, QColor(36, 31, 49));   // #241F31
-    } else {
-        bg.setColorAt(0.0, QColor(248, 249, 250)); // #F8F9FA
-        bg.setColorAt(1.0, QColor(233, 236, 239)); // #E9ECEF
-    }
-    
-    p.fillRect(rect(), bg);
+    GlassPaint::paintMainWindowDeepBackdrop(p, rect(), Theme::ThemeManager::instance().isDarkMode());
 }
 
 void MainWindow::switchPage(QWidget *target)

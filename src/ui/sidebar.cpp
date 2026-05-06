@@ -8,6 +8,8 @@
 
 #include "sidebar.h"
 #include "theme/theme.h"
+#include "theme/thememanager.h"
+#include "ui/glasspaint.h"
 #include "ui/playlistlistitem.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
@@ -430,21 +432,8 @@ void Sidebar::retranslate()
 void Sidebar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-
-    // 重度毛玻璃背景
-    QColor bg(36, 31, 49, 204);  // 80% 不透明
-    p.fillRect(rect(), bg);
-
-    // 薰衣草微光叠加（从左上角辐射）
-    QRadialGradient glow(QPointF(0, 0), width() * 1.2);
-    glow.setColorAt(0.0, QColor(196, 167, 231, 18));  // 7%
-    glow.setColorAt(1.0, QColor(196, 167, 231, 0));
-    p.fillRect(rect(), glow);
-
-    // 右侧边线
-    p.setPen(QPen(QColor(196, 167, 231, 25), 1));
-    p.drawLine(rect().topRight(), rect().bottomRight());
+    GlassPaint::paintBarGlass(p, rect(), GlassPaint::BarKind::Sidebar,
+                              Theme::ThemeManager::instance().isDarkMode());
 }
 
 void Sidebar::setUploadVisible(bool visible)

@@ -9,6 +9,7 @@
 #include "playerbar.h"
 #include "theme/theme.h"
 #include "theme/thememanager.h"
+#include "ui/glasspaint.h"
 #include "core/playerengine.h"
 #include "core/playlistmanager.h"
 #include "ui/svgicon.h"
@@ -864,17 +865,8 @@ void PlayerBar::updatePlayModeBtn(const QString &mode)
 void PlayerBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-
-    QColor bg(36, 31, 49, 218);
-    p.fillRect(rect(), bg);
-
-    QLinearGradient line(rect().topLeft(), rect().topRight());
-    line.setColorAt(0.0, QColor(196, 167, 231, 0));
-    line.setColorAt(0.5, QColor(196, 167, 231, 50));
-    line.setColorAt(1.0, QColor(196, 167, 231, 0));
-    p.setPen(QPen(QBrush(line), 1));
-    p.drawLine(rect().topLeft(), rect().topRight());
+    GlassPaint::paintBarGlass(p, rect(), GlassPaint::BarKind::PlayerBar,
+                              Theme::ThemeManager::instance().isDarkMode());
 
     // Draw loading spinner on play button area
     if (m_isLoading && m_playBtn) {

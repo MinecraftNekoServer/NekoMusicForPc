@@ -7,6 +7,9 @@
  */
 
 #include "glasswidget.h"
+#include "glasspaint.h"
+
+#include "theme/thememanager.h"
 
 #include <QPainter>
 #include <QPainterPath>
@@ -36,12 +39,6 @@ void GlassWidget::paintEvent(QPaintEvent *)
     QPainterPath path;
     path.addRoundedRect(rect(), m_radius, m_radius);
 
-    // 半透明背景
-    QColor bg = m_base;
-    bg.setAlphaF(m_opacity);
-    p.fillPath(path, bg);
-
-    // 微光边框
-    p.setPen(QPen(m_border, 1.0));
-    p.drawPath(path);
+    GlassPaint::paintRoundedGlassCard(p, path, m_base, m_opacity, m_border, m_radius,
+                                        Theme::ThemeManager::instance().isDarkMode());
 }

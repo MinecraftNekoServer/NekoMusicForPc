@@ -8,6 +8,7 @@
 #include "titlebar.h"
 #include "theme/theme.h"
 #include "theme/thememanager.h"
+#include "ui/glasspaint.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
@@ -485,17 +486,6 @@ void TitleBar::loadAvatarAsync(const QString &url, int userId)
 void TitleBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-
-    // 毛玻璃背景
-    QColor bg(36, 31, 49, 204);  // kGlassSidebar
-    p.fillRect(rect(), bg);
-
-    // 底部薰衣草紫微光线
-    QLinearGradient line(rect().topLeft(), rect().topRight());
-    line.setColorAt(0.0, QColor(196, 167, 231, 0));
-    line.setColorAt(0.5, QColor(196, 167, 231, 40));
-    line.setColorAt(1.0, QColor(196, 167, 231, 0));
-    p.setPen(QPen(QBrush(line), 1));
-    p.drawLine(rect().bottomLeft(), rect().bottomRight());
+    GlassPaint::paintBarGlass(p, rect(), GlassPaint::BarKind::TitleBar,
+                              Theme::ThemeManager::instance().isDarkMode());
 }
