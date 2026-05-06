@@ -8,6 +8,8 @@
 #include "core/i18n.h"
 #include "core/covercache.h"
 #include "theme/theme.h"
+#include "theme/thememanager.h"
+#include "glasspaint.h"
 #include "ui/svgicon.h"
 
 #include <QScrollArea>
@@ -26,6 +28,7 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QLineEdit>
+#include <QColor>
 
 // ─── 播放列表音乐项卡片 ──────────────────────────────────────
 class PlaylistMusicCard : public QWidget
@@ -34,41 +37,26 @@ public:
     explicit PlaylistMusicCard(int index, const MusicInfo &info, int musicId, QWidget *parent = nullptr)
         : QWidget(parent), m_musicId(musicId), m_index(index), m_info(info)
     {
+        setObjectName(QStringLiteral("PlaylistMusicCard"));
         setFixedHeight(72);
         setCursor(Qt::PointingHandCursor);
         setAttribute(Qt::WA_StyledBackground, true);
-        setStyleSheet(
-            "PlaylistMusicCard { "
-            "  background: transparent; "
-            "  border-bottom: 1px solid rgba(255, 255, 255, 0.1); "
-            "}"
-            "PlaylistMusicCard:hover { "
-            "  background: rgba(102, 126, 234, 0.1); "
-            "}"
-            "PlaylistMusicCard.playing { "
-            "  background: rgba(102, 126, 234, 0.15); "
-            "}"
-        );
 
         auto *lay = new QHBoxLayout(this);
         lay->setContentsMargins(20, 12, 20, 12);
         lay->setSpacing(16);
 
-        // 序号
         m_indexLbl = new QLabel(QString::number(index + 1), this);
         m_indexLbl->setFixedSize(32, 72);
         m_indexLbl->setAlignment(Qt::AlignCenter);
-        m_indexLbl->setStyleSheet("QLabel { font-size: 14px; color: rgba(255, 255, 255, 0.5); }");
         lay->addWidget(m_indexLbl);
 
-        // 封面
         m_coverLbl = new QLabel(this);
         m_coverLbl->setFixedSize(48, 48);
         m_coverLbl->setScaledContents(false);
         loadCover();
         lay->addWidget(m_coverLbl);
 
-        // 信息
         auto *infoV = new QWidget(this);
         auto *infoLay = new QVBoxLayout(infoV);
         infoLay->setContentsMargins(0, 0, 0, 0);
@@ -76,36 +64,70 @@ public:
 
         m_titleLbl = new QLabel(info.title, infoV);
         m_titleLbl->setObjectName("musicTitle");
-        m_titleLbl->setStyleSheet(
-            "QLabel#musicTitle { "
-            "  font-size: 14px; font-weight: 500; color: white; "
-            "  padding: 0; margin: 0; "
-            "}"
-        );
         infoLay->addWidget(m_titleLbl);
 
         m_artistLbl = new QLabel(info.artist, infoV);
         m_artistLbl->setObjectName("musicArtist");
-        m_artistLbl->setStyleSheet(
-            "QLabel#musicArtist { "
-            "  font-size: 12px; color: rgba(255, 255, 255, 0.6); "
-            "  padding: 0; margin: 0; "
-            "}"
-        );
         infoLay->addWidget(m_artistLbl);
 
         infoLay->addStretch();
         lay->addWidget(infoV, 1);
 
-        // 时长
         int mins = info.duration / 60;
         int secs = info.duration % 60;
-        auto *timeLbl = new QLabel(
+        m_timeLbl = new QLabel(
             QString("%1:%2").arg(mins, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0')), this);
-        timeLbl->setFixedWidth(60);
-        timeLbl->setAlignment(Qt::AlignCenter);
-        timeLbl->setStyleSheet("QLabel { font-size: 13px; color: rgba(255, 255, 255, 0.6); }");
-        lay->addWidget(timeLbl);
+        m_timeLbl->setFixedWidth(60);
+        m_timeLbl->setAlignment(Qt::AlignCenter);
+        lay->addWidget(m_timeLbl);
+
+        applyPalette();
+    }
+
+    void applyPalette()
+    {
+        const bool dark = Theme::ThemeManager::instance().isDarkMode();
+        const QString border = dark ? QStringLiteral("rgba(255,255,255,0.10)")
+                                    : QStringLiteral("rgba(33,37,41,0.10)");
+        const QString hover = dark ? QStringLiteral("rgba(196,167,231,0.10)")
+                                   : QStringLiteral("rgba(196,167,231,0.14)");
+        const QString playingBg = dark ? QStringLiteral("rgba(196,167,231,0.16)")
+                                       : QStringLiteral("rgba(196,167,231,0.22)");
+        setStyleSheet(QStringLiteral(
+                          "PlaylistMusicCard { background: transparent; border-bottom: 1px solid %1; }"
+                          "PlaylistMusicCard:hover { background: %2; }"
+                          "PlaylistMusicCard[playing=\"true\"] { background: %3; }")
+                          .arg(border, hover, playingBg));
+
+        const QString titleFg = dark ? QStringLiteral("white")
+                                     : QStringLiteral("#212529");
+        const QString subFg = dark ? QStringLiteral("rgba(255,255,255,0.62)")
+                                   : QStringLiteral("rgba(33,37,41,0.62)");
+        const QString idxIdle = dark ? QStringLiteral("rgba(255,255,255,0.48)")
+                                     : QStringLiteral("rgba(33,37,41,0.45)");
+        const QString playAccent = QString::fromUtf8(Theme::kLavender);
+
+        m_titleLbl->setStyleSheet(QStringLiteral(
+            "QLabel#musicTitle { font-size: 14px; font-weight: 500; color: %1; padding: 0; margin: 0; }")
+                                      .arg(titleFg));
+        m_artistLbl->setStyleSheet(QStringLiteral(
+            "QLabel#musicArtist { font-size: 12px; color: %1; padding: 0; margin: 0; }")
+                                       .arg(subFg));
+        m_timeLbl->setStyleSheet(QStringLiteral(
+            "QLabel { font-size: 13px; color: %1; }")
+                                     .arg(subFg));
+
+        if (m_isPlaying) {
+            m_indexLbl->setText(QStringLiteral("▶"));
+            m_indexLbl->setStyleSheet(QStringLiteral(
+                "QLabel { font-size: 14px; color: %1; }")
+                                          .arg(playAccent));
+        } else {
+            m_indexLbl->setText(QString::number(m_index + 1));
+            m_indexLbl->setStyleSheet(QStringLiteral(
+                "QLabel { font-size: 14px; color: %1; }")
+                                          .arg(idxIdle));
+        }
     }
 
     int musicId() const { return m_musicId; }
@@ -114,13 +136,7 @@ public:
         setProperty("playing", playing);
         style()->unpolish(this);
         style()->polish(this);
-        if (playing) {
-            m_indexLbl->setText(QStringLiteral("▶"));
-            m_indexLbl->setStyleSheet("QLabel { font-size: 14px; color: #667eea; }");
-        } else {
-            m_indexLbl->setText(QString::number(m_index + 1));
-            m_indexLbl->setStyleSheet("QLabel { font-size: 14px; color: rgba(255, 255, 255, 0.5); }");
-        }
+        applyPalette();
     }
 
     std::function<void(int)> onClicked;
@@ -146,7 +162,7 @@ protected:
         menu.setStyleSheet(
             "QMenu { background-color: rgba(30, 30, 50, 0.98); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px 0; min-width: 180px; }"
             "QMenu::item { color: rgba(255, 255, 255, 0.9); padding: 10px 16px; margin: 0; border-radius: 0; }"
-            "QMenu::item:selected { background-color: rgba(102, 126, 234, 0.15); }"
+            "QMenu::item:selected { background-color: rgba(196, 167, 231, 0.18); }"
             "QMenu::item:disabled { color: rgba(255, 255, 255, 0.4); }"
         );
 
@@ -188,7 +204,7 @@ private:
         p.setRenderHint(QPainter::Antialiasing);
         QPainterPath path;
         path.addRoundedRect(0, 0, 48, 48, 4, 4);
-        p.fillPath(path, QColor(102, 126, 234, 180));
+        p.fillPath(path, QColor(196, 167, 231, 200));
         p.setClipPath(path);
         auto icon = Icons::render(Icons::kMusic, 20, QColor(255, 255, 255, 200));
         p.drawPixmap(14, 14, icon);
@@ -213,6 +229,7 @@ private:
     QLabel *m_coverLbl = nullptr;
     QLabel *m_titleLbl = nullptr;
     QLabel *m_artistLbl = nullptr;
+    QLabel *m_timeLbl = nullptr;
 };
 
 // ─── PlaylistDetailPage ──────────────────────────────────────
@@ -220,8 +237,130 @@ private:
 PlaylistDetailPage::PlaylistDetailPage(ApiClient *apiClient, QWidget *parent)
     : QWidget(parent), m_apiClient(apiClient)
 {
-    setAttribute(Qt::WA_StyledBackground, false);
+    setObjectName(QStringLiteral("playlistDetailPage"));
+    setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
+
+    connect(&Theme::ThemeManager::instance(), &Theme::ThemeManager::themeChanged, this,
+            [this](Theme::ThemeMode) {
+                applyPlaylistDetailStyle();
+                update();
+            });
+}
+
+void PlaylistDetailPage::applyPlaylistDetailStyle()
+{
+    const bool dark = Theme::ThemeManager::instance().isDarkMode();
+
+    if (m_headerGlass) {
+        if (dark) {
+            m_headerGlass->setBaseColor(QColor(45, 38, 65));
+            m_headerGlass->setBorderColor(QColor(196, 167, 231, 58));
+            m_headerGlass->setOpacity(0.54);
+        } else {
+            m_headerGlass->setBaseColor(QColor(255, 255, 255));
+            m_headerGlass->setBorderColor(QColor(111, 66, 193, 72));
+            m_headerGlass->setOpacity(0.64);
+        }
+        m_headerGlass->setBorderRadius(Theme::kRXl);
+    }
+    if (m_listGlass) {
+        if (dark) {
+            m_listGlass->setBaseColor(QColor(38, 33, 54));
+            m_listGlass->setBorderColor(QColor(196, 167, 231, 45));
+            m_listGlass->setOpacity(0.50);
+        } else {
+            m_listGlass->setBaseColor(QColor(255, 255, 255));
+            m_listGlass->setBorderColor(QColor(111, 66, 193, 55));
+            m_listGlass->setOpacity(0.58);
+        }
+        m_listGlass->setBorderRadius(Theme::kRLg);
+    }
+
+    if (m_scroll) {
+        m_scroll->setStyleSheet(QStringLiteral(
+            "QScrollArea#playlistScroll { border: none; background: transparent; }"
+            "QScrollBar:vertical { width: 6px; background: transparent; }"
+            "QScrollBar::handle:vertical { background: rgba(196,167,231,%1); border-radius: 3px; min-height: 48px; }"
+            "QScrollBar::handle:vertical:hover { background: rgba(196,167,231,%2); }"
+            "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
+            "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }")
+                                    .arg(dark ? 68 : 82)
+                                    .arg(dark ? 105 : 125));
+    }
+
+    setStyleSheet(QStringLiteral("#playlistDetailPage { background: transparent; }"));
+
+    const QString typeCol = dark ? QStringLiteral("rgba(255,255,255,0.58)")
+                                 : QStringLiteral("rgba(33,37,41,0.55)");
+    const QString nameCol = dark ? QStringLiteral("white") : QStringLiteral("#212529");
+    const QString descCol = dark ? QStringLiteral("rgba(255,255,255,0.72)")
+                                 : QStringLiteral("rgba(33,37,41,0.72)");
+    const QString descHoverBg = dark ? QStringLiteral("rgba(255,255,255,0.08)")
+                                     : QStringLiteral("rgba(33,37,41,0.06)");
+    const QString creatorCol = dark ? QStringLiteral("rgba(255,255,255,0.82)")
+                                    : QStringLiteral("rgba(33,37,41,0.78)");
+    const QString countCol = dark ? QStringLiteral("rgba(255,255,255,0.55)")
+                                  : QStringLiteral("rgba(33,37,41,0.52)");
+    const QString listHeadSep = dark ? QStringLiteral("rgba(255,255,255,0.10)")
+                                     : QStringLiteral("rgba(33,37,41,0.10)");
+
+    if (m_typeLbl) {
+        m_typeLbl->setStyleSheet(QStringLiteral(
+            "QLabel#playlistType { font-size: 12px; color: %1; letter-spacing: 1px; text-transform: uppercase; }")
+                                     .arg(typeCol));
+    }
+    if (m_nameLbl) {
+        m_nameLbl->setStyleSheet(QStringLiteral(
+            "QLabel#playlistName { font-size: 28px; font-weight: 700; color: %1; line-height: 1.3; }")
+                                     .arg(nameCol));
+    }
+    if (m_descLbl) {
+        m_descLbl->setStyleSheet(QStringLiteral(
+            "QLabel#playlistDesc { font-size: 14px; color: %1; line-height: 1.6; padding: 4px; border-radius: 4px; }"
+            "QLabel#playlistDesc:hover { background-color: %2; }")
+                                     .arg(descCol, descHoverBg));
+    }
+    if (m_creatorAvatarLbl) {
+        m_creatorAvatarLbl->setStyleSheet(QStringLiteral(
+            "QLabel { border-radius: 10px; background: rgba(196,167,231,%1); }")
+                                              .arg(dark ? 42 : 28));
+    }
+    if (m_creatorNameLbl) {
+        m_creatorNameLbl->setStyleSheet(QStringLiteral(
+            "QLabel#creatorName { font-size: 12px; color: %1; font-weight: 500; }")
+                                            .arg(creatorCol));
+    }
+    if (m_countLbl) {
+        m_countLbl->setStyleSheet(QStringLiteral(
+            "QLabel#playlistCount { font-size: 13px; color: %1; }")
+                                      .arg(countCol));
+    }
+    if (m_coverLbl) {
+        m_coverLbl->setStyleSheet(QStringLiteral(
+            "QLabel { border-radius: 12px; border: 1px solid rgba(196,167,231,%1); }")
+                                      .arg(dark ? 38 : 48));
+    }
+    if (m_listHeaderWidget) {
+        m_listHeaderWidget->setStyleSheet(QStringLiteral(
+            "QWidget#listHeader { background: transparent; border-bottom: 1px solid %1; }")
+                                              .arg(listHeadSep));
+    }
+    if (m_listTitleLbl) {
+        m_listTitleLbl->setStyleSheet(QStringLiteral(
+            "QLabel#listTitle { font-size: 15px; font-weight: 600; color: %1; }")
+                                          .arg(nameCol));
+    }
+    if (m_listCountLbl) {
+        m_listCountLbl->setStyleSheet(QStringLiteral(
+            "QLabel#listCount { font-size: 13px; color: %1; }")
+                                          .arg(countCol));
+    }
+
+    for (QWidget *w : m_musicItems) {
+        if (auto *card = dynamic_cast<PlaylistMusicCard *>(w))
+            card->applyPalette();
+    }
 }
 
 void PlaylistDetailPage::setupUi()
@@ -230,93 +369,52 @@ void PlaylistDetailPage::setupUi()
     mainLay->setContentsMargins(0, 0, 0, 0);
     mainLay->setSpacing(0);
 
-    // 滚动区域
     m_scroll = new QScrollArea(this);
     m_scroll->setWidgetResizable(true);
     m_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scroll->setFrameShape(QFrame::NoFrame);
     m_scroll->setObjectName("playlistScroll");
-    m_scroll->setStyleSheet(
-        "QScrollArea#playlistScroll { border: none; background: transparent; }"
-    );
 
     m_contentWidget = new QWidget(m_scroll);
     m_contentWidget->setObjectName("playlistContent");
-    m_contentWidget->setStyleSheet("QWidget#playlistContent { background: transparent; }");
+    m_contentWidget->setStyleSheet(QStringLiteral("QWidget#playlistContent { background: transparent; }"));
 
     auto *contentLay = new QVBoxLayout(m_contentWidget);
     contentLay->setContentsMargins(24, 24, 24, 24);
     contentLay->setSpacing(24);
 
-    // 歌单头部：封面 + 信息
-    m_headerWidget = new QWidget(m_contentWidget);
-    m_headerWidget->setObjectName("playlistHeader");
-    m_headerWidget->setStyleSheet(
-        "QWidget#playlistHeader { "
-        "  background: rgba(30, 30, 50, 0.9); "
-        "  border: 1px solid rgba(255, 255, 255, 0.1); "
-        "  border-radius: 12px; "
-        "}"
-    );
-    auto *headerLay = new QHBoxLayout(m_headerWidget);
+    m_headerGlass = new GlassWidget(m_contentWidget);
+    m_headerGlass->setAttribute(Qt::WA_StyledBackground, false);
+    auto *headerLay = new QHBoxLayout(m_headerGlass);
     headerLay->setContentsMargins(24, 24, 24, 24);
     headerLay->setSpacing(24);
 
-    // 封面 200x200
-    m_coverLbl = new QLabel(m_headerWidget);
+    m_coverLbl = new QLabel(m_headerGlass);
     m_coverLbl->setFixedSize(200, 200);
     m_coverLbl->setScaledContents(false);
-    m_coverLbl->setStyleSheet(
-        "QLabel { border-radius: 8px; }"
-    );
     headerLay->addWidget(m_coverLbl);
 
-    // 信息区
-    auto *infoWidget = new QWidget(m_headerWidget);
+    auto *infoWidget = new QWidget(m_headerGlass);
     auto *infoLay = new QVBoxLayout(infoWidget);
     infoLay->setContentsMargins(0, 0, 0, 0);
     infoLay->setSpacing(12);
 
     m_typeLbl = new QLabel(I18n::instance().tr("playlists"), infoWidget);
     m_typeLbl->setObjectName("playlistType");
-    m_typeLbl->setStyleSheet(
-        "QLabel#playlistType { "
-        "  font-size: 12px; color: rgba(255, 255, 255, 0.6); "
-        "  letter-spacing: 1px; text-transform: uppercase; "
-        "}"
-    );
     infoLay->addWidget(m_typeLbl);
 
     m_nameLbl = new QLabel(infoWidget);
     m_nameLbl->setObjectName("playlistName");
-    m_nameLbl->setStyleSheet(
-        "QLabel#playlistName { "
-        "  font-size: 28px; font-weight: 700; color: white; "
-        "  line-height: 1.3; "
-        "}"
-    );
     m_nameLbl->setWordWrap(true);
     infoLay->addWidget(m_nameLbl);
 
     m_descLbl = new QLabel(I18n::instance().tr("description"), infoWidget);
     m_descLbl->setObjectName("playlistDesc");
-    m_descLbl->setStyleSheet(
-        "QLabel#playlistDesc { "
-        "  font-size: 14px; color: rgba(255, 255, 255, 0.7); "
-        "  line-height: 1.6; "
-        "  padding: 4px; "
-        "  border-radius: 4px; "
-        "}"
-        "QLabel#playlistDesc:hover { "
-        "  background-color: rgba(255, 255, 255, 0.1); "
-        "}"
-    );
     m_descLbl->setWordWrap(true);
     m_descLbl->setCursor(Qt::PointingHandCursor);
     m_descLbl->installEventFilter(this);
     infoLay->addWidget(m_descLbl);
 
-    // 创建者信息：头像 + 昵称
     auto *creatorWidget = new QWidget(infoWidget);
     auto *creatorLay = new QHBoxLayout(creatorWidget);
     creatorLay->setContentsMargins(0, 0, 0, 0);
@@ -325,19 +423,10 @@ void PlaylistDetailPage::setupUi()
     m_creatorAvatarLbl = new QLabel(creatorWidget);
     m_creatorAvatarLbl->setFixedSize(20, 20);
     m_creatorAvatarLbl->setScaledContents(true);
-    m_creatorAvatarLbl->setStyleSheet(
-        "QLabel { border-radius: 10px; background: rgba(102, 126, 234, 0.3); }"
-    );
     creatorLay->addWidget(m_creatorAvatarLbl);
 
     m_creatorNameLbl = new QLabel(creatorWidget);
     m_creatorNameLbl->setObjectName("creatorName");
-    m_creatorNameLbl->setStyleSheet(
-        "QLabel#creatorName { "
-        "  font-size: 12px; color: rgba(255, 255, 255, 0.8); "
-        "  font-weight: 500; "
-        "}"
-    );
     creatorLay->addWidget(m_creatorNameLbl);
     creatorLay->addStretch();
 
@@ -345,65 +434,52 @@ void PlaylistDetailPage::setupUi()
 
     m_countLbl = new QLabel(infoWidget);
     m_countLbl->setObjectName("playlistCount");
-    m_countLbl->setStyleSheet(
-        "QLabel#playlistCount { "
-        "  font-size: 13px; color: rgba(255, 255, 255, 0.6); "
-        "}"
-    );
     infoLay->addWidget(m_countLbl);
 
     infoLay->addStretch();
     headerLay->addWidget(infoWidget, 1);
 
-    contentLay->addWidget(m_headerWidget);
+    contentLay->addWidget(m_headerGlass);
 
-    // 音乐列表头部
-    m_listHeaderWidget = new QWidget(m_contentWidget);
+    m_listGlass = new GlassWidget(m_contentWidget);
+    m_listGlass->setAttribute(Qt::WA_StyledBackground, false);
+    auto *listOuter = new QVBoxLayout(m_listGlass);
+    listOuter->setContentsMargins(0, 0, 0, 0);
+    listOuter->setSpacing(0);
+
+    m_listHeaderWidget = new QWidget(m_listGlass);
     m_listHeaderWidget->setObjectName("listHeader");
-    m_listHeaderWidget->setStyleSheet(
-        "QWidget#listHeader { "
-        "  background: rgba(40, 40, 65, 0.9); "
-        "  border-bottom: 1px solid rgba(255, 255, 255, 0.1); "
-        "}"
-    );
     auto *listHeaderLay = new QHBoxLayout(m_listHeaderWidget);
     listHeaderLay->setContentsMargins(20, 16, 20, 16);
 
     m_listTitleLbl = new QLabel(I18n::instance().tr("songList"), m_listHeaderWidget);
     m_listTitleLbl->setObjectName("listTitle");
-    m_listTitleLbl->setStyleSheet(
-        "QLabel#listTitle { "
-        "  font-size: 15px; font-weight: 600; color: white; "
-        "}"
-    );
     listHeaderLay->addWidget(m_listTitleLbl);
 
     listHeaderLay->addStretch();
 
     m_listCountLbl = new QLabel(m_listHeaderWidget);
     m_listCountLbl->setObjectName("listCount");
-    m_listCountLbl->setStyleSheet(
-        "QLabel#listCount { "
-        "  font-size: 13px; color: rgba(255, 255, 255, 0.6); "
-        "}"
-    );
     listHeaderLay->addWidget(m_listCountLbl);
 
-    contentLay->addWidget(m_listHeaderWidget);
+    listOuter->addWidget(m_listHeaderWidget);
 
-    // 音乐列表容器
-    m_listContainer = new QWidget(m_contentWidget);
+    m_listContainer = new QWidget(m_listGlass);
     m_listContainer->setObjectName("playlistContainer");
-    m_listContainer->setStyleSheet("QWidget#playlistContainer { background: transparent; }");
+    m_listContainer->setStyleSheet(QStringLiteral("QWidget#playlistContainer { background: transparent; }"));
     m_listLayout = new QVBoxLayout(m_listContainer);
     m_listLayout->setContentsMargins(0, 0, 0, 0);
     m_listLayout->setSpacing(0);
 
-    contentLay->addWidget(m_listContainer);
+    listOuter->addWidget(m_listContainer, 1);
+
+    contentLay->addWidget(m_listGlass, 1);
     contentLay->addStretch();
 
     m_scroll->setWidget(m_contentWidget);
     mainLay->addWidget(m_scroll, 1);
+
+    applyPlaylistDetailStyle();
 }
 
 void PlaylistDetailPage::loadPlaylist(int playlistId)
@@ -543,7 +619,7 @@ void PlaylistDetailPage::setPlaceholderCover()
     p.setRenderHint(QPainter::Antialiasing);
     QPainterPath path;
     path.addRoundedRect(0, 0, 200, 200, 8, 8);
-    p.fillPath(path, QColor(102, 126, 234, 180));
+    p.fillPath(path, QColor(196, 167, 231, 200));
     p.setClipPath(path);
     auto icon = Icons::render(Icons::kMusic, 60, QColor(255, 255, 255, 200));
     p.drawPixmap(70, 70, icon);
@@ -562,9 +638,11 @@ void PlaylistDetailPage::buildList()
     if (m_musicList.isEmpty()) {
         auto *emptyLbl = new QLabel(I18n::instance().tr("noMusicInPlaylist"), m_listContainer);
         emptyLbl->setAlignment(Qt::AlignCenter);
-        emptyLbl->setStyleSheet(
-            "QLabel { color: " + QString(Theme::kTextSub) + "; font-size: 14px; padding: 60px 20px; }"
-        );
+        const bool dark = Theme::ThemeManager::instance().isDarkMode();
+        const QString emptyCol = dark ? QString::fromUtf8(Theme::kTextSub)
+                                      : QStringLiteral("rgba(33,37,41,0.55)");
+        emptyLbl->setStyleSheet(QStringLiteral("QLabel { color: %1; font-size: 14px; padding: 60px 20px; }")
+                                    .arg(emptyCol));
         m_listLayout->addWidget(emptyLbl);
         m_musicItems.append(emptyLbl);
     } else {
@@ -607,8 +685,9 @@ void PlaylistDetailPage::retranslate()
 
 void PlaylistDetailPage::paintEvent(QPaintEvent *event)
 {
+    QPainter p(this);
+    GlassPaint::paintMainWindowDeepBackdrop(p, rect(), Theme::ThemeManager::instance().isDarkMode());
     QWidget::paintEvent(event);
-    // 透明背景，由父窗口渐变透出
 }
 
 bool PlaylistDetailPage::eventFilter(QObject *watched, QEvent *event)

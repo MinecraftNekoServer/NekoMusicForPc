@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QList>
 #include "core/musicinfo.h"
+#include "glasswidget.h"
 
 class QScrollArea;
 class QVBoxLayout;
@@ -39,6 +40,7 @@ protected:
 
 private:
     void setupUi();
+    void applyPlaylistDetailStyle();
     void buildList();
     void updateHeader();
     void setPlaceholderCover();
@@ -54,7 +56,8 @@ private:
     QWidget *m_listContainer = nullptr;
     
     // Header elements
-    QWidget *m_headerWidget = nullptr;
+    GlassWidget *m_headerGlass = nullptr;
+    GlassWidget *m_listGlass = nullptr;
     QLabel *m_coverLbl = nullptr;
     QLabel *m_typeLbl = nullptr;
     QLabel *m_nameLbl = nullptr;
