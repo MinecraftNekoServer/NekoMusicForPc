@@ -738,13 +738,16 @@ void MainWindow::playNext()
     const MusicInfo info = manager.playlist()[nextIdx];
     manager.setCurrentIndex(nextIdx);
 
-    // 3. 移除 singleShot，或者将状态检查移入异步块
-    // 如果一定要用 singleShot 解决 QMediaPlayer 的释放问题：
-    QTimer::singleShot(50, this, [this, info]() {
-        // 更新 UI
-        m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
-        m_playerBar->setCurrentMusicId(info.id);
+    // 与上一曲、点歌一致：立即同步播放栏与播放页（勿等 singleShot，避免播放页滞后）
+    m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
+    m_playerBar->setCurrentMusicId(info.id);
+    m_playerBar->setFavoriteStatus(checkIsFavorited(info.id));
+    m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
+    m_playerPage->loadLyrics(info.id);
+    m_engine->setCurrentMusic(info);
 
+    // 延后仅用于引擎停播后再起播，避免与 QMediaPlayer 释放竞态
+    QTimer::singleShot(50, this, [this, info]() {
         // 缓存检查
         QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/nekomusic-cache";
         QString hash = QCryptographicHash::hash(QString::fromUtf8("%1/api/music/file/%2").arg(Theme::kApiBase).arg(info.id).toUtf8(), QCryptographicHash::Md5).toHex();
@@ -791,6 +794,7 @@ void MainWindow::playPrevious()
     QTimer::singleShot(0, this, [this, info]() {
         m_playerBar->setSongInfo(info.title, info.artist, info.coverUrl);
         m_playerBar->setCurrentMusicId(info.id);
+        m_playerBar->setFavoriteStatus(checkIsFavorited(info.id));
         m_playerPage->setMusicInfo(info.id, info.title, info.artist, QString(), info.coverUrl);
         m_playerPage->loadLyrics(info.id);
         m_engine->setCurrentMusic(info);

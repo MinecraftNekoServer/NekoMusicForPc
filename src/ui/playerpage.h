@@ -8,6 +8,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QPropertyAnimation>
+#include <QHash>
+#include <QMetaObject>
 #include "../core/playerengine.h"
 
 struct LyricLine {
@@ -40,6 +42,7 @@ signals:
 private:
     void setupUi();
     void loadCover(const QString &url);
+    void applyCoverPixmap(const QPixmap &sourcePixmap);
     void parseLrc(const QString &lrc);
     void rebuildLyricLabels();
 
@@ -57,6 +60,9 @@ private:
     int m_musicId = 0;
     QString m_coverUrl;
     QVector<LyricLine> m_lyrics;
+    /** 已解析歌词内存缓存（有上限，超出时淘汰任意一条） */
+    QHash<int, QVector<LyricLine>> m_lyricsCache;
+    QMetaObject::Connection m_coverConn;
     int m_currentLyricLine = -1;
     QPropertyAnimation *m_scrollAnim = nullptr;
 };

@@ -1,6 +1,7 @@
 #include "playerpage.h"
 #include "../core/playerengine.h"
 #include "../core/i18n.h"
+#include "../core/covercache.h"
 #include "../theme/theme.h"
 
 #include <QPainter>
@@ -208,15 +209,25 @@ void PlayerPage::setupUi()
 void PlayerPage::setMusicInfo(int id, const QString &title, const QString &artist,
                               const QString &album, const QString &coverUrl)
 {
+    const QString t = title.isEmpty() ? I18n::instance().tr("unknown") : title;
+    const QString a = artist.isEmpty() ? I18n::instance().tr("unknownArtist") : artist;
+    const int prevId = m_musicId;
+    const QString prevCoverUrl = m_coverUrl;
     m_musicId = id;
-    m_titleLabel->setText(title.isEmpty() ? I18n::instance().tr("unknown") : title);
-    m_artistLabel->setText(artist.isEmpty() ? I18n::instance().tr("unknownArtist") : artist);
+    m_titleLabel->setText(t);
+    m_artistLabel->setText(a);
     m_albumLabel->setText(album);
 
-    if (!coverUrl.isEmpty()) {
-        m_coverUrl = coverUrl;
-        loadCover(coverUrl);
-    }
+    if (coverUrl.isEmpty())
+        return;
+    // 同一首歌且封面 URL 未变：不重复走 CoverCache / 网络
+    if (prevId == id && coverUrl == prevCoverUrl)
+        return;
+
+    disconnect(m_coverConn);
+    m_coverConn = {};
+    m_coverUrl = coverUrl;
+    loadCover(coverUrl);
 }
 
 void PlayerPage::retranslate()
@@ -263,38 +274,65 @@ void PlayerPage::showEvent(QShowEvent *event)
     });
 }
 
+void PlayerPage::applyCoverPixmap(const QPixmap &sourcePixmap)
+{
+    if (sourcePixmap.isNull())
+        return;
+    QPixmap rounded(320, 320);
+    rounded.fill(Qt::transparent);
+    QPainter p(&rounded);
+    p.setRenderHint(QPainter::Antialiasing);
+    QPainterPath path;
+    path.addRoundedRect(0, 0, 320, 320, 32, 32);
+    p.setClipPath(path);
+    p.drawPixmap(0, 0, sourcePixmap.scaled(320, 320, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    m_coverLabel->setPixmap(rounded);
+}
+
 void PlayerPage::loadCover(const QString &url)
 {
-    if (url.isEmpty()) return;
-    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
-    QNetworkReply *reply = nam->get(QNetworkRequest(QUrl(url)));
-    connect(reply, &QNetworkReply::finished, this, [this, reply, nam]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            QPixmap pm;
-            if (pm.loadFromData(reply->readAll())) {
-                QPixmap rounded(320, 320);
-                rounded.fill(Qt::transparent);
-                QPainter p(&rounded);
-                p.setRenderHint(QPainter::Antialiasing);
-                QPainterPath path;
-                path.addRoundedRect(0, 0, 320, 320, 32, 32);
-                p.setClipPath(path);
-                p.drawPixmap(0, 0, pm.scaled(320, 320, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-                m_coverLabel->setPixmap(rounded);
-            }
-        }
-        reply->deleteLater();
-        nam->deleteLater();
-    });
+    if (url.isEmpty())
+        return;
+    const QString musicId = url.mid(url.lastIndexOf(QLatin1Char('/')) + 1);
+    if (musicId.isEmpty())
+        return;
+
+    CoverCache *cc = CoverCache::instance();
+    if (QPixmap cached = cc->get(musicId); !cached.isNull()) {
+        applyCoverPixmap(cached);
+        return;
+    }
+
+    disconnect(m_coverConn);
+    m_coverConn = connect(cc, &CoverCache::coverLoaded, this,
+                            [this, musicId](const QString &id, const QPixmap &pix) {
+                                if (id != musicId)
+                                    return;
+                                if (QString::number(m_musicId) != musicId)
+                                    return;
+                                applyCoverPixmap(pix);
+                            });
+    cc->fetchCover(musicId, url);
 }
 
 void PlayerPage::loadLyrics(int musicId)
 {
-    m_lyrics.clear();
     m_currentLyricLine = -1;
-    rebuildLyricLabels();
 
-    if (musicId <= 0) return;
+    if (musicId <= 0) {
+        m_lyrics.clear();
+        rebuildLyricLabels();
+        return;
+    }
+
+    if (m_lyricsCache.contains(musicId)) {
+        m_lyrics = m_lyricsCache.value(musicId);
+        rebuildLyricLabels();
+        return;
+    }
+
+    m_lyrics.clear();
+    rebuildLyricLabels();
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);
     QString url = QString::fromUtf8("%1/api/music/lyrics/%2?t=%3")
@@ -311,6 +349,12 @@ void PlayerPage::loadLyrics(int musicId)
                 if (!lrc.isEmpty()) {
                     parseLrc(lrc);
                     rebuildLyricLabels();
+                    if (!m_lyrics.isEmpty()) {
+                        constexpr int kMax = 64;
+                        if (m_lyricsCache.size() >= kMax && !m_lyricsCache.contains(musicId))
+                            m_lyricsCache.remove(m_lyricsCache.constBegin().key());
+                        m_lyricsCache.insert(musicId, m_lyrics);
+                    }
                 } else {
                     qDebug() << "歌词API返回空歌词内容，musicId:" << musicId;
                 }
