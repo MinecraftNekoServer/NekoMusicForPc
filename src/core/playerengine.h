@@ -25,6 +25,8 @@ public:
     ~PlayerEngine() override;
 
     void play(const QUrl &url);
+    /** 切换本地文件并尽量从 resumeMs 继续（用于 .part 缓冲播完后切到正式缓存文件）。 */
+    void playLocalResuming(const QString &localPath, qint64 resumeMs);
     void play();
     void pause();
     void stop();

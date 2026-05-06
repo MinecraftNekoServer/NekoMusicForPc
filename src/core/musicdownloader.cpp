@@ -5,7 +5,8 @@
 #include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QDir>
-#include <QCoreApplication>
+#include <QDirIterator>
+#include <QRegularExpression>
 
 MusicDownloader& MusicDownloader::instance()
 {
@@ -24,6 +25,33 @@ MusicDownloader::~MusicDownloader()
     cancel();
 }
 
+QString MusicDownloader::cachedAudioFilePath(int musicId)
+{
+    const QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+            + QStringLiteral("/nekomusic-cache");
+    QDir().mkpath(cacheDir);
+    return cacheDir + QLatin1Char('/') + QString::number(musicId);
+}
+
+void MusicDownloader::purgeLegacyMd5CacheFiles()
+{
+    const QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+            + QStringLiteral("/nekomusic-cache");
+    if (!QDir(cacheDir).exists())
+        return;
+    static const QRegularExpression md5Name(QStringLiteral("^[0-9a-f]{32}$"));
+    QDirIterator it(cacheDir, QDir::Files);
+    while (it.hasNext()) {
+        it.next();
+        QString name = it.fileInfo().fileName();
+        if (name.endsWith(QStringLiteral(".part"), Qt::CaseInsensitive))
+            name.chop(5);
+        if (!md5Name.match(name).hasMatch())
+            continue;
+        QFile::remove(it.filePath());
+    }
+}
+
 void MusicDownloader::cancel()
 {
     qDebug() << "[MusicDownloader] cancel called";
@@ -31,8 +59,6 @@ void MusicDownloader::cancel()
         m_reply->disconnect();
         m_reply->abort();
         m_reply->deleteLater();
-        // 强制删除reply，不等待事件循环
-        QCoreApplication::processEvents();
         m_reply = nullptr;
     }
     if (m_file) {
@@ -45,16 +71,20 @@ void MusicDownloader::cancel()
     m_bufferEmitted = false;
 }
 
-void MusicDownloader::download(const QUrl &url)
+void MusicDownloader::download(const QUrl &url, int musicId)
 {
     cancel();
     m_bufferEmitted = false;
 
-    // Generate cache path from URL hash (no extension - FFmpeg detects format from content)
-    QString hash = QCryptographicHash::hash(url.toEncoded(), QCryptographicHash::Md5).toHex();
-    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/nekomusic-cache";
+    const QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+            + QStringLiteral("/nekomusic-cache");
     QDir().mkpath(cacheDir);
-    m_tempPath = cacheDir + "/" + hash;
+    if (musicId > 0) {
+        m_tempPath = cachedAudioFilePath(musicId);
+    } else {
+        const QString hash = QCryptographicHash::hash(url.toEncoded(), QCryptographicHash::Md5).toHex();
+        m_tempPath = cacheDir + QLatin1Char('/') + hash;
+    }
 
     // Check if already cached
     if (QFile::exists(m_tempPath)) {
@@ -86,13 +116,15 @@ void MusicDownloader::download(const QUrl &url)
 
 void MusicDownloader::onReadyRead()
 {
-    if (m_file && m_reply) {
-        m_file->write(m_reply->readAll());
-    }
+    if (!m_reply || !m_file)
+        return;
+    m_file->write(m_reply->readAll());
 }
 
 void MusicDownloader::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
+    if (!m_reply || !m_file)
+        return;
     m_bytesReceived = bytesReceived;
     m_bytesTotal = bytesTotal;
     emit downloadProgress(bytesReceived, bytesTotal);
@@ -129,10 +161,22 @@ void MusicDownloader::onReplyFinished()
         m_file->close();
     }
 
-    // Rename partial file to final path if needed
-    QString partPath = m_tempPath + ".part";
+    // 勿对 .part 直接 rename：QMediaPlayer 可能尚未完成异步打开 .part，rename 后路径消失会 ENOENT。
+    // 先复制到正式缓存路径再删 .part；缓冲播放结束后由 UI 收到 downloadFinished 再切到正式文件。
+    const QString partPath = m_tempPath + QStringLiteral(".part");
     if (QFile::exists(partPath)) {
-        QFile::rename(partPath, m_tempPath);
+        if (QFile::exists(m_tempPath))
+            QFile::remove(m_tempPath);
+        if (!QFile::copy(partPath, m_tempPath)) {
+            emit downloadError(QStringLiteral("写入完整缓存失败"));
+            reply->deleteLater();
+            if (m_file) {
+                delete m_file;
+                m_file = nullptr;
+            }
+            return;
+        }
+        QFile::remove(partPath);
     }
 
     emit downloadFinished(m_tempPath);

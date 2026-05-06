@@ -1,5 +1,6 @@
 #include "playerengine.h"
 #include <QTimer>
+#include <memory>
 
 PlayerEngine::PlayerEngine(QObject *parent)
     : QObject(parent)
@@ -33,6 +34,28 @@ void PlayerEngine::play(const QUrl &url)
 {
     m_player->setSource(url);
     m_player->play();
+}
+
+void PlayerEngine::playLocalResuming(const QString &localPath, qint64 resumeMs)
+{
+    const QUrl url = QUrl::fromLocalFile(localPath);
+    m_player->setSource(url);
+    m_player->play();
+    if (resumeMs <= 0)
+        return;
+    const qint64 dur = m_player->duration();
+    if (dur > 0) {
+        m_player->setPosition(qMin(resumeMs, qMax(qint64(0), dur - 1)));
+        return;
+    }
+    auto conn = std::make_shared<QMetaObject::Connection>();
+    *conn = connect(m_player, &QMediaPlayer::durationChanged, this,
+        [this, resumeMs, conn](qint64 d) {
+            if (d <= 0)
+                return;
+            disconnect(*conn);
+            m_player->setPosition(qMin(resumeMs, qMax(qint64(0), d - 1)));
+        });
 }
 
 void PlayerEngine::play()

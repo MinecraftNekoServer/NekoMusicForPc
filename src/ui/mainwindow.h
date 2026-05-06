@@ -113,6 +113,10 @@ private:
     
     // Download state
     bool m_isDownloading = false;
+    /** 每次切歌递增；延后回调里若与当前不一致则丢弃，避免叠多个 singleShot 播错文件。 */
+    quint64 m_enginePlaySeq = 0;
+    /** 当前曲是否已因 bufferReady 从 .part 起播（用于 downloadFinished 时是否带进度切到正式文件）。 */
+    int m_lastBufferedMusicId = 0;
 
     // Downloader signal connections
     QMetaObject::Connection m_finishedConn;

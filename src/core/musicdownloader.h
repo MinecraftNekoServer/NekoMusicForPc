@@ -3,14 +3,21 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QFile>
+#include <QUrl>
 
 class MusicDownloader : public QObject
 {
     Q_OBJECT
 public:
     static MusicDownloader& instance();
-    
-    void download(const QUrl &url);
+
+    /** 与按 musicId 下载时的落盘路径一致（无扩展名，由 FFmpeg 嗅探格式）。 */
+    static QString cachedAudioFilePath(int musicId);
+
+    /** 删除 nekomusic-cache 下旧版 URL-MD5 文件名缓存（仅识别 32 位小写十六进制基名）。 */
+    static void purgeLegacyMd5CacheFiles();
+
+    void download(const QUrl &url, int musicId = 0);
     void cancel();
     
 private:
