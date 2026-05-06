@@ -42,10 +42,13 @@ private:
     void updateAvatar();
     void elideUsername();
     void updateChevronPixmap();
+    void refreshSearchGlyph();
     void loadAvatarAsync(const QString &url, int userId);
 
     QNetworkAccessManager *m_nam = nullptr;
     QNetworkReply *m_avatarReply = nullptr;
+    QWidget *m_searchWrap = nullptr;
+    QLabel *m_searchGlyph = nullptr;
     QLineEdit *m_search = nullptr;
     QLabel *m_logo = nullptr;
     QLabel *m_name = nullptr;

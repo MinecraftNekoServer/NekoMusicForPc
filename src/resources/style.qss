@@ -25,21 +25,38 @@ QMainWindow {
     letter-spacing: 0.5px;
 }
 
-#tbSearch {
-    background: rgba(245, 240, 255, 18);
-    border: 1.5px solid rgba(196, 167, 231, 30);
-    border-radius: 17px;
-    padding: 6px 18px;
-    color: #F5F0FF;
-    font-size: 13px;
-    selection-background-color: #C4A7E7;
+/* 标题栏搜索条（对齐 old TitleBar.vue .search-box：浅底、无描边、32px 高、16px 圆角） */
+#tbSearchWrap {
+    background: rgba(245, 240, 255, 16);
+    border: none;
+    border-radius: 16px;
+    min-height: 32px;
 }
 
-#tbSearch::placeholder { color: rgba(245, 240, 255, 90); }
+#tbSearchWrap:hover {
+    background: rgba(245, 240, 255, 22);
+}
 
-#tbSearch:focus {
+#tbSearchWrap[searchFocus="true"] {
     background: rgba(245, 240, 255, 28);
-    border-color: rgba(126, 200, 200, 130);
+}
+
+#tbSearchGlyph {
+    background: transparent;
+}
+
+#tbSearchInner {
+    border: none;
+    background: transparent;
+    color: #F5F0FF;
+    font-size: 13px;
+    padding: 0;
+    selection-background-color: #C4A7E7;
+    selection-color: #1A1625;
+}
+
+#tbSearchInner::placeholder {
+    color: rgba(245, 240, 255, 90);
 }
 
 #tbAvatarWidget {

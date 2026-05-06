@@ -30,6 +30,7 @@
 #include <QPainterPath>
 #include <QUrl>
 #include <QResizeEvent>
+#include <QSizePolicy>
 
 namespace {
 
@@ -63,6 +64,13 @@ QColor chevronMuted()
     return Theme::ThemeManager::instance().isDarkMode() ? QColor(245, 240, 255, 140)
                                                         : QColor(33, 37, 41, 128);
 }
+
+/** 与 old TitleBar.vue 搜索图标 --text-light 一致 */
+QColor searchBarIconMuted()
+{
+    return Theme::ThemeManager::instance().isDarkMode() ? QColor(245, 240, 255, 128)
+                                                        : QColor(33, 37, 41, 140);
+}
 }
 
 TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
@@ -76,7 +84,10 @@ TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
     connect(&UserManager::instance(), &UserManager::loginStateChanged,
             this, &TitleBar::updateAvatar);
     connect(&Theme::ThemeManager::instance(), &Theme::ThemeManager::themeChanged,
-            this, [this](Theme::ThemeMode) { updateChevronPixmap(); });
+            this, [this](Theme::ThemeMode) {
+                updateChevronPixmap();
+                refreshSearchGlyph();
+            });
 }
 
 TitleBar::~TitleBar()
@@ -98,12 +109,34 @@ bool TitleBar::eventFilter(QObject *watched, QEvent *event)
     }
 
     switch (event->type()) {
+    case QEvent::FocusIn: {
+        if (watched == m_search && m_searchWrap) {
+            m_searchWrap->setProperty("searchFocus", true);
+            m_searchWrap->style()->unpolish(m_searchWrap);
+            m_searchWrap->style()->polish(m_searchWrap);
+        }
+        break;
+    }
+    case QEvent::FocusOut: {
+        if (watched == m_search && m_searchWrap) {
+            m_searchWrap->setProperty("searchFocus", false);
+            m_searchWrap->style()->unpolish(m_searchWrap);
+            m_searchWrap->style()->polish(m_searchWrap);
+        }
+        break;
+    }
     case QEvent::MouseButtonPress: {
         auto *e = static_cast<QMouseEvent *>(event);
         if (e->button() == Qt::LeftButton) {
             // 按钮和输入框不拦截，让它们自己处理
             if (qobject_cast<QPushButton *>(w) || qobject_cast<QLineEdit *>(w)) {
                 return false;
+            }
+            // 点击搜索条空白处（如放大镜旁）时让输入框获得焦点
+            if (m_searchWrap && (w == m_searchWrap || w == m_searchGlyph)) {
+                if (m_search)
+                    m_search->setFocus(Qt::MouseFocusReason);
+                return true;
             }
             // 头像点击 - 扩大判定范围到整个头像区域及其子控件
             if (w == m_avatarWidget || 
@@ -178,19 +211,43 @@ void TitleBar::setupUi()
     ll->addStretch();
     lay->addWidget(left);
 
-    // ─── 中间搜索框 ──────────────────────────────────
-    m_search = new QLineEdit(this);
-    m_search->setObjectName("tbSearch");
+    // ─── 中间搜索框（对齐 old TitleBar.vue：圆角条 + 左图标 + 无边框透明输入）──
+    m_searchWrap = new QWidget(this);
+    m_searchWrap->setObjectName("tbSearchWrap");
+    m_searchWrap->setCursor(Qt::PointingHandCursor);
+    m_searchWrap->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_searchWrap->setFixedHeight(32);
+    m_searchWrap->setMinimumWidth(200);
+    m_searchWrap->setMaximumWidth(400);
+    auto *searchLay = new QHBoxLayout(m_searchWrap);
+    searchLay->setContentsMargins(12, 0, 12, 0);
+    searchLay->setSpacing(8);
+
+    m_searchGlyph = new QLabel(m_searchWrap);
+    m_searchGlyph->setObjectName("tbSearchGlyph");
+    m_searchGlyph->setFixedSize(16, 16);
+    m_searchGlyph->setScaledContents(false);
+    m_searchGlyph->setCursor(Qt::PointingHandCursor);
+    searchLay->addWidget(m_searchGlyph, 0, Qt::AlignVCenter);
+
+    m_search = new QLineEdit(m_searchWrap);
+    m_search->setObjectName("tbSearchInner");
+    m_search->setFrame(false);
+    m_search->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_search->setPlaceholderText(I18n::instance().tr("searchPlaceholder"));
-    m_search->setFixedHeight(34);
-    m_search->setMinimumWidth(180);
-    m_search->setMaximumWidth(380);
+    m_search->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_search->setMinimumHeight(24);
+    m_search->setCursor(Qt::IBeamCursor);
+    searchLay->addWidget(m_search, 1, Qt::AlignVCenter);
+
+    refreshSearchGlyph();
     connect(m_search, &QLineEdit::returnPressed, this, [this]() {
-        if (!m_search->text().trimmed().isEmpty())
-            emit searchRequested(m_search->text().trimmed());
+        const QString q = m_search->text().trimmed();
+        if (!q.isEmpty())
+            emit searchRequested(q);
     });
     lay->addStretch(1);
-    lay->addWidget(m_search, 0, Qt::AlignVCenter);
+    lay->addWidget(m_searchWrap, 0, Qt::AlignVCenter);
     lay->addStretch(1);
 
     // 账号区与设置、窗口按钮分组留白
@@ -283,7 +340,7 @@ void TitleBar::setupUi()
 
 void TitleBar::retranslate()
 {
-    auto *search = findChild<QLineEdit *>("tbSearch");
+    auto *search = findChild<QLineEdit *>("tbSearchInner");
     if (search) search->setPlaceholderText(I18n::instance().tr("searchPlaceholder"));
 
     auto *settingsBtn = findChild<QPushButton *>("tbIconBtn");
@@ -327,6 +384,13 @@ void TitleBar::elideUsername()
         avail = 140;
     QFontMetrics fm(m_usernameLabel->font());
     m_usernameLabel->setText(fm.elidedText(username, Qt::ElideRight, avail));
+}
+
+void TitleBar::refreshSearchGlyph()
+{
+    if (!m_searchGlyph)
+        return;
+    m_searchGlyph->setPixmap(Icons::render(Icons::kSearch, 16, searchBarIconMuted()));
 }
 
 void TitleBar::updateChevronPixmap()
