@@ -299,8 +299,10 @@ void PlayerPage::setMusicInfo(int id, const QString &title, const QString &artis
     m_artistLabel->setText(a);
     m_albumLabel->setText(album);
 
-    if (coverUrl.isEmpty())
+    if (m_musicId <= 0) {
+        m_coverLabel->clear();
         return;
+    }
     // 同一首歌且封面 URL 未变：不重复走 CoverCache / 网络
     if (prevId == id && coverUrl == prevCoverUrl)
         return;
@@ -372,14 +374,17 @@ void PlayerPage::applyCoverPixmap(const QPixmap &sourcePixmap)
 
 void PlayerPage::loadCover(const QString &url)
 {
-    if (url.isEmpty())
-        return;
-    const QString musicId = CoverCache::musicIdFromCoverUrl(url);
-    if (musicId.isEmpty())
+    if (m_musicId <= 0)
         return;
 
+    const QString cacheKey = QString::number(m_musicId);
+    QString fetchUrl = CoverCache::resolveCoverUrl(url);
+    if (fetchUrl.isEmpty()) {
+        fetchUrl = QString::fromUtf8("%1/api/music/cover/%2").arg(Theme::kApiBase).arg(m_musicId);
+    }
+
     CoverCache *cc = CoverCache::instance();
-    if (QPixmap cached = cc->get(musicId); !cached.isNull()) {
+    if (QPixmap cached = cc->get(cacheKey); !cached.isNull()) {
         applyCoverPixmap(cached);
         return;
     }
@@ -387,17 +392,18 @@ void PlayerPage::loadCover(const QString &url)
     m_coverLabel->clear();
 
     disconnect(m_coverConn);
+    const int expectId = m_musicId;
     m_coverConn = connect(cc, &CoverCache::coverLoaded, this,
-                            [this, musicId](const QString &id, const QPixmap &pix) {
-                                if (id != musicId)
+                            [this, cacheKey, expectId](const QString &id, const QPixmap &pix) {
+                                if (id != cacheKey)
                                     return;
-                                if (QString::number(m_musicId) != musicId)
+                                if (m_musicId != expectId)
                                     return;
                                 if (pix.isNull())
                                     return;
                                 applyCoverPixmap(pix);
                             });
-    cc->fetchCover(musicId, url);
+    cc->fetchCover(cacheKey, fetchUrl);
 }
 
 void PlayerPage::loadLyrics(int musicId)

@@ -8,6 +8,7 @@
  */
 
 #include "covercache.h"
+#include "theme/theme.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -38,6 +39,28 @@ QString CoverCache::musicIdFromCoverUrl(const QString &coverUrl)
     if (q >= 0)
         id.truncate(q);
     return id;
+}
+
+QString CoverCache::resolveCoverUrl(const QString &rawUrl)
+{
+    const QString u = rawUrl.trimmed();
+    if (u.isEmpty())
+        return {};
+
+    if (u.startsWith(QLatin1String("http://"), Qt::CaseInsensitive)
+        || u.startsWith(QLatin1String("https://"), Qt::CaseInsensitive)) {
+        return u;
+    }
+    if (u.startsWith(QLatin1String("//"))) {
+        return QStringLiteral("https:") + u;
+    }
+
+    QString base = QString::fromUtf8(Theme::kApiBase);
+    while (base.endsWith(QLatin1Char('/')))
+        base.chop(1);
+    if (u.startsWith(QLatin1Char('/')))
+        return base + u;
+    return base + QLatin1Char('/') + u;
 }
 
 QString CoverCache::cacheDir() const
@@ -78,7 +101,11 @@ void CoverCache::set(const QString &musicId, const QPixmap &pixmap)
 
 void CoverCache::fetchCover(const QString &musicId, const QString &coverUrl)
 {
-    if (musicId.isEmpty() || coverUrl.isEmpty()) return;
+    if (musicId.isEmpty())
+        return;
+    const QString absolute = resolveCoverUrl(coverUrl);
+    if (absolute.isEmpty())
+        return;
 
     QPixmap cached = get(musicId);
     if (!cached.isNull()) {
@@ -90,7 +117,7 @@ void CoverCache::fetchCover(const QString &musicId, const QString &coverUrl)
         return;
 
     QNetworkRequest req;
-    req.setUrl(QUrl(coverUrl));
+    req.setUrl(QUrl(absolute));
     req.setTransferTimeout(10000);
     QNetworkReply *reply = m_nam.get(req);
     m_inFlight.insert(musicId, reply);

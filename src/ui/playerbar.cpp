@@ -728,41 +728,56 @@ void PlayerBar::setSongInfo(const QString &title, const QString &artist, const Q
     if (m_songName) m_songName->setText(title.isEmpty() ? I18n::instance().tr("unknown") : title);
     if (m_artist) m_artist->setText(artist.isEmpty() ? I18n::instance().tr("unknown") : artist);
 
-    if (m_cover && !coverUrl.isEmpty()) {
-        if (coverUrl.startsWith(QStringLiteral("http"))) {
-            const QString musicIdStr = CoverCache::musicIdFromCoverUrl(coverUrl);
-            if (musicIdStr.isEmpty())
-                return;
+    if (!m_cover)
+        return;
 
-            CoverCache *cc = CoverCache::instance();
-            if (QPixmap hit = cc->get(musicIdStr); !hit.isNull()) {
-                disconnect(m_coverConn);
-                m_coverConn = {};
-                setCoverPixmap(hit);
-                return;
-            }
-
-            disconnect(m_coverConn);
-            m_coverConn = connect(cc, &CoverCache::coverLoaded, this,
-                [this, musicIdStr](const QString &id, const QPixmap &pix) {
-                    if (id != musicIdStr)
-                        return;
-                    if (QString::number(m_currentMusicId) != musicIdStr)
-                        return;
-                    if (pix.isNull())
-                        return;
-                    setCoverPixmap(pix);
-                });
-
-            QPixmap ph = Icons::render(Icons::kMusic, 28, pbCtrlIdleColor());
-            if (!ph.isNull())
-                setCoverPixmap(ph);
-            cc->fetchCover(musicIdStr, coverUrl);
-        } else {
-            QPixmap pm(coverUrl);
-            if (!pm.isNull()) setCoverPixmap(pm);
-        }
+    QString fetchUrl = CoverCache::resolveCoverUrl(coverUrl);
+    if (fetchUrl.isEmpty() && m_currentMusicId > 0) {
+        fetchUrl = QString::fromUtf8("%1/api/music/cover/%2").arg(Theme::kApiBase).arg(m_currentMusicId);
     }
+
+    if (fetchUrl.isEmpty()) {
+        disconnect(m_coverConn);
+        m_coverConn = {};
+        if (QPixmap ph = Icons::render(Icons::kMusic, 28, pbCtrlIdleColor()); !ph.isNull())
+            setCoverPixmap(ph);
+        return;
+    }
+
+    const QString cacheKey = m_currentMusicId > 0 ? QString::number(m_currentMusicId)
+                                                  : CoverCache::musicIdFromCoverUrl(fetchUrl);
+    if (cacheKey.isEmpty()) {
+        disconnect(m_coverConn);
+        m_coverConn = {};
+        if (QPixmap ph = Icons::render(Icons::kMusic, 28, pbCtrlIdleColor()); !ph.isNull())
+            setCoverPixmap(ph);
+        return;
+    }
+
+    CoverCache *cc = CoverCache::instance();
+    if (QPixmap hit = cc->get(cacheKey); !hit.isNull()) {
+        disconnect(m_coverConn);
+        m_coverConn = {};
+        setCoverPixmap(hit);
+        return;
+    }
+
+    disconnect(m_coverConn);
+    const int boundId = m_currentMusicId;
+    m_coverConn = connect(cc, &CoverCache::coverLoaded, this,
+                          [this, cacheKey, boundId](const QString &id, const QPixmap &pix) {
+                              if (id != cacheKey)
+                                  return;
+                              if (boundId > 0 && m_currentMusicId != boundId)
+                                  return;
+                              if (pix.isNull())
+                                  return;
+                              setCoverPixmap(pix);
+                          });
+
+    if (QPixmap ph = Icons::render(Icons::kMusic, 28, pbCtrlIdleColor()); !ph.isNull())
+        setCoverPixmap(ph);
+    cc->fetchCover(cacheKey, fetchUrl);
 }
 
 void PlayerBar::setCoverVisible(bool visible)

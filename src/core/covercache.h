@@ -26,6 +26,9 @@ public:
     /** 从封面 URL 解析 musicId（路径最后一段，去掉查询串）。 */
     static QString musicIdFromCoverUrl(const QString &coverUrl);
 
+    /** 将相对路径、协议相对 URL 补全为可请求的绝对地址（基于 Theme::kApiBase）。 */
+    static QString resolveCoverUrl(const QString &rawUrl);
+
     /** 获取封面：先查缓存，未命中则从网络下载 */
     void fetchCover(const QString &musicId, const QString &coverUrl);
 
