@@ -199,12 +199,11 @@ void Sidebar::loadPlaylists()
 
 void Sidebar::refreshPlaylistList()
 {
-    // 清除现有项
-    for (auto *item : m_playlistItems) {
-        if (item) {
-            m_playlistLayout->removeWidget(item);
-            item->deleteLater();
-        }
+    // 清空布局内所有控件（含「暂无歌单」占位 QLabel，旧逻辑未加入 m_playlistItems 会残留叠层）
+    while (QLayoutItem *it = m_playlistLayout->takeAt(0)) {
+        if (QWidget *w = it->widget())
+            w->deleteLater();
+        delete it;
     }
     m_playlistItems.clear();
 
@@ -345,8 +344,10 @@ void Sidebar::loadFavPlaylists()
 
 void Sidebar::refreshFavPlaylistList()
 {
-    for (auto *item : m_favPlaylistItems) {
-        if (item) { m_favPlaylistLayout->removeWidget(item); item->deleteLater(); }
+    while (QLayoutItem *it = m_favPlaylistLayout->takeAt(0)) {
+        if (QWidget *w = it->widget())
+            w->deleteLater();
+        delete it;
     }
     m_favPlaylistItems.clear();
 
