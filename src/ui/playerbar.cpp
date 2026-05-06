@@ -22,6 +22,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QStyle>
+#include <QFont>
 #include <QDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -219,6 +220,30 @@ void PlayerBar::setupUi()
         emit favoriteClicked(m_currentMusicId);
     });
     rl->addWidget(m_heartBtn);
+
+    m_desktopLrcBtn = new QPushButton(QStringLiteral("词"), this);
+    m_desktopLrcBtn->setObjectName("pbDesktopLrcBtn");
+    m_desktopLrcBtn->setFixedSize(28, 28);
+    m_desktopLrcBtn->setFlat(true);
+    m_desktopLrcBtn->setCheckable(true);
+    m_desktopLrcBtn->setCursor(Qt::PointingHandCursor);
+    {
+        QFont f = m_desktopLrcBtn->font();
+        f.setPixelSize(13);
+        f.setWeight(QFont::DemiBold);
+        m_desktopLrcBtn->setFont(f);
+    }
+    m_desktopLrcBtn->setToolTip(I18n::instance().tr("desktopLyrics"));
+    {
+        QSettings lrcSettings;
+        m_desktopLrcBtn->setChecked(lrcSettings.value(QStringLiteral("desktopLyrics"), true).toBool());
+    }
+    connect(m_desktopLrcBtn, &QPushButton::toggled, this, [this](bool on) {
+        QSettings s;
+        s.setValue(QStringLiteral("desktopLyrics"), on);
+        emit desktopLyricsToggled(on);
+    });
+    rl->addWidget(m_desktopLrcBtn);
 
     auto *playlistBtn = new QPushButton(this);
     playlistBtn->setObjectName("pbPlaylistBtn");
@@ -517,6 +542,9 @@ void PlayerBar::retranslate()
             ctrlCount++;
         }
     }
+
+    if (m_desktopLrcBtn)
+        m_desktopLrcBtn->setToolTip(I18n::instance().tr("desktopLyrics"));
 }
 
 void PlayerBar::setSongInfo(const QString &title, const QString &artist, const QString &coverUrl)
