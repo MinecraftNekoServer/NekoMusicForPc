@@ -1,0 +1,26 @@
+# 用于确认「推送到 main 后 GitHub 是否收到 Actions 事件」；若本任务出现而 macOS 包没有，再查 macOS 专用工作流。
+name: CI smoke (ubuntu)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sanity
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          test -f CMakeLists.txt
