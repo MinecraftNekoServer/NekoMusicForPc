@@ -326,48 +326,85 @@ QMainWindow {
     color: rgba(245, 240, 255, 120);
 }
 
+/* 勿对带 QIcon 的按钮设 color，否则 Fusion 等样式会把图标整颗染成单色（常见为纯黑） */
 #pbPlayBtn {
-    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #C4A7E7, stop:1 #A88BD4);
+    background: qlineargradient(x1:0,y1:0,x2:0.35,y2:1,
+        stop:0 #D4BFF0, stop:1 #A88BD4);
     border: none;
-    border-radius: 20px;
-    color: #1A1625;
-    font-size: 16px;
+    border-radius: 24px;
 }
 
 #pbPlayBtn:hover {
-    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #D4BFF0, stop:1 #C4A7E7);
+    background: qlineargradient(x1:0,y1:0,x2:0.35,y2:1,
+        stop:0 #E8DCFF, stop:1 #C4A7E7);
 }
 
 #pbCtrlBtn {
     background: transparent;
     border: none;
-    border-radius: 16px;
-    color: rgba(245, 240, 255, 160);
+    border-radius: 10px;
 }
 
 #pbCtrlBtn:hover {
-    background: rgba(196, 167, 231, 25);
-    color: #F5F0FF;
+    background: rgba(255, 255, 255, 28);
+}
+
+#pbPlayModeBtn {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+}
+
+#pbPlayModeBtn:hover {
+    background: rgba(255, 255, 255, 28);
+}
+
+#pbHeartBtn {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+}
+
+#pbHeartBtn:hover {
+    background: rgba(255, 80, 100, 18);
+}
+
+#pbPlaylistBtn {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+}
+
+#pbPlaylistBtn:hover {
+    background: rgba(255, 255, 255, 28);
+}
+
+#pbVolumeBtn {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+}
+
+#pbVolumeBtn:hover {
+    background: rgba(255, 255, 255, 28);
 }
 
 #pbDesktopLrcBtn {
     background: transparent;
     border: none;
-    border-radius: 8px;
-    color: rgba(245, 240, 255, 150);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 215);
     padding: 0;
 }
 
 #pbDesktopLrcBtn:hover {
-    background: rgba(196, 167, 231, 25);
-    color: #F5F0FF;
+    background: rgba(255, 255, 255, 28);
+    color: #FFFFFF;
 }
 
 #pbDesktopLrcBtn:checked {
-    background: rgba(196, 167, 231, 45);
-    color: #C4A7E7;
+    background: rgba(196, 167, 231, 55);
+    color: #F0E8FF;
 }
 
 #pbTime {

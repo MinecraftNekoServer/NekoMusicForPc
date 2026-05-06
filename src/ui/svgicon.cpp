@@ -13,16 +13,27 @@
 
 namespace Icons {
 
+static QString svgPathFill(const QColor &color)
+{
+    if (color.alpha() >= 255)
+        return color.name(QColor::HexRgb);
+    return QStringLiteral("rgba(%1,%2,%3,%4)")
+        .arg(color.red())
+        .arg(color.green())
+        .arg(color.blue())
+        .arg(color.alphaF(), 0, 'f', 5);
+}
+
 QPixmap render(const char *pathD, int size, const QColor &color, int viewBox)
 {
-    // 构造最小 SVG
+    // 构造最小 SVG（半透明用 rgba，避免 #AARRGGBB 在个别渲染路径下异常）
     QString svg = QString(
         "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 %1 %1\" width=\"%2\" height=\"%2\">"
         "<path fill=\"%3\" d=\"%4\"/>"
         "</svg>")
         .arg(viewBox)
         .arg(size)
-        .arg(color.name(QColor::HexArgb))
+        .arg(svgPathFill(color))
         .arg(QString::fromUtf8(pathD));
 
     QSvgRenderer renderer(svg.toUtf8());
