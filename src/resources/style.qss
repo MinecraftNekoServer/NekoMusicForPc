@@ -1,163 +1,195 @@
 /*
- * NekoMusic 日系动漫风全局 QSS
+ * NekoMusic 二次元动漫风全局 QSS
  *
- * 薰衣草紫 #C4A7E7 / 樱花粉 #F2ACB9 / 薄荷绿 #7EC8C8
- * 深夜紫黑 #1A1625 / 暗紫灰 #241F31
+ * 梦幻薰衣草 #C4A7E7 / 樱花粉 #F2ACB9 / 薄荷绿 #7EC8C8
+ * 星空紫黑 #0A0815 / 夜樱紫 #1A1625 / 动漫紫灰 #241F31
  */
 
 /* ─── 全局 ──────────────────────────────────────────────── */
 QWidget {
-    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    color: #F5F0FF;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    color: #FFE6FF;
     font-size: 14px;
+    font-weight: 500;
 }
 
 QMainWindow {
     background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #1A1625, stop:1 #241F31);
+        stop:0 #0A0815, stop:0.5 #1A1625, stop:1 #241F31);
 }
 
 /* ─── 标题栏 ────────────────────────────────────────────── */
 #tbAppName {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
-    color: #C4A7E7;
-    letter-spacing: 0.5px;
+    color: #FFB6FF;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(196, 167, 231, 0.7);
 }
 
 #tbSearch {
-    background: rgba(245, 240, 255, 18);
-    border: 1.5px solid rgba(196, 167, 231, 30);
-    border-radius: 17px;
-    padding: 6px 18px;
-    color: #F5F0FF;
-    font-size: 13px;
+    background: rgba(255, 230, 255, 0.15);
+    border: 2px solid rgba(196, 167, 231, 0.4);
+    border-radius: 20px;
+    padding: 8px 20px;
+    color: #FFE6FF;
+    font-size: 14px;
     selection-background-color: #C4A7E7;
+    box-shadow: 0 0 10px rgba(196, 167, 231, 0.2);
 }
 
-#tbSearch::placeholder { color: rgba(245, 240, 255, 90); }
+#tbSearch::placeholder { color: rgba(255, 230, 255, 0.6); }
 
 #tbSearch:focus {
-    background: rgba(245, 240, 255, 28);
-    border-color: rgba(126, 200, 200, 130);
+    background: rgba(255, 230, 255, 0.25);
+    border-color: rgba(126, 200, 200, 0.8);
+    box-shadow: 0 0 15px rgba(126, 200, 200, 0.4);
 }
 
 #tbAvatarWidget {
-    background: rgba(245, 240, 255, 15);
-    border: 1.5px solid rgba(196, 167, 231, 30);
-    border-radius: 15px;
+    background: rgba(255, 230, 255, 0.12);
+    border: 2px solid rgba(196, 167, 231, 0.4);
+    border-radius: 18px;
+    box-shadow: 0 0 8px rgba(196, 167, 231, 0.2);
 }
 
 #tbAvatarWidget:hover {
-    background: rgba(196, 167, 231, 25);
-    border-color: rgba(196, 167, 231, 60);
+    background: rgba(196, 167, 231, 0.3);
+    border-color: rgba(196, 167, 231, 0.7);
+    box-shadow: 0 0 12px rgba(196, 167, 231, 0.4);
 }
 
 #tbUsername {
-    font-size: 13px;
-    color: #F5F0FF;
-    font-weight: 500;
-    padding: 0 4px;
+    font-size: 14px;
+    color: #FFE6FF;
+    font-weight: 600;
+    padding: 0 6px;
+    text-shadow: 0 0 4px rgba(196, 167, 231, 0.5);
 }
 
 #tbIconBtn {
-    background: rgba(245, 240, 255, 15);
+    background: rgba(255, 230, 255, 0.12);
     border: none;
-    border-radius: 10px;
-    color: rgba(245, 240, 255, 150);
-    font-size: 14px;
+    border-radius: 12px;
+    color: rgba(255, 230, 255, 0.8);
+    font-size: 16px;
+    box-shadow: 0 0 6px rgba(196, 167, 231, 0.2);
 }
 
 #tbIconBtn:hover {
-    background: rgba(196, 167, 231, 40);
-    color: #C4A7E7;
+    background: rgba(196, 167, 231, 0.4);
+    color: #FFB6FF;
+    box-shadow: 0 0 10px rgba(196, 167, 231, 0.5);
 }
 
-/* ─── 窗口控制按钮（低调，hover 时显色）────────────── */
+/* ─── 窗口控制按钮（二次元风格）────────────── */
 #tbMinBtn {
-    background: transparent;
-    border: none;
-    border-radius: 16px;
-    color: rgba(245, 240, 255, 160);
+    background: rgba(255, 230, 255, 0.1);
+    border: 1.5px solid rgba(196, 167, 231, 0.3);
+    border-radius: 18px;
+    color: rgba(255, 230, 255, 0.8);
+    box-shadow: 0 0 6px rgba(196, 167, 231, 0.2);
 }
 
 #tbMinBtn:hover {
-    background: rgba(196, 167, 231, 60);
-    color: #C4A7E7;
+    background: rgba(196, 167, 231, 0.6);
+    border-color: rgba(196, 167, 231, 0.8);
+    color: #FFE6FF;
+    box-shadow: 0 0 12px rgba(196, 167, 231, 0.5);
 }
 
 #tbMaxBtn {
-    background: transparent;
-    border: none;
-    border-radius: 16px;
-    color: rgba(245, 240, 255, 160);
+    background: rgba(255, 230, 255, 0.1);
+    border: 1.5px solid rgba(196, 167, 231, 0.3);
+    border-radius: 18px;
+    color: rgba(255, 230, 255, 0.8);
+    box-shadow: 0 0 6px rgba(196, 167, 231, 0.2);
 }
 
 #tbMaxBtn:hover {
-    background: rgba(126, 200, 200, 60);
-    color: #7EC8C8;
+    background: rgba(126, 200, 200, 0.6);
+    border-color: rgba(126, 200, 200, 0.8);
+    color: #FFE6FF;
+    box-shadow: 0 0 12px rgba(126, 200, 200, 0.5);
 }
 
 #tbCloseBtn {
-    background: transparent;
-    border: none;
-    border-radius: 16px;
-    color: rgba(245, 240, 255, 160);
+    background: rgba(255, 230, 255, 0.1);
+    border: 1.5px solid rgba(196, 167, 231, 0.3);
+    border-radius: 18px;
+    color: rgba(255, 230, 255, 0.8);
+    box-shadow: 0 0 6px rgba(196, 167, 231, 0.2);
 }
 
 #tbCloseBtn:hover {
-    background: rgba(232, 93, 117, 70);
-    color: #E85D75;
+    background: rgba(232, 93, 117, 0.7);
+    border-color: rgba(232, 93, 117, 0.9);
+    color: #FFE6FF;
+    box-shadow: 0 0 12px rgba(232, 93, 117, 0.6);
 }
 
 /* ─── 侧边栏 ────────────────────────────────────────────── */
 #sbScroll, #sbContainer { background: transparent; }
 
 #sbNavItem {
-    background: transparent;
+    background: rgba(255, 230, 255, 0.05);
     border: none;
-    border-radius: 10px;
-    color: rgba(245, 240, 255, 150);
-    font-size: 13px;
-    font-weight: 500;
+    border-radius: 12px;
+    color: rgba(255, 230, 255, 0.8);
+    font-size: 14px;
+    font-weight: 600;
     text-align: left;
-    padding: 10px 14px;
-    border-left: 3px solid transparent;
+    padding: 12px 16px;
+    margin: 4px 8px;
+    border-left: 4px solid transparent;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #sbNavItem:hover {
-    background: rgba(196, 167, 231, 18);
-    color: #F5F0FF;
-    padding-left: 17px;
+    background: rgba(196, 167, 231, 0.25);
+    color: #FFE6FF;
+    padding-left: 20px;
+    border-left-color: rgba(196, 167, 231, 0.6);
+    box-shadow: 0 4px 12px rgba(196, 167, 231, 0.3);
+    transform: translateX(4px);
 }
 
 #sbNavItem[active="true"] {
-    background: rgba(196, 167, 231, 35);
-    color: #F5F0FF;
+    background: rgba(196, 167, 231, 0.4);
+    color: #FFE6FF;
     border-left-color: #7EC8C8;
+    box-shadow: 0 4px 15px rgba(196, 167, 231, 0.5);
+    text-shadow: 0 0 6px rgba(196, 167, 231, 0.8);
 }
 
 #sbNavItem:disabled {
-    color: rgba(245, 240, 255, 60);
+    color: rgba(255, 230, 255, 0.4);
     border-left-color: transparent;
 }
 
 #sbDivider {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-        stop:0 transparent, stop:0.5 rgba(196, 167, 231, 30), stop:1 transparent);
+        stop:0 transparent, stop:0.3 rgba(196, 167, 231, 0.2), 
+        stop:0.7 rgba(196, 167, 231, 0.4), stop:1 transparent);
+    height: 2px;
+    margin: 12px 16px;
 }
 
 #sbPlaylistTitle {
-    font-size: 12px;
-    color: rgba(245, 240, 255, 100);
-    padding: 8px 14px 4px;
-    letter-spacing: 1px;
+    font-size: 13px;
+    color: rgba(255, 230, 255, 0.7);
+    padding: 12px 16px 6px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 0 0 4px rgba(196, 167, 231, 0.4);
 }
 
 #sbEmpty {
-    font-size: 12px;
-    color: rgba(245, 240, 255, 70);
-    padding: 16px;
+    font-size: 13px;
+    color: rgba(255, 230, 255, 0.5);
+    padding: 20px;
+    font-style: italic;
 }
 
 /* ─── 轮播 ──────────────────────────────────────────────── */
@@ -181,17 +213,23 @@ QMainWindow {
 
 #carouselPlayBtn {
     background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #C4A7E7, stop:1 #A88BD4);
+        stop:0 #C4A7E7, stop:0.5 #D4BFF0, stop:1 #A88BD4);
     border: none;
-    border-radius: 20px;
-    color: #1A1625;
+    border-radius: 24px;
+    color: #0A0815;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 14px;
+    padding: 10px 24px;
+    box-shadow: 0 4px 15px rgba(196, 167, 231, 0.4),
+                0 0 20px rgba(196, 167, 231, 0.3);
 }
 
 #carouselPlayBtn:hover {
     background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
-        stop:0 #D4BFF0, stop:1 #C4A7E7);
+        stop:0 #D4BFF0, stop:0.5 #E9D9FF, stop:1 #C4A7E7);
+    box-shadow: 0 6px 20px rgba(196, 167, 231, 0.6),
+                0 0 25px rgba(196, 167, 231, 0.5);
+    transform: translateY(-2px);
 }
 
 #carouselPrev, #carouselNext {
@@ -329,14 +367,19 @@ QMainWindow {
 /* 勿对带 QIcon 的按钮设 color，否则 Fusion 等样式会把图标整颗染成单色（常见为纯黑） */
 #pbPlayBtn {
     background: qlineargradient(x1:0,y1:0,x2:0.35,y2:1,
-        stop:0 #D4BFF0, stop:1 #A88BD4);
+        stop:0 #D4BFF0, stop:0.5 #E9D9FF, stop:1 #A88BD4);
     border: none;
     border-radius: 24px;
+    box-shadow: 0 4px 15px rgba(196, 167, 231, 0.5),
+                0 0 20px rgba(196, 167, 231, 0.4);
 }
 
 #pbPlayBtn:hover {
     background: qlineargradient(x1:0,y1:0,x2:0.35,y2:1,
-        stop:0 #E8DCFF, stop:1 #C4A7E7);
+        stop:0 #E8DCFF, stop:0.5 #F2ECFF, stop:1 #C4A7E7);
+    box-shadow: 0 6px 20px rgba(196, 167, 231, 0.7),
+                0 0 25px rgba(196, 167, 231, 0.6);
+    transform: scale(1.05);
 }
 
 #pbCtrlBtn {
