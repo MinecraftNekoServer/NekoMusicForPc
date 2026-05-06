@@ -1,0 +1,475 @@
+/*
+ * NekoMusic 日系动漫风全局 QSS - 亮色版
+ *
+ * 薰衣草紫 #C4A7E7 / 樱花粉 #F2ACB9 / 薄荷绿 #7EC8C8
+ * 浅灰白 #F8F9FA / 浅灰 #E9ECEF / 中灰 #DEE2E6
+ */
+
+/* ─── 全局 ──────────────────────────────────────────────── */
+QWidget {
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #212529;
+    font-size: 14px;
+}
+
+QMainWindow {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #F8F9FA, stop:1 #E9ECEF);
+}
+
+/* ─── 标题栏 ────────────────────────────────────────────── */
+#tbAppName {
+    font-size: 14px;
+    font-weight: bold;
+    color: #6F42C1;
+    letter-spacing: 0.5px;
+}
+
+#tbSearch {
+    background: rgba(33, 37, 41, 0.08);
+    border: 1.5px solid rgba(111, 66, 193, 0.3);
+    border-radius: 17px;
+    padding: 6px 18px;
+    color: #212529;
+    font-size: 13px;
+    selection-background-color: #C4A7E7;
+}
+
+#tbSearch::placeholder { color: rgba(33, 37, 41, 0.5); }
+
+#tbSearch:focus {
+    background: rgba(33, 37, 41, 0.12);
+    border-color: rgba(126, 200, 200, 0.6);
+}
+
+#tbAvatarWidget {
+    background: rgba(33, 37, 41, 0.08);
+    border: 1.5px solid rgba(111, 66, 193, 0.3);
+    border-radius: 15px;
+}
+
+#tbAvatarWidget:hover {
+    background: rgba(196, 167, 231, 0.2);
+    border-color: rgba(196, 167, 231, 0.4);
+}
+
+#tbUsername {
+    font-size: 13px;
+    color: #212529;
+    font-weight: 500;
+    padding: 0 4px;
+}
+
+#tbIconBtn {
+    background: rgba(33, 37, 41, 0.08);
+    border: none;
+    border-radius: 10px;
+    color: rgba(33, 37, 41, 0.6);
+    font-size: 14px;
+}
+
+#tbIconBtn:hover {
+    background: rgba(196, 167, 231, 0.3);
+    color: #6F42C1;
+}
+
+/* ─── 窗口控制按钮（低调，hover 时显色）────────────── */
+#tbMinBtn {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: rgba(33, 37, 41, 0.5);
+}
+
+#tbMinBtn:hover {
+    background: rgba(196, 167, 231, 0.4);
+    color: #6F42C1;
+}
+
+#tbMaxBtn {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: rgba(33, 37, 41, 0.5);
+}
+
+#tbMaxBtn:hover {
+    background: rgba(126, 200, 200, 0.4);
+    color: #0CA678;
+}
+
+#tbCloseBtn {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: rgba(33, 37, 41, 0.5);
+}
+
+#tbCloseBtn:hover {
+    background: rgba(232, 93, 117, 0.5);
+    color: #E85D75;
+}
+
+/* ─── 侧边栏 ────────────────────────────────────────────── */
+#sbScroll, #sbContainer { background: transparent; }
+
+#sbNavItem {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: rgba(33, 37, 41, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 14px;
+    border-left: 3px solid transparent;
+}
+
+#sbNavItem:hover {
+    background: rgba(196, 167, 231, 0.15);
+    color: #212529;
+    padding-left: 17px;
+}
+
+#sbNavItem[active="true"] {
+    background: rgba(196, 167, 231, 0.25);
+    color: #212529;
+    border-left-color: #0CA678;
+}
+
+#sbNavItem:disabled {
+    color: rgba(33, 37, 41, 0.4);
+    border-left-color: transparent;
+}
+
+#sbDivider {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 transparent, stop:0.5 rgba(196, 167, 231, 0.3), stop:1 transparent);
+}
+
+#sbPlaylistTitle {
+    font-size: 12px;
+    color: rgba(33, 37, 41, 0.6);
+    padding: 8px 14px 4px;
+    letter-spacing: 1px;
+}
+
+#sbEmpty {
+    font-size: 12px;
+    color: rgba(33, 37, 41, 0.5);
+    padding: 16px;
+}
+
+/* ─── 轮播 ──────────────────────────────────────────────── */
+#carouselBg { background: transparent; border-radius: 0; }
+
+#carouselOverlay {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        stop:0 transparent, stop:0.3 rgba(248, 249, 250, 0.6), stop:1 rgba(248, 249, 250, 0.9));
+}
+
+#carouselTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #212529;
+}
+
+#carouselDesc {
+    font-size: 13px;
+    color: rgba(33, 37, 41, 0.7);
+}
+
+#carouselPlayBtn {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+#carouselPlayBtn:hover {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #D4BFF0, stop:1 #C4A7E7);
+}
+
+#carouselPrev, #carouselNext {
+    background: rgba(33, 37, 41, 0.1);
+    border: none;
+    border-radius: 16px;
+    color: rgba(33, 37, 41, 0.7);
+    font-size: 16px;
+}
+
+#carouselPrev:hover, #carouselNext:hover {
+    background: rgba(196, 167, 231, 0.4);
+    color: #212529;
+}
+
+#carouselDot {
+    color: rgba(33, 37, 41, 0.4);
+    font-size: 10px;
+}
+
+#carouselDot[active="true"] {
+    color: #0CA678;
+}
+
+/* ─── 首页 ──────────────────────────────────────────────── */
+#hpScroll, #hpContainer { background: transparent; }
+
+#hpSectionTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #212529;
+}
+
+#hpLoading {
+    color: rgba(33, 37, 41, 0.6);
+    font-size: 14px;
+    padding: 40px;
+}
+
+#hpHotTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(33, 37, 41, 0.8);
+}
+
+#hpHotCount {
+    font-size: 12px;
+    color: rgba(33, 37, 41, 0.6);
+}
+
+#hpLatestTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(33, 37, 41, 0.8);
+}
+
+#hpLatestCount {
+    font-size: 12px;
+    color: rgba(33, 37, 41, 0.6);
+}
+
+/* ─── 设置页 ──────────────────────────────────────────────── */
+#settingsTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #212529;
+}
+
+#settingsLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(33, 37, 41, 0.8);
+}
+
+#settingsInfo {
+    font-size: 14px;
+    color: rgba(33, 37, 41, 0.7);
+}
+
+#settingsDivider {
+    background: rgba(196, 167, 231, 0.3);
+    max-height: 1px;
+}
+
+#settingsCombo {
+    background: rgba(33, 37, 41, 0.08);
+    border: 1.5px solid rgba(196, 167, 231, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #212529;
+    font-size: 13px;
+    min-width: 140px;
+}
+
+#settingsCombo::drop-down {
+    border: none;
+    width: 24px;
+}
+
+#settingsCombo QAbstractItemView {
+    background: #E9ECEF;
+    color: #212529;
+    selection-background-color: rgba(196, 167, 231, 0.4);
+    border: 1px solid rgba(196, 167, 231, 0.3);
+    border-radius: 6px;
+}
+
+/* ─── 歌单卡片 ──────────────────────────────────────────── */
+#plCover {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border-radius: 12px;
+}
+
+#plName {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(33, 37, 41, 0.8);
+}
+
+/* ─── 播放栏 ────────────────────────────────────────────── */
+#pbCover { border-radius: 8px; }
+
+#pbSong {
+    font-size: 13px;
+    font-weight: 600;
+    color: #212529;
+}
+
+#pbArtist {
+    font-size: 11px;
+    color: rgba(33, 37, 41, 0.6);
+}
+
+#pbPlayBtn {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: 16px;
+}
+
+#pbPlayBtn:hover {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #D4BFF0, stop:1 #C4A7E7);
+}
+
+#pbCtrlBtn {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: rgba(33, 37, 41, 0.6);
+}
+
+#pbCtrlBtn:hover {
+    background: rgba(196, 167, 231, 0.2);
+    color: #212529;
+}
+
+#pbTime {
+    font-size: 11px;
+    color: rgba(33, 37, 41, 0.5);
+}
+
+/* ─── 滑块 ──────────────────────────────────────────────── */
+QSlider::groove:horizontal {
+    background: rgba(33, 37, 41, 0.15);
+    height: 3px;
+    border-radius: 1.5px;
+}
+
+QSlider::handle:horizontal {
+    background: #C4A7E7;
+    width: 10px;
+    height: 10px;
+    margin: -3.5px 0;
+    border-radius: 5px;
+}
+
+QSlider::handle:horizontal:hover { background: #D4BFF0; }
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border-radius: 1.5px;
+}
+
+#pbVolume::groove:horizontal { height: 2px; }
+#pbVolume::handle:horizontal { width: 8px; height: 8px; margin: -3px 0; border-radius: 4px; }
+
+/* ─── 滚动条 ────────────────────────────────────────────── */
+QScrollBar:vertical {
+    background: transparent;
+    width: 5px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(196, 167, 231, 0.4);
+    border-radius: 2.5px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover { background: rgba(196, 167, 231, 0.6); }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 5px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(196, 167, 231, 0.4);
+    border-radius: 2.5px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover { background: rgba(196, 167, 231, 0.6); }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+
+/* ─── 登录对话框 ────────────────────────────────────────── */
+#dialogEdit {
+    background: rgba(33, 37, 41, 0.08);
+    border: 1.5px solid rgba(196, 167, 231, 0.3);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #212529;
+    font-size: 13px;
+    selection-background-color: #C4A7E7;
+}
+
+#dialogEdit::placeholder { color: rgba(33, 37, 41, 0.5); }
+
+#dialogEdit:focus {
+    background: rgba(33, 37, 41, 0.12);
+    border-color: rgba(126, 200, 200, 0.6);
+}
+
+#dialogBtn {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #C4A7E7, stop:1 #A88BD4);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#dialogBtn:hover {
+    background: qlineargradient(x1:0,y1:0,x2:0.3,y2:1,
+        stop:0 #D4BFF0, stop:1 #C4A7E7);
+}
+
+#dialogBtn:disabled {
+    background: rgba(196, 167, 231, 0.5);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#dialogLinkBtn {
+    background: transparent;
+    border: none;
+    color: #F2ACB9;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+#dialogLinkBtn:hover { color: #E08FA0; }
+
+#dialogCloseBtn {
+    background: rgba(33, 37, 41, 0.1);
+    border: none;
+    border-radius: 16px;
+    color: rgba(33, 37, 41, 0.6);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#dialogCloseBtn:hover {
+    background: rgba(232, 93, 117, 0.5);
+    color: #E85D75;
+}

@@ -7,6 +7,8 @@
  */
 
 #include "playerbar.h"
+#include "theme/theme.h"
+#include "theme/thememanager.h"
 #include "core/playerengine.h"
 #include "core/playlistmanager.h"
 #include "theme/theme.h"
@@ -31,8 +33,15 @@
 #include <QRect>
 
 namespace {
-const QColor kCtrlNormal = QColor(245, 240, 255, 180);
-const QColor kCtrlActive = QColor(196, 167, 231, 255);
+QColor ctrlNormal() {
+    return Theme::ThemeManager::instance().isDarkMode() 
+        ? QColor(245, 240, 255, 180) 
+        : QColor(33, 37, 41, 180);
+}
+
+QColor ctrlActive() {
+    return QColor(196, 167, 231, 255); // 薰衣草紫，保持不变
+}
 
 QString formatTime(qint64 ms) {
     qint64 sec = ms / 1000;
@@ -124,7 +133,7 @@ void PlayerBar::setupUi()
     auto *prevBtn = new QPushButton(this);
     prevBtn->setObjectName("pbCtrlBtn");
     prevBtn->setFixedSize(32, 32);
-    prevBtn->setIcon(Icons::icon(Icons::kPrev, 20, kCtrlNormal, kCtrlActive));
+    prevBtn->setIcon(Icons::icon(Icons::kPrev, 20, ctrlNormal(), ctrlActive()));
     prevBtn->setCursor(Qt::PointingHandCursor);
     prevBtn->setToolTip(I18n::instance().tr("previous"));
     connect(prevBtn, &QPushButton::clicked, this, [this]() {
@@ -135,7 +144,7 @@ void PlayerBar::setupUi()
     m_playBtn = new QPushButton(this);
     m_playBtn->setObjectName("pbPlayBtn");
     m_playBtn->setFixedSize(40, 40);
-    m_playBtn->setIcon(Icons::icon(Icons::kPlay, 24, kCtrlNormal, kCtrlActive));
+    m_playBtn->setIcon(Icons::icon(Icons::kPlay, 24, ctrlNormal(), ctrlActive()));
     m_playBtn->setCursor(Qt::PointingHandCursor);
     m_playBtn->setToolTip(I18n::instance().tr("play"));
     ctrlL->addWidget(m_playBtn);
@@ -143,7 +152,7 @@ void PlayerBar::setupUi()
     auto *nextBtn = new QPushButton(this);
     nextBtn->setObjectName("pbCtrlBtn");
     nextBtn->setFixedSize(32, 32);
-    nextBtn->setIcon(Icons::icon(Icons::kNext, 20, kCtrlNormal, kCtrlActive));
+    nextBtn->setIcon(Icons::icon(Icons::kNext, 20, ctrlNormal(), ctrlActive()));
     nextBtn->setCursor(Qt::PointingHandCursor);
     nextBtn->setToolTip(I18n::instance().tr("next"));
     connect(nextBtn, &QPushButton::clicked, this, [this]() {
@@ -214,7 +223,7 @@ void PlayerBar::setupUi()
     auto *playlistBtn = new QPushButton(this);
     playlistBtn->setObjectName("pbPlaylistBtn");
     playlistBtn->setFixedSize(28, 28);
-    playlistBtn->setIcon(Icons::icon(Icons::kPlaylist, 18, kCtrlNormal, kCtrlActive));
+    playlistBtn->setIcon(Icons::icon(Icons::kPlaylist, 18, ctrlNormal(), ctrlActive()));
     playlistBtn->setCursor(Qt::PointingHandCursor);
     playlistBtn->setToolTip(I18n::instance().tr("playlist"));
     connect(playlistBtn, &QPushButton::clicked, this, [this]() {
@@ -232,7 +241,7 @@ void PlayerBar::setupUi()
     m_volumeBtn = new QPushButton(this);
     m_volumeBtn->setObjectName("pbVolumeBtn");
     m_volumeBtn->setFixedSize(28, 28);
-    m_volumeBtn->setIcon(Icons::icon(Icons::kVolumeHigh, 18, kCtrlNormal, kCtrlActive));
+    m_volumeBtn->setIcon(Icons::icon(Icons::kVolumeHigh, 18, ctrlNormal(), ctrlActive()));
     m_volumeBtn->setCursor(Qt::PointingHandCursor);
     volLay->addWidget(m_volumeBtn);
     rl->addWidget(volWrapper);
@@ -349,7 +358,7 @@ void PlayerBar::updateVolumeIcon(int value)
     if (value == 0) path = Icons::kVolumeMute;
     else if (value < 50) path = Icons::kVolumeLow;
     
-    m_volumeBtn->setIcon(Icons::icon(path, 18, kCtrlNormal, kCtrlActive));
+    m_volumeBtn->setIcon(Icons::icon(path, 18, ctrlNormal(), ctrlActive()));
 }
 
 void PlayerBar::retranslate()
@@ -477,7 +486,7 @@ void PlayerBar::updateState()
 {
     if (!m_engine) return;
     bool playing = m_engine->playbackState() == PlayerEngine::Playing;
-    m_playBtn->setIcon(Icons::render(playing ? Icons::kPause : Icons::kPlay, 24, kCtrlNormal));
+    m_playBtn->setIcon(Icons::render(playing ? Icons::kPause : Icons::kPlay, 24, ctrlNormal()));
     m_playBtn->setToolTip(playing ? I18n::instance().tr("pause") : I18n::instance().tr("play"));
 }
 

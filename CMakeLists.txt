@@ -127,6 +127,7 @@ set(SOURCES
         src/ui/playlistpanel.cpp
         src/ui/updatedialog.cpp
         src/ui/searchpage.cpp
+        src/theme/thememanager.cpp
 )
 
 set(HEADERS
@@ -154,6 +155,7 @@ set(HEADERS
         src/core/covercache.h
         src/core/usermanager.h
         src/theme/theme.h
+        src/theme/thememanager.h
         src/core/musicinfo.h
         src/core/playlistdb.h
         src/core/playlistmanager.h

@@ -7,6 +7,7 @@
 
 #include "titlebar.h"
 #include "theme/theme.h"
+#include "theme/thememanager.h"
 #include "ui/svgicon.h"
 #include "core/i18n.h"
 #include "core/usermanager.h"
@@ -30,10 +31,27 @@
 #include <QUrl>
 
 namespace {
-const QColor kIconNormal = QColor(245, 240, 255, 166);
-const QColor kIconActive = QColor(245, 240, 255, 230);
-const QColor kCloseNormal = QColor(245, 240, 255, 180);
-const QColor kCloseActive = QColor(242, 100, 100, 230);
+QColor iconNormal() {
+    return Theme::ThemeManager::instance().isDarkMode() 
+        ? QColor(245, 240, 255, 166) 
+        : QColor(33, 37, 41, 166);
+}
+
+QColor iconActive() {
+    return Theme::ThemeManager::instance().isDarkMode() 
+        ? QColor(245, 240, 255, 230) 
+        : QColor(33, 37, 41, 230);
+}
+
+QColor closeNormal() {
+    return Theme::ThemeManager::instance().isDarkMode() 
+        ? QColor(245, 240, 255, 180) 
+        : QColor(33, 37, 41, 180);
+}
+
+QColor closeActive() {
+    return QColor(242, 100, 100, 230); // 红色，保持不变
+}
 }
 
 TitleBar::TitleBar(QWidget *parent) : QWidget(parent)
@@ -186,7 +204,7 @@ void TitleBar::setupUi()
     auto *settingsBtn = new QPushButton(this);
     settingsBtn->setObjectName("tbIconBtn");
     settingsBtn->setFixedSize(34, 34);
-    settingsBtn->setIcon(Icons::icon(Icons::kSettings, 18, kIconNormal, kIconActive));
+    settingsBtn->setIcon(Icons::icon(Icons::kSettings, 18, iconNormal(), iconActive()));
     settingsBtn->setCursor(Qt::PointingHandCursor);
     settingsBtn->setToolTip(I18n::instance().tr("settings"));
     connect(settingsBtn, &QPushButton::clicked, this, &TitleBar::settingsClicked);
@@ -200,7 +218,7 @@ void TitleBar::setupUi()
     auto *minBtn = new QPushButton(this);
     minBtn->setObjectName("tbMinBtn");
     minBtn->setFixedSize(32, 32);
-    minBtn->setIcon(Icons::icon(Icons::kMinimize, 20, kIconNormal, kMinHover));
+    minBtn->setIcon(Icons::icon(Icons::kMinimize, 20, iconNormal(), kMinHover));
     minBtn->setCursor(Qt::PointingHandCursor);
     minBtn->setToolTip(QStringLiteral("最小化"));
     connect(minBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->showMinimized(); });
@@ -209,7 +227,7 @@ void TitleBar::setupUi()
     auto *maxBtn = new QPushButton(this);
     maxBtn->setObjectName("tbMaxBtn");
     maxBtn->setFixedSize(32, 32);
-    maxBtn->setIcon(Icons::icon(Icons::kMaximize, 20, kIconNormal, kMaxHover));
+    maxBtn->setIcon(Icons::icon(Icons::kMaximize, 20, iconNormal(), kMaxHover));
     maxBtn->setCursor(Qt::PointingHandCursor);
     maxBtn->setToolTip(QStringLiteral("最大化"));
     connect(maxBtn, &QPushButton::clicked, this, [this]() {
@@ -220,7 +238,7 @@ void TitleBar::setupUi()
     auto *closeBtn = new QPushButton(this);
     closeBtn->setObjectName("tbCloseBtn");
     closeBtn->setFixedSize(32, 32);
-    closeBtn->setIcon(Icons::icon(Icons::kClose, 20, kIconNormal, kCloseHover));
+    closeBtn->setIcon(Icons::icon(Icons::kClose, 20, closeNormal(), kCloseHover));
     closeBtn->setCursor(Qt::PointingHandCursor);
     closeBtn->setToolTip(QStringLiteral("关闭"));
     connect(closeBtn, &QPushButton::clicked, this, [this]() { if (window()) window()->close(); });

@@ -115,6 +115,40 @@ void SettingsPage::setupUi()
     line2->setObjectName("settingsDivider");
     cardLay->addWidget(line2);
 
+    // 主题设置
+    auto *themeRow = new QHBoxLayout();
+    QLabel *themeLabel = new QLabel(I18n::instance().tr("theme"), card);
+    themeLabel->setObjectName("settingsLabel");
+    themeRow->addWidget(themeLabel);
+    themeRow->addStretch();
+
+    m_themeCombo = new QComboBox(card);
+    m_themeCombo->setObjectName("settingsCombo");
+    m_themeCombo->blockSignals(true);
+    m_themeCombo->addItem(I18n::instance().tr("themeSystem"), static_cast<int>(Theme::System));
+    m_themeCombo->addItem(I18n::instance().tr("themeDark"), static_cast<int>(Theme::Dark));
+    m_themeCombo->addItem(I18n::instance().tr("themeLight"), static_cast<int>(Theme::Light));
+
+    // 恢复保存的主题设置
+    Theme::ThemeMode savedTheme = static_cast<Theme::ThemeMode>(
+        settings.value("themeMode", static_cast<int>(Theme::System)).toInt());
+    int themeIdx = (savedTheme == Theme::System) ? 0 : (savedTheme == Theme::Dark) ? 1 : 2;
+    m_themeCombo->setCurrentIndex(themeIdx);
+
+    m_themeCombo->blockSignals(false);
+    connect(m_themeCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+        auto theme = static_cast<Theme::ThemeMode>(m_themeCombo->itemData(index).toInt());
+        Theme::ThemeManager::instance().setMode(theme);
+    });
+    themeRow->addWidget(m_themeCombo);
+    cardLay->addLayout(themeRow);
+
+    // 分隔线
+    auto *line3 = new QFrame(card);
+    line3->setFrameShape(QFrame::HLine);
+    line3->setObjectName("settingsDivider");
+    cardLay->addWidget(line3);
+
     // 版本 & 系统
     m_versionLabel = new QLabel(QString("%1: %2").arg(I18n::instance().version(), QString::fromUtf8(APP_VERSION)), card);
     m_versionLabel->setObjectName("settingsInfo");

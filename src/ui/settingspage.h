@@ -6,6 +6,7 @@
  */
 
 #include <QWidget>
+#include "theme/thememanager.h"
 
 class QComboBox;
 class QLabel;
@@ -32,6 +33,7 @@ private:
     void retranslate();
 
     QComboBox *m_langCombo = nullptr;
+    QComboBox *m_themeCombo = nullptr;
     QLabel *m_langLabel = nullptr;
     QLabel *m_versionLabel = nullptr;
     QLabel *m_systemLabel = nullptr;

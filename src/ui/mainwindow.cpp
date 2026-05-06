@@ -78,6 +78,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setupUi();
     loadStyleSheet();
     createTrayIcon();
+    
+    // 连接主题变化信号
+    connect(&Theme::ThemeManager::instance(), &Theme::ThemeManager::themeChanged,
+            this, &MainWindow::applyTheme);
 
     setWindowTitle(QStringLiteral("NekoMusic"));
     resize(1200, 800);
@@ -540,9 +544,15 @@ void MainWindow::setupUi()
 }
 void MainWindow::loadStyleSheet()
 {
-    QFile f(":/style.qss");
-    if (f.open(QIODevice::ReadOnly | QIODevice::Text))
-        setStyleSheet(QString::fromUtf8(f.readAll()));
+    applyTheme();
+}
+
+void MainWindow::applyTheme()
+{
+    QString style = Theme::ThemeManager::instance().currentStyleSheet();
+    if (!style.isEmpty()) {
+        setStyleSheet(style);
+    }
 }
 
 void MainWindow::paintEvent(QPaintEvent *)
@@ -550,8 +560,15 @@ void MainWindow::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     QLinearGradient bg(rect().topLeft(), QPoint(rect().width() * 0.3, rect().height()));
-    bg.setColorAt(0.0, QColor(26, 22, 37));   // #1A1625
-    bg.setColorAt(1.0, QColor(36, 31, 49));   // #241F31
+    
+    if (Theme::ThemeManager::instance().isDarkMode()) {
+        bg.setColorAt(0.0, QColor(26, 22, 37));   // #1A1625
+        bg.setColorAt(1.0, QColor(36, 31, 49));   // #241F31
+    } else {
+        bg.setColorAt(0.0, QColor(248, 249, 250)); // #F8F9FA
+        bg.setColorAt(1.0, QColor(233, 236, 239)); // #E9ECEF
+    }
+    
     p.fillRect(rect(), bg);
 }
 
